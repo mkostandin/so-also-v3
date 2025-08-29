@@ -38,3 +38,57 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Event popup animations */
+.event-popup .mapboxgl-popup-content {
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: popupFadeIn 0.2s ease-out;
+  border: none;
+  padding: 0;
+}
+
+.event-popup .mapboxgl-popup-tip {
+  border-top-color: white;
+}
+
+.dark .event-popup .mapboxgl-popup-content {
+  background-color: rgb(31 41 55);
+  border: 1px solid rgb(55 65 81);
+}
+
+.dark .event-popup .mapboxgl-popup-tip {
+  border-top-color: rgb(31 41 55);
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes markerPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Smooth transitions for map interactions */
+.mapboxgl-marker {
+  transition: transform 0.2s ease;
+}
+
+.mapboxgl-marker:hover {
+  transform: scale(1.1);
+}

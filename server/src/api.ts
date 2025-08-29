@@ -119,7 +119,14 @@ const toCamel = (obj: any) => {
   const out: any = {};
   for (const [k, v] of Object.entries(obj)) {
     const ck = k.replace(/_([a-z])/g, (_, ch) => ch.toUpperCase());
-    out[ck] = toCamel(v);
+
+    // Validate JSONB fields for type safety
+    if (k === 'image_urls' && v !== null && !Array.isArray(v)) {
+      console.warn(`Invalid image_urls format for ${obj.id || 'unknown'}:`, v);
+      out[ck] = []; // Provide safe default
+    } else {
+      out[ck] = toCamel(v);
+    }
   }
   return out;
 };

@@ -41,11 +41,13 @@ function AppContent() {
 
 function BottomTabsWrapper() {
   return (
-    <div className="h-screen pb-16 flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-hidden">
+    <div className="h-screen flex flex-col">
+      <div className="flex-1 overflow-y-auto pb-16">
         <Outlet />
       </div>
-      <BottomTabs />
+      <div className="flex-shrink-0">
+        <BottomTabs />
+      </div>
     </div>
   );
 }
