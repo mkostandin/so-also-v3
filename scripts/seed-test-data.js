@@ -20,29 +20,20 @@ if (!fs.existsSync(scriptPath)) {
   process.exit(1);
 }
 
-// Check if TypeScript compiler is available in server directory
+// Check if tsx is available in server directory
 try {
-  execSync('npx tsc --version', { stdio: 'pipe', cwd: serverDir });
+  execSync('npx tsx --version', { stdio: 'pipe', cwd: serverDir });
 } catch (error) {
-  console.error('❌ TypeScript compiler not found in server directory.');
-  console.error('Please ensure TypeScript is installed in the server package.');
+  console.error('❌ tsx not found in server directory.');
+  console.error('Please ensure tsx is installed in the server package.');
   process.exit(1);
 }
 
-console.log('🔧 Compiling TypeScript seed script...');
+console.log('🌱 Running test data seeder with tsx...');
 
 try {
-  // Compile the TypeScript file
-  execSync(`npx tsc ${scriptPath} --outDir ${serverDir}/dist --module commonjs --target es2020 --esModuleInterop`, {
-    stdio: 'inherit',
-    cwd: serverDir
-  });
-
-  console.log('✅ Compilation successful!\n');
-
-  // Run the compiled JavaScript
-  console.log('🌱 Running test data seeder...');
-  execSync(`node dist/src/scripts/seed-test-data.js`, {
+  // Run the TypeScript file directly with tsx
+  execSync(`npx tsx ${scriptPath}`, {
     stdio: 'inherit',
     cwd: serverDir
   });
