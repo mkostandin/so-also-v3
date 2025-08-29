@@ -1,0 +1,21 @@
+{
+	"name": "So Also",
+	"short_name": "SoAlso",
+	"start_url": "/app/",
+	"scope": "/app/",
+	"display": "standalone",
+	"background_color": "#0b0b0c",
+	"theme_color": "#111827",
+	"icons": [
+		{
+			"src": "/web-app-manifest-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/web-app-manifest-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}

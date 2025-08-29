@@ -1,0 +1,23 @@
+import { pgSchema, text, timestamp, uuid, pgEnum, index } from 'drizzle-orm/pg-core';
+import { conferences } from './conferences';
+
+export const appSchema = pgSchema('app');
+export const sessionTypeEnum = pgEnum('session_type', ['workshop','panel','main','marathon']);
+export const statusEnum = pgEnum('status', ['pending','approved','rejected']);
+
+export const conferenceSessions = appSchema.table('conference_sessions', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	conference_id: uuid('conference_id').notNull().references(() => conferences.id, { onDelete: 'cascade' }),
+	title: text('title').notNull(),
+	type: sessionTypeEnum('type').notNull(),
+	room: text('room'),
+	desc: text('desc'),
+	starts_at_utc: timestamp('starts_at_utc', { withTimezone: true }),
+	ends_at_utc: timestamp('ends_at_utc', { withTimezone: true }),
+	status: statusEnum('status').notNull().default('pending'),
+}, (t) => ({
+	confStartIdx: index('conf_sessions_conf_start_idx').on(t.conference_id, t.starts_at_utc.asc())
+}));
+
+export type ConferenceSession = typeof conferenceSessions.$inferSelect;
+export type NewConferenceSession = typeof conferenceSessions.$inferInsert;

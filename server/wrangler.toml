@@ -1,0 +1,10 @@
+name = "so-also-api"
+main = "src/api.ts"
+compatibility_date = "2024-05-01"
+
+[vars]
+RUNTIME = "cloudflare"
+# DATABASE_URL, FIREBASE_PROJECT_ID, SLACK_WEBHOOK_URL are provided via environment
+
+[triggers]
+crons = ["0 6 * * *"]

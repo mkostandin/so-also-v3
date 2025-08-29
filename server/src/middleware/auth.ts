@@ -2,7 +2,7 @@ import { MiddlewareHandler } from 'hono';
 import { verifyFirebaseToken } from '../lib/firebase-auth';
 import { getDatabase } from '../lib/db';
 import { eq } from 'drizzle-orm';
-import { User, users } from '../schema/users';
+import { User, users } from '../schema';
 import { getFirebaseProjectId, getDatabaseUrl } from '../lib/env';
 
 declare module 'hono' {
@@ -52,3 +52,24 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 }; 
+
+export async function getUserOrNull(c: any): Promise<User | null> {
+  try {
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+    const token = authHeader.split('Bearer ')[1];
+    const firebaseUser = await verifyFirebaseToken(token, getFirebaseProjectId());
+    const db = await getDatabase(getDatabaseUrl());
+    const [user] = await db.select().from(users).where(eq(users.id, firebaseUser.id)).limit(1);
+    return user ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export const requireUser: MiddlewareHandler = async (c, next) => {
+  const user = await getUserOrNull(c);
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  c.set('user', user);
+  await next();
+};

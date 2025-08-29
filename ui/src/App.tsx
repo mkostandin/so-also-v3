@@ -1,50 +1,50 @@
-import { AuthProvider, useAuth } from '@/lib/auth-context';
+import { AuthProvider } from '@/lib/auth-context';
 import { ThemeProvider } from "@/components/theme-provider";
-import { LoginForm } from '@/components/login-form';
-import { Navbar } from '@/components/navbar';
-import { AppSidebar } from '@/components/appSidebar';
-import { Home } from '@/pages/Home';
-import { Settings } from '@/pages/Settings';
-import { Page1 } from '@/pages/Page1';
-import { Page2 } from '@/pages/Page2';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import {
-  SidebarProvider,
-  SidebarInset,
-} from "@/components/ui/sidebar";
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import Landing from '@/routes/Landing';
+import EmbedView from '@/routes/EmbedView';
+import MapIndex from '@/routes/MapIndex';
+import MapView from '@/routes/MapView';
+import ListView from '@/routes/ListView';
+import CalendarView from '@/routes/CalendarView';
+import BottomTabs from '@/components/BottomTabs';
+import SubmitEvent from '@/routes/SubmitEvent';
+import Conferences from '@/routes/Conferences';
+import ConferenceDetail from '@/routes/ConferenceDetail';
+import EventDetail from '@/routes/EventDetail';
+import Settings from '@/routes/Settings';
 
 function AppContent() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen"></div>;
-  }
-
   return (
-    <SidebarProvider>
-      <div className="flex flex-col w-full min-h-screen bg-background">
-        <Navbar />
-        {!user ? (
-          <main className="flex flex-col items-center justify-center flex-1 p-4">
-            <LoginForm />
-          </main>
-        ) : (
-          <div className="flex flex-1">
-            <AppSidebar />
-            <SidebarInset className="flex-1">
-              <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/page1" element={<Page1 />} />
-                  <Route path="/page2" element={<Page2 />} />
-                  <Route path="/settings" element={<Settings />} />
-                </Routes>
-              </main>
-            </SidebarInset>
-          </div>
-        )}
-      </div>
-    </SidebarProvider>
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/embed" element={<EmbedView />} />
+
+      <Route path="/app" element={<BottomTabsWrapper />}>
+        <Route index element={<Navigate to="map" replace />} />
+
+        <Route path="map" element={<MapIndex />}>
+          <Route index element={<MapView />} />
+          <Route path="list" element={<ListView />} />
+          <Route path="calendar" element={<CalendarView />} />
+        </Route>
+
+        <Route path="e/:id" element={<EventDetail />} />
+        <Route path="submit" element={<SubmitEvent />} />
+        <Route path="conferences" element={<Conferences />} />
+        <Route path="conferences/:id" element={<ConferenceDetail />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+    </Routes>
+  );
+}
+
+function BottomTabsWrapper() {
+  return (
+    <div className="min-h-screen pb-16">
+      <Outlet />
+      <BottomTabs />
+    </div>
   );
 }
 
