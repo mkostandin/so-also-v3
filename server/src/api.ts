@@ -54,6 +54,10 @@ const api = new Hono();
 // Utils
 const toCamel = (obj: any) => {
   if (!obj || typeof obj !== 'object') return obj;
+
+  // Handle Date objects by converting to ISO string
+  if (obj instanceof Date) return obj.toISOString();
+
   if (Array.isArray(obj)) return obj.map(toCamel);
   const out: any = {};
   for (const [k, v] of Object.entries(obj)) {
