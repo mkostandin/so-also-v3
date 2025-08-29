@@ -25,7 +25,12 @@ const { port, apiUrl, firebaseAuthPort, useFirebaseEmulator } = parseCliArgs();
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    port: port
+    port: port,
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '01fc20b8f3a0.ngrok-free.app'
+    ]
   },
   define: {
     'import.meta.env.VITE_API_URL': `"${apiUrl}"`,

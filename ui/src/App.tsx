@@ -14,6 +14,8 @@ import Conferences from '@/routes/Conferences';
 import ConferenceDetail from '@/routes/ConferenceDetail';
 import EventDetail from '@/routes/EventDetail';
 import Settings from '@/routes/Settings';
+import MobileDebugPanel from '@/components/MobileDebugPanel';
+import ErrorOverlay from '@/components/ErrorOverlay';
 
 function AppContent() {
   return (
@@ -57,15 +59,19 @@ function BottomTabsWrapper() {
 function App() {
   return (
     <AuthProvider>
-      <ThemeProvider 
-        attribute="class" 
-        defaultTheme="system" 
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
         enableSystem
         disableTransitionOnChange
         storageKey="volo-app-theme"
       >
         <Router>
           <AppContent />
+          {/* Mobile debug panel - only shows on mobile */}
+          <MobileDebugPanel />
+          {/* Global error overlay for critical failures */}
+          <ErrorOverlay />
         </Router>
       </ThemeProvider>
     </AuthProvider>

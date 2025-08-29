@@ -15,8 +15,8 @@ export interface CalendarEventsData {
 }
 
 const DEFAULT_RADIUS_METERS = 80467; // 50 miles in meters
-const DEFAULT_LAT = 39.8283; // Nashville, TN as fallback
-const DEFAULT_LNG = -98.5795;
+const DEFAULT_LAT = 42.3601; // Boston, MA as fallback (near seeded test data)
+const DEFAULT_LNG = -71.0589;
 
 export function useCalendarEvents(range: number = 90): CalendarEventsData {
   const { coords: userCoords } = useUserLocation();
