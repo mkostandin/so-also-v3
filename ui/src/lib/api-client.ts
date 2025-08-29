@@ -8,6 +8,7 @@ export type EventItem = {
 	longitude?: number | null;
 	itemType?: 'event' | 'occurrence';
 	distanceMeters?: number;
+	eventType?: 'Event' | 'Committee Meeting' | 'Conference' | 'YPAA Meeting' | 'Other';
 };
 
 const baseUrl = import.meta.env.VITE_API_URL || '';
