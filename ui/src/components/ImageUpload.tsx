@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { api } from '@/lib/api-client';
-import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Upload } from 'lucide-react';
 
 interface ImageUploadProps {
   onImagesChange: (urls: string[]) => void;
@@ -51,7 +51,7 @@ export default function ImageUpload({ onImagesChange, maxImages = 10, existingIm
       try {
         const result = await api.uploadImage(file);
         return result.url;
-      } catch (error) {
+      } catch {
         newErrors.push(`Failed to upload ${file.name}`);
         return null;
       } finally {
@@ -94,7 +94,7 @@ export default function ImageUpload({ onImagesChange, maxImages = 10, existingIm
     <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Event Images
+          Conference Images
         </label>
 
         {/* Upload Area */}

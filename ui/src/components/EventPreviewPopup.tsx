@@ -12,8 +12,6 @@ interface EventPreviewPopupProps {
 }
 
 export default function EventPreviewPopup({ event, onLearnMore, isLoading = false, error = null }: EventPreviewPopupProps) {
-  console.log('EventPreviewPopup rendered with:', { event, isLoading, error });
-
   const formatDateTime = (dateString?: string | null) => {
     if (!dateString) return null;
     const date = new Date(dateString);
@@ -27,7 +25,6 @@ export default function EventPreviewPopup({ event, onLearnMore, isLoading = fals
 
   // Show loading state
   if (isLoading) {
-    console.log('Showing loading state');
     return (
       <div className="p-4 max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <div className="flex items-center justify-center py-8">
@@ -37,8 +34,6 @@ export default function EventPreviewPopup({ event, onLearnMore, isLoading = fals
       </div>
     );
   }
-
-  console.log('Rendering main component content');
 
   // Show error state
   if (error) {

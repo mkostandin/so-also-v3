@@ -12,6 +12,35 @@ export type EventItem = {
 	imageUrls?: string[];
 };
 
+export type Conference = {
+	id: string;
+	name: string;
+	city?: string | null;
+	programUrl?: string | null;
+	hotelMapUrl?: string | null;
+	flyerUrl?: string | null;
+	websiteUrl?: string | null;
+	imageUrls?: string[] | null;
+	startsAtUtc?: string | null;
+	endsAtUtc?: string | null;
+	status: 'pending' | 'approved' | 'rejected';
+	createdAt?: string;
+	updatedAt?: string;
+};
+
+export type ConferenceSession = {
+	id: string;
+	conferenceId: string;
+	title: string;
+	type: 'workshop' | 'panel' | 'main' | 'marathon' | 'dance' | 'event' | 'main_meeting';
+	room?: string | null;
+	desc?: string | null;
+	startsAtUtc?: string | null;
+	endsAtUtc?: string | null;
+	status: 'pending' | 'approved' | 'rejected';
+	speaker?: string | null;
+};
+
 const baseUrl = import.meta.env.VITE_API_URL || '';
 
 function buildUrl(path: string): string {
@@ -52,10 +81,20 @@ export const api = {
 		if (params.range) usp.set('range', String(params.range));
 		return http<EventItem[]>(`/occurrences?${usp.toString()}`);
 	},
-	conferences: () => http<any[]>(`/conferences`),
-	conference: (id: string) => http<any>(`/conferences/${id}`),
-	sessions: (id: string) => http<any[]>(`/conferences/${id}/sessions`),
-	flags: (payload: any) => http(`/flags`, { method: 'POST', body: JSON.stringify(payload) }),
+	conferences: () => http<Conference[]>(`/conferences`),
+	conference: (id: string) => http<Conference>(`/conferences/${id}`),
+	sessions: (id: string) => http<ConferenceSession[]>(`/conferences/${id}/sessions`),
+	createConference: (conferenceData: Partial<Conference>) => http<Conference>(`/conferences`, { method: 'POST', body: JSON.stringify(conferenceData) }),
+	flags: (payload: {
+		targetType: 'event' | 'conference' | 'session' | 'series';
+		targetId: string;
+		committeeSlug?: string;
+		reason: 'incorrect_time' | 'wrong_address' | 'broken_link' | 'duplicate' | 'not_ypaa' | 'inappropriate' | 'other';
+		message?: string;
+		contactEmail?: string;
+		honeypot?: string;
+		deviceId?: string;
+	}) => http(`/flags`, { method: 'POST', body: JSON.stringify(payload) }),
 	uploadImage: async (file: File) => {
 		const formData = new FormData();
 		formData.append('file', file);
@@ -64,7 +103,7 @@ export const api = {
 			body: formData,
 		});
 		if (!response.ok) throw new Error(`HTTP ${response.status}`);
-		return response.json();
+		return response.json() as Promise<{ url: string; filename: string; size: number; type: string }>;
 	},
-	createEvent: (eventData: any) => http('/events', { method: 'POST', body: JSON.stringify(eventData) }),
+	createEvent: (eventData: Record<string, unknown>) => http('/events', { method: 'POST', body: JSON.stringify(eventData) }),
 };

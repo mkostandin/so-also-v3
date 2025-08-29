@@ -9,6 +9,7 @@ import ListView from '@/routes/ListView';
 import CalendarView from '@/routes/CalendarView';
 import BottomTabs from '@/components/BottomTabs';
 import SubmitEvent from '@/routes/SubmitEvent';
+import SubmitConference from '@/routes/SubmitConference';
 import Conferences from '@/routes/Conferences';
 import ConferenceDetail from '@/routes/ConferenceDetail';
 import EventDetail from '@/routes/EventDetail';
@@ -31,6 +32,7 @@ function AppContent() {
 
         <Route path="e/:id" element={<EventDetail />} />
         <Route path="submit" element={<SubmitEvent />} />
+        <Route path="submit-conference" element={<SubmitConference />} />
         <Route path="conferences" element={<Conferences />} />
         <Route path="conferences/:id" element={<ConferenceDetail />} />
         <Route path="settings" element={<Settings />} />

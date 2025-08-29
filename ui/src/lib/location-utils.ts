@@ -11,3 +11,26 @@ export function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: 
 export function metersToMiles(m: number): number {
 	return m / 1609.344;
 }
+
+export function formatDistanceMiles(meters: number | null | undefined, precision: number = 1): string {
+	if (meters === null || meters === undefined) return '';
+
+	const miles = metersToMiles(meters);
+	if (miles < 0.1) {
+		return '< 0.1 mi';
+	} else if (miles < 1) {
+		return `${miles.toFixed(1)} mi`;
+	} else if (miles < 10) {
+		return `${miles.toFixed(precision)} mi`;
+	} else {
+		return `${Math.round(miles)} mi`;
+	}
+}
+
+export function formatDistanceMilesWithFallback(
+	meters: number | null | undefined,
+	fallback: string = 'Distance unknown'
+): string {
+	if (meters === null || meters === undefined) return fallback;
+	return formatDistanceMiles(meters);
+}

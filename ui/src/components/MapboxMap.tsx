@@ -35,8 +35,8 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
       popup.remove();
       setPopup(null);
     }
-    // Navigate to event details page
-    navigate(`/event/${event.id}`);
+    // Navigate to event details page (correct URL format)
+    navigate(`/app/e/${event.id}`);
   }, [navigate, popup]);
 
   // Handle map load
@@ -573,29 +573,21 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
         // Clear existing content
         popupContainer.innerHTML = '';
 
-        console.log('Rendering React component into popup...');
-        console.log('Selected event:', selectedEvent);
-
         try {
           const root = createRoot(popupContainer);
-          console.log('Root created, rendering component...');
 
           // Render the component synchronously
           root.render(
             <EventPreviewPopup
               event={selectedEvent}
-              onLearnMore={() => {
-                console.log('Learn more clicked for event:', selectedEvent.id);
-                handleLearnMore(selectedEvent);
-              }}
-              isLoading={false} // Temporarily force to false to test
+              onLearnMore={() => handleLearnMore(selectedEvent)}
+              isLoading={false}
               error={popupError}
             />
           );
 
           // Store root for cleanup
           (popup as any)._reactRoot = root;
-          console.log('Component rendered, setting loading to false');
           setPopupLoading(false);
         } catch (renderError) {
           console.error('Error during React render:', renderError);
@@ -606,18 +598,16 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
         // Fallback: set loading to false after 3 seconds in case React rendering gets stuck
         setTimeout(() => {
           if (popupLoading) {
-            console.log('Fallback: Setting loading to false after timeout');
             setPopupLoading(false);
 
             // If still no content, render a simple HTML fallback
             if (!popupContainer.innerHTML || popupContainer.innerHTML.trim() === '') {
-              console.log('Rendering HTML fallback');
               popupContainer.innerHTML = `
                 <div class="p-4 max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg">
                   <h3 class="font-semibold text-gray-900 dark:text-white text-base mb-2">${selectedEvent.name}</h3>
                   ${selectedEvent.description ? `<p class="text-sm text-gray-600 dark:text-gray-300 mb-3">${selectedEvent.description}</p>` : ''}
                   ${selectedEvent.eventType ? `<span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded mb-3">${selectedEvent.eventType}</span>` : ''}
-                  <button onclick="window.location.href='/event/${selectedEvent.id}'" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">
+                  <button onclick="window.location.href='/app/e/${selectedEvent.id}'" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded">
                     Learn More
                   </button>
                 </div>
