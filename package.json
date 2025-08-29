@@ -16,7 +16,10 @@
     "connection:status": "npx create-volo-app --status",
     "build": "cd ui && pnpm run build",
     "deploy": "cd server && wrangler deploy && echo 'Frontend deployment: Connect your Git repo to Cloudflare Pages'",
-    "seed:test-data": "node scripts/seed-test-data.js"
+    "seed:test-data": "node scripts/seed-test-data.js",
+    "clear:test-data": "node scripts/clear-test-data.js",
+    "clear:data": "node scripts/clear-data.js",
+    "reset:database": "node scripts/reset-database.js"
   },
   "engines": {
     "node": ">=20.0.0",

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api, EventItem } from '@/lib/api-client';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { useLocationPreferences } from '@/hooks/useLocationPreferences';
@@ -11,6 +12,11 @@ export default function ListView() {
 	const [loading, setLoading] = useState(true);
 	const { coords } = useUserLocation();
 	const { prefs } = useLocationPreferences();
+	const navigate = useNavigate();
+
+	const handleEventClick = (event: EventItem) => {
+		navigate(`/app/e/${event.id}`);
+	};
 
 	useEffect(() => {
 		let mounted = true;
@@ -58,17 +64,45 @@ export default function ListView() {
 				) : (
 					<ul className="divide-y rounded border bg-white dark:bg-gray-900">
 						{sorted.map((it) => (
-							<li key={it.id} className="p-3">
+							<li
+								key={it.id}
+								className="p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+								onClick={() => handleEventClick(it)}
+							>
 								<div className="flex items-center justify-between">
-									<div>
+									<div className="flex-1">
 										<div className="font-medium">{it.name}</div>
+										{it.description && (
+											<div className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+												{it.description}
+											</div>
+										)}
 										{it.startsAtUtc && (
-											<div className="text-xs text-gray-500">{new Date(it.startsAtUtc).toLocaleString()}</div>
+											<div className="text-xs text-gray-500 mt-1">
+												{new Date(it.startsAtUtc).toLocaleString()}
+											</div>
+										)}
+										{it.address && (
+											<div className="text-xs text-gray-500 mt-1">
+												📍 {it.address}
+											</div>
 										)}
 									</div>
-									{it.distanceMeters !== undefined && isFinite(it.distanceMeters) && (
-										<div className="text-xs text-gray-600">{metersToMiles(it.distanceMeters).toFixed(1)} mi</div>
-									)}
+									<div className="flex flex-col items-end gap-1">
+										{it.distanceMeters !== undefined && isFinite(it.distanceMeters) && (
+											<div className="text-xs text-gray-600 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+												{metersToMiles(it.distanceMeters).toFixed(1)} mi
+											</div>
+										)}
+										{it.eventType && (
+											<div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+												{it.eventType}
+											</div>
+										)}
+									</div>
+								</div>
+								<div className="mt-2 flex justify-end">
+									<span className="text-xs text-gray-400">Tap for details →</span>
 								</div>
 							</li>
 						))}

@@ -54,31 +54,43 @@ async function seedTestData() {
     // NECYPAA 35 Conference - Portland, ME
     {
       name: 'NECYPAA 35',
-      type: 'conference',
+      type: 'event',
+      eventType: 'Conference',
+      committee: 'NECYPAA',
+      committeeSlug: 'necypaa',
+      description: '35th Annual NECYPAA Conference featuring keynote speakers and networking events',
       city: 'Portland',
       stateProv: 'ME',
       country: 'USA',
       latitude: 43.6591 + (Math.random() - 0.5) * 0.02,
       longitude: -70.2568 + (Math.random() - 0.5) * 0.02,
+      address: 'Portland Convention Center',
       startsAtUtc: new Date(baseDate.getTime() + 14 * 24 * 60 * 60 * 1000), // 2 weeks from base
       endsAtUtc: new Date(baseDate.getTime() + 16 * 24 * 60 * 60 * 1000), // 3 days later
       flyerUrl: 'https://necypaa.org/necypaa35',
       websiteUrl: 'https://necypaa.org',
+      contactEmail: 'necypaa@necypaa.org',
     },
 
     // MSCYPAA 26 Conference - Boston, MA
     {
       name: 'MSCYPAA 26',
-      type: 'conference',
+      type: 'event',
+      eventType: 'Conference',
+      committee: 'MSCYPAA',
+      committeeSlug: 'mscypaa',
+      description: '26th Annual MSCYPAA Conference with workshops and professional development sessions',
       city: 'Boston',
       stateProv: 'MA',
       country: 'USA',
       latitude: 42.3601 + (Math.random() - 0.5) * 0.02,
       longitude: -71.0589 + (Math.random() - 0.5) * 0.02,
+      address: 'Boston Marriott Copley Place',
       startsAtUtc: new Date(baseDate.getTime() + 30 * 24 * 60 * 60 * 1000), // 4 weeks from base
       endsAtUtc: new Date(baseDate.getTime() + 32 * 24 * 60 * 60 * 1000), // 3 days later
       flyerUrl: 'https://mscypaa.org/mscypaa26',
       websiteUrl: 'https://mscypaa.org',
+      contactEmail: 'mscypaa@mscypaa.org',
     },
 
     // NECYPAA Fall Festival - Burlington, VT
@@ -199,46 +211,30 @@ async function seedTestData() {
   console.log(`📅 Seeding ${testEvents.length} test events...`);
 
   let eventsInserted = 0;
-  let conferencesInserted = 0;
 
   for (const event of testEvents) {
     try {
-      if (event.type === 'event') {
-        await db.insert(schema.events).values({
-          name: event.name,
-          event_type: event.eventType!,
-          committee: event.committee,
-          committee_slug: event.committeeSlug,
-          description: event.description,
-          address: event.address,
-          city: event.city,
-          state_prov: event.stateProv,
-          country: event.country,
-          latitude: event.latitude.toString(),
-          longitude: event.longitude.toString(),
-          flyer_url: event.flyerUrl,
-          website_url: event.websiteUrl,
-          contact_email: event.contactEmail,
-          status: 'approved',
-          starts_at_utc: event.startsAtUtc,
-          ends_at_utc: event.endsAtUtc,
-        });
-        eventsInserted++;
-        console.log(`✅ Inserted event: ${event.name}`);
-      } else if (event.type === 'conference') {
-        await db.insert(schema.conferences).values({
-          name: event.name,
-          city: event.city,
-          program_url: event.flyerUrl,
-          flyer_url: event.flyerUrl,
-          hotel_map_url: event.websiteUrl,
-          starts_at_utc: event.startsAtUtc,
-          ends_at_utc: event.endsAtUtc,
-          status: 'approved',
-        });
-        conferencesInserted++;
-        console.log(`✅ Inserted conference: ${event.name}`);
-      }
+      await db.insert(schema.events).values({
+        name: event.name,
+        event_type: event.eventType!,
+        committee: event.committee,
+        committee_slug: event.committeeSlug,
+        description: event.description,
+        address: event.address,
+        city: event.city,
+        state_prov: event.stateProv,
+        country: event.country,
+        latitude: event.latitude.toString(),
+        longitude: event.longitude.toString(),
+        flyer_url: event.flyerUrl,
+        website_url: event.websiteUrl,
+        contact_email: event.contactEmail,
+        status: 'approved',
+        starts_at_utc: event.startsAtUtc,
+        ends_at_utc: event.endsAtUtc,
+      });
+      eventsInserted++;
+      console.log(`✅ Inserted event: ${event.name}`);
     } catch (error) {
       console.error(`❌ Failed to insert ${event.name}:`, error);
     }
@@ -246,8 +242,7 @@ async function seedTestData() {
 
   console.log(`\n🎉 Seeding complete!`);
   console.log(`📊 Events inserted: ${eventsInserted}`);
-  console.log(`📊 Conferences inserted: ${conferencesInserted}`);
-  console.log(`📊 Total: ${eventsInserted + conferencesInserted} records`);
+  console.log(`📊 Total: ${eventsInserted} records`);
 
   console.log('\n📍 Test data locations:');
   testEvents.forEach(event => {
