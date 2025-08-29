@@ -1,31 +1,25 @@
 import { useLocationPreferences } from '@/hooks/useLocationPreferences';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 
 export default function NearbyEventsToggle() {
 	const { prefs, setPrefs } = useLocationPreferences();
 	return (
 		<div className="flex items-center gap-3">
-			<label className="inline-flex cursor-pointer items-center gap-2">
-				<input
-					type="checkbox"
-					checked={prefs.nearbyEnabled}
-					onChange={(e) => setPrefs({ ...prefs, nearbyEnabled: e.target.checked })}
-					className="h-4 w-4"
-				/>
-				<span className="text-sm">Show nearby first</span>
-			</label>
+			<label htmlFor="nearby-switch" className="text-sm">Show nearby first</label>
+			<Switch id="nearby-switch" checked={prefs.nearbyEnabled} onCheckedChange={(v) => setPrefs({ ...prefs, nearbyEnabled: v })} />
 			<label className="sr-only" htmlFor="radius-select">Radius</label>
-			<select
-				id="radius-select"
-				title="Select radius"
-				value={prefs.radiusMeters}
-				onChange={(e) => setPrefs({ ...prefs, radiusMeters: parseInt(e.target.value, 10) })}
-				className="rounded border px-2 py-1 text-sm"
-			>
-				<option value={10000}>10 km</option>
-				<option value={25000}>25 km</option>
-				<option value={50000}>50 km</option>
-				<option value={100000}>100 km</option>
-			</select>
+			<Select value={String(prefs.radiusMeters)} onValueChange={(v) => setPrefs({ ...prefs, radiusMeters: parseInt(v, 10) })}>
+				<SelectTrigger id="radius-select" className="w-[120px]">
+					<SelectValue placeholder="Radius" />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem value="10000">10 km</SelectItem>
+					<SelectItem value="25000">25 km</SelectItem>
+					<SelectItem value="50000">50 km</SelectItem>
+					<SelectItem value="100000">100 km</SelectItem>
+				</SelectContent>
+			</Select>
 		</div>
 	);
 }

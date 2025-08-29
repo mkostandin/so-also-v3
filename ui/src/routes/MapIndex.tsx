@@ -1,27 +1,34 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function MapIndex() {
 	const location = useLocation();
+	const navigate = useNavigate();
 	const base = '/app/map';
-	const items = [
-		{ to: `${base}`, label: 'Map', end: true },
-		{ to: `${base}/list`, label: 'List' },
-		{ to: `${base}/calendar`, label: 'Calendar' },
-	];
+	const routeToTab = (pathname: string) => {
+		if (pathname.startsWith(`${base}/calendar`)) return 'calendar';
+		if (pathname.startsWith(`${base}/list`)) return 'list';
+		return 'map';
+	};
+	const current = routeToTab(location.pathname);
+
+	const onValueChange = (val: string) => {
+		if (val === 'map') navigate(base);
+		else navigate(`${base}/${val}`);
+	};
+
 	return (
 		<div className="pb-16">
 			<div className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60">
-				<div className="mx-auto flex max-w-3xl items-center gap-2 p-2">
-					{items.map((i) => (
-						<NavLink
-							key={i.to}
-							to={i.to}
-							end={i.end as any}
-							className={({ isActive }) => `flex-1 rounded-md px-3 py-2 text-center text-sm font-medium transition ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200'}`}
-						>
-							{i.label}
-						</NavLink>
-					))}
+				<div className="mx-auto max-w-3xl p-2">
+					<Tabs value={current} onValueChange={onValueChange}>
+						<TabsList className="grid w-full grid-cols-3">
+							<TabsTrigger value="map">Map</TabsTrigger>
+							<TabsTrigger value="list">List</TabsTrigger>
+							<TabsTrigger value="calendar">Calendar</TabsTrigger>
+						</TabsList>
+					</Tabs>
 				</div>
 			</div>
 			<div className="mx-auto max-w-3xl p-2">
