@@ -9,6 +9,7 @@ export type EventItem = {
 	itemType?: 'event' | 'occurrence';
 	distanceMeters?: number;
 	eventType?: 'Event' | 'Committee Meeting' | 'Conference' | 'YPAA Meeting' | 'Other';
+	imageUrls?: string[];
 };
 
 const baseUrl = import.meta.env.VITE_API_URL || '';
@@ -55,4 +56,15 @@ export const api = {
 	conference: (id: string) => http<any>(`/conferences/${id}`),
 	sessions: (id: string) => http<any[]>(`/conferences/${id}/sessions`),
 	flags: (payload: any) => http(`/flags`, { method: 'POST', body: JSON.stringify(payload) }),
+	uploadImage: async (file: File) => {
+		const formData = new FormData();
+		formData.append('file', file);
+		const response = await fetch(buildUrl('/upload-image'), {
+			method: 'POST',
+			body: formData,
+		});
+		if (!response.ok) throw new Error(`HTTP ${response.status}`);
+		return response.json();
+	},
+	createEvent: (eventData: any) => http('/events', { method: 'POST', body: JSON.stringify(eventData) }),
 };

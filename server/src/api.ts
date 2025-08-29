@@ -4,7 +4,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { authMiddleware, requireUser, getUserOrNull } from './middleware/auth';
 import { getDatabase, testDatabaseConnection } from './lib/db';
-import { setEnvContext, clearEnvContext, getDatabaseUrl, getEnv, isDevelopment } from './lib/env';
+import { setEnvContext, clearEnvContext, getDatabaseUrl, getEnv, isDevelopment, getR2PublicUrlBase } from './lib/env';
 import * as schema from './schema';
 import { z } from 'zod';
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
@@ -12,6 +12,7 @@ import { haversineMeters } from './lib/location';
 
 type Env = {
   RUNTIME?: string;
+  EVENT_IMAGES?: R2Bucket;
   [key: string]: any;
 };
 
@@ -48,6 +49,62 @@ app.use('*', cors({
 // Health check route - public
 app.get('/', (c) => c.json({ status: 'ok', message: 'API is running' }));
 
+// Image upload endpoint
+app.post('/api/v1/upload-image', async (c) => {
+  try {
+    const formData = await c.req.formData();
+    const file = formData.get('file') as File;
+
+    if (!file) {
+      return c.json({ error: 'No file provided' }, 400);
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      return c.json({ error: 'Invalid file type. Only JPEG, PNG, and WebP are allowed.' }, 400);
+    }
+
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      return c.json({ error: 'File size too large. Maximum size is 5MB.' }, 400);
+    }
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const randomId = crypto.randomUUID().slice(0, 8);
+    const fileExtension = file.name.split('.').pop();
+    const filename = `event-${timestamp}-${randomId}.${fileExtension}`;
+
+    // Upload to R2
+    const bucket = c.env.EVENT_IMAGES;
+    if (!bucket) {
+      return c.json({ error: 'Image storage not configured' }, 500);
+    }
+
+    await bucket.put(filename, file, {
+      httpMetadata: {
+        contentType: file.type,
+      },
+    });
+
+    // Generate public URL
+    const publicUrl = `${getR2PublicUrlBase()}/${filename}`;
+
+    return c.json({
+      url: publicUrl,
+      filename,
+      size: file.size,
+      type: file.type
+    });
+
+  } catch (error) {
+    console.error('Image upload error:', error);
+    return c.json({ error: 'Failed to upload image' }, 500);
+  }
+});
+
 // API routes
 const api = new Hono();
 
@@ -70,26 +127,109 @@ const toCamel = (obj: any) => {
 // haversineMeters imported from lib
 
 // Schemas
-const createEventSchema = z.object({
-  name: z.string().min(2),
-  eventType: z.enum(['Event','Committee Meeting','Conference','YPAA Meeting','Other']),
-  committee: z.string().optional(),
-  committeeSlug: z.string().optional(),
-  description: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  stateProv: z.string().optional(),
-  country: z.string().optional(),
-  postal: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  flyerUrl: z.string().url().optional(),
-  websiteUrl: z.string().url().optional(),
-  contactEmail: z.string().email().optional(),
-  contactPhone: z.string().optional(),
-  startsAtUtc: z.string().datetime(),
-  endsAtUtc: z.string().datetime(),
-});
+// Enhanced event creation schema supporting different event types
+const createEventSchema = z.discriminatedUnion('eventMode', [
+  // Single event
+  z.object({
+    eventMode: z.literal('single'),
+    name: z.string().min(2),
+    eventType: z.enum(['Event','Committee Meeting','Conference','YPAA Meeting','Other']),
+    committee: z.string().optional(),
+    committeeSlug: z.string().optional(),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    stateProv: z.string().optional(),
+    country: z.string().optional(),
+    postal: z.string().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    flyerUrl: z.string().url().optional(),
+    websiteUrl: z.string().url().optional(),
+    contactEmail: z.string().email().optional(),
+    contactPhone: z.string().optional(),
+    imageUrls: z.array(z.string().url()).optional(),
+    singleDate: z.string().datetime(),
+    startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+    endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+  }),
+  // YPAA weekly meeting
+  z.object({
+    eventMode: z.literal('ypaa-weekly'),
+    name: z.string().min(2),
+    eventType: z.literal('YPAA Meeting'),
+    committee: z.string().optional(),
+    committeeSlug: z.string().optional(),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    stateProv: z.string().optional(),
+    country: z.string().optional(),
+    postal: z.string().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    flyerUrl: z.string().url().optional(),
+    websiteUrl: z.string().url().optional(),
+    contactEmail: z.string().email().optional(),
+    contactPhone: z.string().optional(),
+    imageUrls: z.array(z.string().url()).optional(),
+    weeklyDay: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
+    startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+    endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+    endDate: z.string().optional(),
+  }),
+  // Committee monthly meeting
+  z.object({
+    eventMode: z.literal('committee-monthly'),
+    name: z.string().min(2),
+    eventType: z.literal('Committee Meeting'),
+    committee: z.string().optional(),
+    committeeSlug: z.string().optional(),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    stateProv: z.string().optional(),
+    country: z.string().optional(),
+    postal: z.string().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    flyerUrl: z.string().url().optional(),
+    websiteUrl: z.string().url().optional(),
+    contactEmail: z.string().email().optional(),
+    contactPhone: z.string().optional(),
+    imageUrls: z.array(z.string().url()).optional(),
+    weekday: z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']),
+    position: z.enum(['1st', '2nd', '3rd', '4th', 'last']),
+    startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+    endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+    endDate: z.string().optional(),
+  }),
+  // Conference (multi-day)
+  z.object({
+    eventMode: z.literal('conference'),
+    name: z.string().min(2),
+    eventType: z.literal('Conference'),
+    committee: z.string().optional(),
+    committeeSlug: z.string().optional(),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    stateProv: z.string().optional(),
+    country: z.string().optional(),
+    postal: z.string().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    flyerUrl: z.string().url().optional(),
+    websiteUrl: z.string().url().optional(),
+    contactEmail: z.string().email().optional(),
+    contactPhone: z.string().optional(),
+    imageUrls: z.array(z.string().url()).optional(),
+    startDate: z.string().datetime(),
+    endDate: z.string().datetime(),
+    startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+    endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+  }),
+]);
 
 const flagSchema = z.object({
   targetType: z.enum(['event','conference','session','series']),
@@ -248,28 +388,212 @@ api.post('/events', async (c) => {
   if (!parsed.success) return c.json({ error: 'Invalid payload', details: parsed.error.flatten() }, 400);
   const db = await getDatabase(getDatabaseUrl());
   const v = parsed.data;
-  const [row] = await db.insert(schema.events).values({
-    name: v.name,
-    event_type: v.eventType,
-    committee: v.committee,
-    committee_slug: v.committeeSlug,
-    description: v.description,
-    address: v.address,
-    city: v.city,
-    state_prov: v.stateProv,
-    country: v.country,
-    postal: v.postal,
-    latitude: v.latitude as any,
-    longitude: v.longitude as any,
-    flyer_url: v.flyerUrl,
-    website_url: v.websiteUrl,
-    contact_email: v.contactEmail,
-    contact_phone: v.contactPhone,
-    status: 'pending',
-    starts_at_utc: new Date(v.startsAtUtc),
-    ends_at_utc: new Date(v.endsAtUtc),
-  }).returning();
-  return c.json(toCamel(row));
+
+  try {
+    if (v.eventMode === 'single') {
+      // Create single event
+      const date = new Date(v.singleDate);
+      const [startHour, startMinute] = v.startTime.split(':').map(Number);
+      const [endHour, endMinute] = v.endTime.split(':').map(Number);
+
+      const startsAtUtc = new Date(date.getFullYear(), date.getMonth(), date.getDate(), startHour, startMinute);
+      const endsAtUtc = new Date(date.getFullYear(), date.getMonth(), date.getDate(), endHour, endMinute);
+
+      const [row] = await db.insert(schema.events).values({
+        name: v.name,
+        event_type: v.eventType,
+        committee: v.committee,
+        committee_slug: v.committeeSlug,
+        description: v.description,
+        address: v.address,
+        city: v.city,
+        state_prov: v.stateProv,
+        country: v.country,
+        postal: v.postal,
+        latitude: v.latitude as any,
+        longitude: v.longitude as any,
+        flyer_url: v.flyerUrl,
+        website_url: v.websiteUrl,
+        contact_email: v.contactEmail,
+        contact_phone: v.contactPhone,
+        image_urls: v.imageUrls || [],
+        status: 'pending',
+        starts_at_utc: startsAtUtc,
+        ends_at_utc: endsAtUtc,
+      }).returning();
+
+      return c.json(toCamel(row));
+
+          } else if (v.eventMode === 'ypaa-weekly') {
+        // Create weekly YPAA meeting series
+        const dayMap = {
+          monday: 'MO',
+          tuesday: 'TU',
+          wednesday: 'WE',
+          thursday: 'TH',
+          friday: 'FR',
+          saturday: 'SA',
+          sunday: 'SU'
+        };
+
+        const [startHour, startMinute] = v.startTime.split(':').map(Number);
+        const [endHour, endMinute] = v.endTime.split(':').map(Number);
+
+        // Use advanced series config if provided, otherwise use basic config
+        const seriesConfig = (v as any).seriesConfig;
+        const rruleData = seriesConfig ? {
+          freq: seriesConfig.freq,
+          interval: seriesConfig.interval,
+          by_weekday: seriesConfig.byWeekday || [dayMap[v.weeklyDay]],
+          until: seriesConfig.until ? new Date(seriesConfig.until) : (v.endDate ? new Date(v.endDate) : null),
+        } : {
+          freq: 'weekly' as const,
+          interval: 1,
+          by_weekday: [dayMap[v.weeklyDay]],
+          until: v.endDate ? new Date(v.endDate) : null,
+        };
+
+        const [seriesRow] = await db.insert(schema.series).values({
+          name: v.name,
+          type: 'YPAA Meeting' as const,
+          committee: v.committee,
+          committee_slug: v.committeeSlug,
+          timezone: 'UTC', // Default to UTC
+          start_time_local: v.startTime,
+          duration_mins: (endHour * 60 + endMinute) - (startHour * 60 + startMinute),
+          rrule: rruleData,
+          address: v.address,
+          city: v.city,
+          state_prov: v.stateProv,
+          country: v.country,
+          postal: v.postal,
+          latitude: v.latitude as any,
+          longitude: v.longitude as any,
+          status: 'pending',
+        }).returning();
+
+      // Trigger series materialization
+      try {
+        const { materializeForSeries } = await import('./jobs/materializeSeries');
+        await materializeForSeries(seriesRow, 12, db); // Generate for next 12 months
+      } catch (materializeError) {
+        console.error('Failed to materialize series:', materializeError);
+        // Continue anyway - series was created successfully
+      }
+
+      return c.json({ ...toCamel(seriesRow), type: 'series' });
+
+    } else if (v.eventMode === 'committee-monthly') {
+      // Create monthly committee meeting series
+      const dayMap = {
+        monday: 'MO',
+        tuesday: 'TU',
+        wednesday: 'WE',
+        thursday: 'TH',
+        friday: 'FR',
+        saturday: 'SA',
+        sunday: 'SU'
+      };
+
+      const positionMap = {
+        '1st': 1,
+        '2nd': 2,
+        '3rd': 3,
+        '4th': 4,
+        'last': -1
+      };
+
+      const [startHour, startMinute] = v.startTime.split(':').map(Number);
+      const [endHour, endMinute] = v.endTime.split(':').map(Number);
+
+      // Use advanced series config if provided, otherwise use basic config
+      const seriesConfig = (v as any).seriesConfig;
+      const rruleData = seriesConfig ? {
+        freq: seriesConfig.freq,
+        interval: seriesConfig.interval,
+        by_weekday: seriesConfig.byWeekday || [dayMap[v.weekday]],
+        by_set_pos: seriesConfig.bySetPos || [positionMap[v.position]],
+        until: seriesConfig.until ? new Date(seriesConfig.until) : (v.endDate ? new Date(v.endDate) : null),
+      } : {
+        freq: 'monthly' as const,
+        interval: 1,
+        by_weekday: [dayMap[v.weekday]],
+        by_set_pos: [positionMap[v.position]],
+        until: v.endDate ? new Date(v.endDate) : null,
+      };
+
+      const [seriesRow] = await db.insert(schema.series).values({
+        name: v.name,
+        type: 'Committee Meeting' as const,
+        committee: v.committee,
+        committee_slug: v.committeeSlug,
+        timezone: 'UTC', // Default to UTC
+        start_time_local: v.startTime,
+        duration_mins: (endHour * 60 + endMinute) - (startHour * 60 + startMinute),
+        rrule: rruleData,
+        address: v.address,
+        city: v.city,
+        state_prov: v.stateProv,
+        country: v.country,
+        postal: v.postal,
+        latitude: v.latitude as any,
+        longitude: v.longitude as any,
+        status: 'pending',
+      }).returning();
+
+      // Trigger series materialization
+      try {
+        const { materializeForSeries } = await import('./jobs/materializeSeries');
+        await materializeForSeries(seriesRow, 12, db); // Generate for next 12 months
+      } catch (materializeError) {
+        console.error('Failed to materialize series:', materializeError);
+        // Continue anyway - series was created successfully
+      }
+
+      return c.json({ ...toCamel(seriesRow), type: 'series' });
+
+    } else if (v.eventMode === 'conference') {
+      // Create multi-day conference event
+      const startDate = new Date(v.startDate);
+      const endDate = new Date(v.endDate);
+      const [startHour, startMinute] = v.startTime.split(':').map(Number);
+      const [endHour, endMinute] = v.endTime.split(':').map(Number);
+
+      const startsAtUtc = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), startHour, startMinute);
+      const endsAtUtc = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), endHour, endMinute);
+
+      const [row] = await db.insert(schema.events).values({
+        name: v.name,
+        event_type: v.eventType,
+        committee: v.committee,
+        committee_slug: v.committeeSlug,
+        description: v.description,
+        address: v.address,
+        city: v.city,
+        state_prov: v.stateProv,
+        country: v.country,
+        postal: v.postal,
+        latitude: v.latitude as any,
+        longitude: v.longitude as any,
+        flyer_url: v.flyerUrl,
+        website_url: v.websiteUrl,
+        contact_email: v.contactEmail,
+        contact_phone: v.contactPhone,
+        image_urls: v.imageUrls || [],
+        status: 'pending',
+        starts_at_utc: startsAtUtc,
+        ends_at_utc: endsAtUtc,
+      }).returning();
+
+      return c.json(toCamel(row));
+    }
+
+    return c.json({ error: 'Invalid event mode' }, 400);
+
+  } catch (error) {
+    console.error('Event creation error:', error);
+    return c.json({ error: 'Failed to create event' }, 500);
+  }
 });
 
 // Flags (public) with anti-abuse

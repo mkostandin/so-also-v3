@@ -9,6 +9,10 @@ FIREBASE_PROJECT_ID = "{{FIREBASE_PROJECT_ID}}"
 DATABASE_URL = "{{DATABASE_URL}}"
 # FIREBASE_AUTH_EMULATOR_HOST will be dynamically set when using emulator
 
+[[r2_buckets]]
+binding = "EVENT_IMAGES"
+bucket_name = "{{EVENT_IMAGES_BUCKET_NAME}}"
+
 # Development tools configuration
 [dev]
 local_protocol = "http"

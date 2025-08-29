@@ -72,6 +72,34 @@ export function getFirebaseProjectId(): string {
 }
 
 /**
+ * Get R2 Account ID from environment
+ */
+export function getR2AccountId(): string | undefined {
+  return getEnv('R2_ACCOUNT_ID');
+}
+
+/**
+ * Get R2 Access Key ID from environment
+ */
+export function getR2AccessKeyId(): string | undefined {
+  return getEnv('R2_ACCESS_KEY_ID');
+}
+
+/**
+ * Get R2 Secret Access Key from environment
+ */
+export function getR2SecretAccessKey(): string | undefined {
+  return getEnv('R2_SECRET_ACCESS_KEY');
+}
+
+/**
+ * Get R2 public URL base from environment
+ */
+export function getR2PublicUrlBase(): string {
+  return getEnv('R2_PUBLIC_URL_BASE') || 'https://pub-xxxxxxxxxxxxxxxxxxxxxxxxx.r2.dev';
+}
+
+/**
  * For Node.js environments - get process.env
  */
 export function getNodeEnv() {

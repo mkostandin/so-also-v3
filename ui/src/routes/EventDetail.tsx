@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, EventItem } from '@/lib/api-client';
 import FlagButton from '@/components/FlagButton';
+import ImageGallery from '@/components/ImageGallery';
 import { metersToMiles } from '@/lib/location-utils';
 
 export default function EventDetail() {
@@ -130,6 +131,7 @@ export default function EventDetail() {
 						<button onClick={handleDirections} className="bg-gray-900 text-white px-3 py-2 rounded text-sm hover:bg-black/80 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600">
 							Get Directions
 						</button>
+						<FlagButton targetType="event" targetId={event.id} committeeSlug={event.committee} />
 					</div>
 				</div>
 
@@ -143,6 +145,12 @@ export default function EventDetail() {
 					<div className="mb-4">
 						<h3 className="font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
 						<p className="text-gray-700 dark:text-gray-300 leading-relaxed">{event.description}</p>
+					</div>
+				)}
+
+				{event.imageUrls && event.imageUrls.length > 0 && (
+					<div className="mb-6">
+						<ImageGallery images={event.imageUrls} />
 					</div>
 				)}
 
