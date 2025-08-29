@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import { useMapboxMap } from '@/hooks/useMapboxMap';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { api, type EventItem } from '@/lib/api-client';
+import { metersToMiles } from '@/lib/location-utils';
 
 interface MapboxMapProps {
   selectedEventTypes?: string[];
@@ -142,7 +143,7 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
           ${event.description ? `<p class="text-xs text-gray-600 dark:text-gray-400 mb-2">${event.description}</p>` : ''}
           ${event.eventType ? `<span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded mb-2">${event.eventType}</span>` : ''}
           ${event.startsAtUtc ? `<p class="text-xs text-gray-500 dark:text-gray-400">${new Date(event.startsAtUtc).toLocaleString()}</p>` : ''}
-          ${event.distanceMeters ? `<p class="text-xs text-gray-500 dark:text-gray-400">${(event.distanceMeters / 1000).toFixed(1)} km away</p>` : ''}
+          ${event.distanceMeters ? `<p class="text-xs text-gray-500 dark:text-gray-400">${metersToMiles(event.distanceMeters).toFixed(1)} mi away</p>` : ''}
         </div>
       `;
 
@@ -303,7 +304,7 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
     return (
       <div className={`flex items-center justify-center h-full bg-gray-100 dark:bg-gray-800 rounded-lg ${className}`}>
         <div className="text-center p-4">
-          <div className="text-red-500 mb-2">⚠️</div>
+          <div className="text-red-500 mb-2 text-lg">Warning</div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {error.message.includes('VITE_MAPBOX_ACCESS_TOKEN')
               ? 'Mapbox access token is required. Please add VITE_MAPBOX_ACCESS_TOKEN to your .env file.'

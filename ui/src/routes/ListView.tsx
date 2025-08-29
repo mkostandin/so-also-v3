@@ -72,6 +72,11 @@ export default function ListView() {
 								<div className="flex items-center justify-between">
 									<div className="flex-1">
 										<div className="font-medium">{it.name}</div>
+										{it.address && (
+											<div className="text-xs text-gray-500 mt-1">
+												{it.address}
+											</div>
+										)}
 										{it.description && (
 											<div className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
 												{it.description}
@@ -79,12 +84,7 @@ export default function ListView() {
 										)}
 										{it.startsAtUtc && (
 											<div className="text-xs text-gray-500 mt-1">
-												{new Date(it.startsAtUtc).toLocaleString()}
-											</div>
-										)}
-										{it.address && (
-											<div className="text-xs text-gray-500 mt-1">
-												📍 {it.address}
+												{new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(new Date(it.startsAtUtc))}
 											</div>
 										)}
 									</div>
@@ -100,9 +100,6 @@ export default function ListView() {
 											</div>
 										)}
 									</div>
-								</div>
-								<div className="mt-2 flex justify-end">
-									<span className="text-xs text-gray-400">Tap for details →</span>
 								</div>
 							</li>
 						))}
