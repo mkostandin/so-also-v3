@@ -56,6 +56,8 @@ export default function EventTypeFilter({ selectedTypes, onTypesChange }: EventT
               <button
                 onClick={() => handleTypeRemove(type)}
                 className="ml-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full p-0.5"
+                aria-label={`Remove ${type} filter`}
+                title={`Remove ${type} filter`}
               >
                 <X className="h-3 w-3" />
               </button>

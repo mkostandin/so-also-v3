@@ -26,7 +26,7 @@ export const occurrences = appSchema.table('occurrences', {
 	notify_topic: text('notify_topic'),
 });
 
-export const occurrencesIdx = index('occurrences_status_ends_idx').on(occurrences.status, occurrences.ends_at_utc.asc());
+export const occurrencesIdx = index('occurrences_status_ends_idx').on(occurrences.status, occurrences.ends_at_utc);
 
 export type Occurrence = typeof occurrences.$inferSelect;
 export type NewOccurrence = typeof occurrences.$inferInsert;

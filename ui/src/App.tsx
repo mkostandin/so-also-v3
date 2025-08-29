@@ -23,7 +23,7 @@ function AppContent() {
       <Route path="/app" element={<BottomTabsWrapper />}>
         <Route index element={<Navigate to="map" replace />} />
 
-        <Route path="map" element={<MapIndex />}>
+        <Route path="map/*" element={<MapIndex />}>
           <Route index element={<MapView />} />
           <Route path="list" element={<ListView />} />
           <Route path="calendar" element={<CalendarView />} />

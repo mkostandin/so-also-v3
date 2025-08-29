@@ -39,6 +39,18 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapO
         map.addControl(new mapboxgl.NavigationControl(), 'top-right');
         map.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
 
+        // Add geolocation control
+        map.addControl(
+          new mapboxgl.GeolocateControl({
+            positionOptions: {
+              enableHighAccuracy: true
+            },
+            trackUserLocation: true,
+            showUserHeading: true
+          }),
+          'top-right'
+        );
+
         // Handle map load
         map.on('load', () => {
           mapRef.current = map;

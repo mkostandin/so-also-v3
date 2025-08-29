@@ -12,6 +12,8 @@ interface MapboxMapProps {
 export default function MapboxMap({ selectedEventTypes = [], className = '' }: MapboxMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [popup, setPopup] = useState<mapboxgl.Popup | null>(null);
   const { coords: userCoords } = useUserLocation();
 
   // Filter events based on selected types
@@ -121,8 +123,9 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
       const coordinates = (e.features![0].geometry as any).coordinates.slice();
       const properties = e.features![0].properties;
 
-      // TODO: Show event details popup
-      console.log('Event clicked:', properties);
+      // Find the event data from our events array
+      const event = events.find(evt => evt.id === properties.id);
+      if (!event) return;
 
       // Ensure that if the map is zoomed out such that multiple
       // copies of the feature are visible, the popup appears
@@ -131,7 +134,34 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
-      // TODO: Add popup with event details
+      // Create or update popup with event details
+      const popupContent = `
+        <div class="p-3 max-w-xs">
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1">${event.name}</h3>
+          ${event.description ? `<p class="text-xs text-gray-600 dark:text-gray-400 mb-2">${event.description}</p>` : ''}
+          ${event.eventType ? `<span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded mb-2">${event.eventType}</span>` : ''}
+          ${event.startsAtUtc ? `<p class="text-xs text-gray-500 dark:text-gray-400">${new Date(event.startsAtUtc).toLocaleString()}</p>` : ''}
+          ${event.distanceMeters ? `<p class="text-xs text-gray-500 dark:text-gray-400">${(event.distanceMeters / 1000).toFixed(1)} km away</p>` : ''}
+        </div>
+      `;
+
+      // Remove existing popup
+      if (popup) {
+        popup.remove();
+      }
+
+      // Create new popup
+      const newPopup = new mapboxgl.Popup({
+        closeButton: true,
+        closeOnClick: true,
+        className: 'event-popup'
+      })
+        .setLngLat([coordinates[0], coordinates[1]])
+        .setHTML(popupContent)
+        .addTo(map);
+
+      setPopup(newPopup);
+      setSelectedEvent(event);
     });
 
     // Change cursor on hover
@@ -256,6 +286,15 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
       .setLngLat([userCoords.lng, userCoords.lat])
       .addTo(map);
   }, [map, userCoords]);
+
+  // Cleanup popup on unmount
+  useEffect(() => {
+    return () => {
+      if (popup) {
+        popup.remove();
+      }
+    };
+  }, [popup]);
 
 
 
