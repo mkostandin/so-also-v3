@@ -8,6 +8,13 @@
       "when": 1756487468400,
       "tag": "0000_brown_meteorite",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1756492042743,
+      "tag": "0001_jazzy_spyke",
+      "breakpoints": true
     }
   ]
 }

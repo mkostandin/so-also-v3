@@ -10,6 +10,8 @@ export const conferences = appSchema.table('conferences', {
 	program_url: text('program_url'),
 	hotel_map_url: text('hotel_map_url'),
 	flyer_url: text('flyer_url'),
+	website_url: text('website_url'),
+	image_urls: text('image_urls').array(),
 	starts_at_utc: timestamp('starts_at_utc', { withTimezone: true }),
 	ends_at_utc: timestamp('ends_at_utc', { withTimezone: true }),
 	status: statusEnum('status').notNull().default('pending'),

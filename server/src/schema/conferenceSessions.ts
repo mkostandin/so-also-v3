@@ -3,7 +3,7 @@ import { asc } from 'drizzle-orm';
 import { conferences } from './conferences';
 
 export const appSchema = pgSchema('app');
-export const sessionTypeEnum = pgEnum('session_type', ['workshop','panel','main','marathon']);
+export const sessionTypeEnum = pgEnum('session_type', ['workshop','panel','main','marathon','dance','event','main_meeting']);
 export const statusEnum = pgEnum('status', ['pending','approved','rejected']);
 
 export const conferenceSessions = appSchema.table('conference_sessions', {
