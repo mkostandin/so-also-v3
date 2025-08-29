@@ -46,33 +46,35 @@ export default function ListView() {
 	}, [items, prefs, coords]);
 
 	return (
-		<div className="space-y-3">
-			<LocationPermissionBanner />
-			<div className="flex items-center justify-between">
-				<h3 className="text-lg font-semibold">Upcoming</h3>
-				<NearbyEventsToggle />
-			</div>
-			{loading ? (
-				<div className="rounded border p-3 text-sm">Loading…</div>
-			) : (
-				<ul className="divide-y rounded border bg-white dark:bg-gray-900">
-					{sorted.map((it) => (
-						<li key={it.id} className="p-3">
-							<div className="flex items-center justify-between">
-								<div>
-									<div className="font-medium">{it.name}</div>
-									{it.startsAtUtc && (
-										<div className="text-xs text-gray-500">{new Date(it.startsAtUtc).toLocaleString()}</div>
+		<div className="mx-auto max-w-3xl p-2">
+			<div className="space-y-3">
+				<LocationPermissionBanner />
+				<div className="flex items-center justify-between">
+					<h3 className="text-lg font-semibold">Upcoming</h3>
+					<NearbyEventsToggle />
+				</div>
+				{loading ? (
+					<div className="rounded border p-3 text-sm">Loading…</div>
+				) : (
+					<ul className="divide-y rounded border bg-white dark:bg-gray-900">
+						{sorted.map((it) => (
+							<li key={it.id} className="p-3">
+								<div className="flex items-center justify-between">
+									<div>
+										<div className="font-medium">{it.name}</div>
+										{it.startsAtUtc && (
+											<div className="text-xs text-gray-500">{new Date(it.startsAtUtc).toLocaleString()}</div>
+										)}
+									</div>
+									{it.distanceMeters !== undefined && isFinite(it.distanceMeters) && (
+										<div className="text-xs text-gray-600">{metersToMiles(it.distanceMeters).toFixed(1)} mi</div>
 									)}
 								</div>
-								{it.distanceMeters !== undefined && isFinite(it.distanceMeters) && (
-									<div className="text-xs text-gray-600">{metersToMiles(it.distanceMeters).toFixed(1)} mi</div>
-								)}
-							</div>
-						</li>
-					))}
-				</ul>
-			)}
+							</li>
+						))}
+					</ul>
+				)}
+			</div>
 		</div>
 	);
 }

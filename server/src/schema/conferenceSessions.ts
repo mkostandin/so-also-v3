@@ -1,4 +1,5 @@
 import { pgSchema, text, timestamp, uuid, pgEnum, index } from 'drizzle-orm/pg-core';
+import { asc } from 'drizzle-orm';
 import { conferences } from './conferences';
 
 export const appSchema = pgSchema('app');
@@ -16,7 +17,7 @@ export const conferenceSessions = appSchema.table('conference_sessions', {
 	ends_at_utc: timestamp('ends_at_utc', { withTimezone: true }),
 	status: statusEnum('status').notNull().default('pending'),
 }, (t) => ({
-	confStartIdx: index('conf_sessions_conf_start_idx').on(t.conference_id, t.starts_at_utc.asc())
+	confStartIdx: index('conf_sessions_conf_start_idx').on(t.conference_id, asc(t.starts_at_utc))
 }));
 
 export type ConferenceSession = typeof conferenceSessions.$inferSelect;

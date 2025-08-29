@@ -24,6 +24,7 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
 
   // Handle map load
   const handleMapLoad = useCallback(async (map: mapboxgl.Map) => {
+    console.log('Mapbox map loaded successfully!');
     // Center on user location if available
     if (userCoords) {
       map.setCenter([userCoords.lng, userCoords.lat]);
@@ -190,7 +191,7 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
 
   // Use the map hook
   const { map, isLoading, error } = useMapboxMap({
-    container: mapContainerRef.current,
+    container: mapContainerRef,
     onMapLoad: handleMapLoad,
     onMapError: handleMapError,
   });

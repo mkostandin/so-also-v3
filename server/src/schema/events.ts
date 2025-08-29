@@ -30,8 +30,8 @@ export const events = appSchema.table('events', {
 	updated_at: timestamp('updated_at').defaultNow().notNull(),
 }, (t) => {
 	return {
-		statusEndsIdx: index('events_status_ends_idx').on(t.status, t.ends_at_utc.asc()),
-		committeeStatusEndsIdx: index('events_committee_status_ends_idx').on(t.committee_slug, t.status, t.ends_at_utc.asc()),
+		statusEndsIdx: index('events_status_ends_idx').on(t.status, t.ends_at_utc),
+		committeeStatusEndsIdx: index('events_committee_status_ends_idx').on(t.committee_slug, t.status, t.ends_at_utc),
 	};
 });
 

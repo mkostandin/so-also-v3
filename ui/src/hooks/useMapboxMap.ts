@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, RefObject } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { initializeMapbox, getDefaultMapConfig, getMapboxStyles } from '@/lib/mapbox';
 
 interface UseMapboxMapOptions {
-  container: HTMLElement | null;
+  container: RefObject<HTMLElement>;
   onMapLoad?: (map: mapboxgl.Map) => void;
   onMapError?: (error: Error) => void;
 }
@@ -14,7 +14,7 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapO
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!container) return;
+    if (!container.current) return;
 
     const initializeMap = async () => {
       try {
@@ -31,13 +31,18 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapO
 
         // Create map instance
         const map = new mapboxgl.Map({
-          container,
+          container: container.current,
           ...getDefaultMapConfig(),
         });
 
         // Add navigation controls
         map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-        map.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
+
+        // Add scale control with miles instead of km
+        const scaleControl = new mapboxgl.ScaleControl({
+          unit: 'imperial' // This will show miles instead of km
+        });
+        map.addControl(scaleControl, 'bottom-left');
 
         // Add geolocation control
         map.addControl(
@@ -83,7 +88,7 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapO
     return () => {
       cleanup?.then(cleanupFn => cleanupFn?.());
     };
-  }, [container, onMapLoad, onMapError]);
+  }, [container.current, onMapLoad, onMapError]);
 
   return {
     map: mapRef.current,

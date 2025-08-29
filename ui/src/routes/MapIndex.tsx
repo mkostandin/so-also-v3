@@ -19,7 +19,7 @@ export default function MapIndex() {
 	};
 
 	return (
-		<div className="pb-16">
+		<div className="flex flex-col h-full">
 			<div className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60">
 				<div className="mx-auto max-w-3xl p-2">
 					<Tabs value={current} onValueChange={onValueChange}>
@@ -31,7 +31,7 @@ export default function MapIndex() {
 					</Tabs>
 				</div>
 			</div>
-			<div className="mx-auto max-w-3xl p-2">
+			<div className="flex-1 overflow-hidden">
 				<Outlet />
 			</div>
 		</div>

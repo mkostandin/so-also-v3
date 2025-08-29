@@ -3,10 +3,21 @@ import mapboxgl from 'mapbox-gl';
 // Initialize Mapbox with access token
 export const initializeMapbox = () => {
   const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+
   if (!token) {
     throw new Error('VITE_MAPBOX_ACCESS_TOKEN is required. Please add it to your .env file.');
   }
   mapboxgl.accessToken = token;
+
+  // Disable Mapbox telemetry to avoid blocked POSTs to events.mapbox.com
+  const setTelemetry = (mapboxgl as unknown as { setTelemetryEnabled?: (enabled: boolean) => void }).setTelemetryEnabled;
+  try {
+    if (typeof setTelemetry === 'function') {
+      setTelemetry(false);
+    }
+  } catch {
+    // no-op if SDK shape changes or method unavailable
+  }
 };
 
 // CSS to hide Mapbox attribution and logo
