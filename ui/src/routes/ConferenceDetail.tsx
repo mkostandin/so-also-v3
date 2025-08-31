@@ -5,6 +5,8 @@ import SessionCard from '@/components/SessionCard';
 import ProgramAgenda from '@/components/ProgramAgenda';
 import NotificationsToggles from '@/components/NotificationsToggles';
 import FlagButton from '@/components/FlagButton';
+import Tabs from '@/components/Tabs';
+import MapboxMap from '@/components/MapboxMap';
 import type { Conference, ConferenceSession } from '@/lib/api-client';
 
 export default function ConferenceDetail() {
@@ -13,7 +15,44 @@ export default function ConferenceDetail() {
 	const [sessions, setSessions] = useState<ConferenceSession[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [view, setView] = useState<'sessions' | 'agenda'>('sessions');
+	const [activeTab, setActiveTab] = useState('Program');
+
+	const tabs = [
+		{ label: 'Program', value: 'Program' },
+		{ label: 'Workshops', value: 'Workshops' },
+		{ label: 'Panels', value: 'Panels' },
+		{ label: 'Keynotes & Ceremonies', value: 'Keynotes & Ceremonies' },
+		{ label: 'Marathon', value: 'Marathon' },
+		{ label: 'Dances', value: 'Dances' },
+		{ label: 'Events', value: 'Events' },
+		{ label: 'Social & Awards', value: 'Social & Awards' },
+		{ label: 'Hotel Map', value: 'Hotel Map' },
+		{ label: 'Notifications', value: 'Notifications' },
+	];
+
+	// Filter sessions based on active tab
+	const getFilteredSessions = () => {
+		switch (activeTab) {
+			case 'Workshops':
+				return sessions.filter(session => session.type === 'workshop');
+			case 'Panels':
+				return sessions.filter(session => session.type === 'panel');
+			case 'Keynotes & Ceremonies':
+				return sessions.filter(session => session.type === 'main');
+			case 'Marathon':
+				return sessions.filter(session => session.type === 'marathon');
+			case 'Dances':
+				return sessions.filter(session => session.type === 'dance');
+			case 'Events':
+				return sessions.filter(session => session.type === 'event');
+			case 'Social & Awards':
+				return sessions.filter(session => session.type === 'main_meeting');
+			default:
+				return sessions;
+		}
+	};
+
+	const filteredSessions = getFilteredSessions();
 	useEffect(() => {
 		let mounted = true;
 		(async () => {
@@ -110,74 +149,85 @@ export default function ConferenceDetail() {
 			</div>
 
 			{/* Navigation Tabs */}
-			<div className="border-b border-gray-200 dark:border-gray-700">
-				<nav className="flex space-x-8">
-					<button
-						onClick={() => setView('sessions')}
-						className={`py-2 px-1 border-b-2 font-medium text-sm ${
-							view === 'sessions'
-								? 'border-blue-500 text-blue-600 dark:text-blue-400'
-								: 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-						}`}
-					>
-						Sessions ({sessions.length})
-					</button>
-					<button
-						onClick={() => setView('agenda')}
-						className={`py-2 px-1 border-b-2 font-medium text-sm ${
-							view === 'agenda'
-								? 'border-blue-500 text-blue-600 dark:text-blue-400'
-								: 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-						}`}
-					>
-						Program Agenda
-					</button>
-				</nav>
-			</div>
+			<Tabs
+				tabs={tabs}
+				activeTab={activeTab}
+				onTabChange={setActiveTab}
+			/>
 
-			{/* Notifications Section */}
-			<div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-				<h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-					🔔 Conference Notifications
-				</h3>
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Conference Updates</h4>
-						<NotificationsToggles
-							conferenceId={id}
-							showConferenceTopics={true}
-						/>
-					</div>
-					<div>
-						<h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Session Types</h4>
-						<NotificationsToggles
-							conferenceId={id}
-							showSessionTopics={true}
-						/>
-					</div>
-				</div>
-			</div>
+
 
 			{/* Content */}
-			{view === 'sessions' ? (
-				<div className="space-y-4">
-					{sessions.length === 0 ? (
-						<div className="text-center py-8 text-gray-500 dark:text-gray-400">
-							No sessions scheduled yet.
+			<div
+				id={`tabpanel-${activeTab}`}
+				role="tabpanel"
+				aria-labelledby={`tab-${activeTab}`}
+				className="space-y-6"
+			>
+				{activeTab === 'Program' && (
+					<ProgramAgenda
+						sessions={sessions}
+						conferenceStart={conf.startsAtUtc}
+						conferenceEnd={conf.endsAtUtc}
+					/>
+				)}
+
+				{activeTab === 'Hotel Map' && (
+					<div className="rounded-lg border bg-white dark:bg-gray-900 p-6">
+						<h2 className="text-xl font-semibold mb-4">Hotel Map</h2>
+						<MapboxMap />
+					</div>
+				)}
+
+				{activeTab === 'Notifications' && (
+					<div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+						<h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+							🔔 Conference Notifications
+						</h3>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Conference Updates</h4>
+								<NotificationsToggles
+									conferenceId={id}
+									showConferenceTopics={true}
+								/>
+							</div>
+							<div>
+								<h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Session Types</h4>
+								<NotificationsToggles
+									conferenceId={id}
+									showSessionTopics={true}
+								/>
+							</div>
 						</div>
-					) : (
-						<div className="grid gap-4">
-							{sessions.map((s) => <SessionCard key={s.id} session={s} />)}
+					</div>
+				)}
+
+				{/* Session Type Tabs */}
+				{['Workshops', 'Panels', 'Keynotes & Ceremonies', 'Marathon', 'Dances', 'Events', 'Social & Awards'].includes(activeTab) && (
+					<div className="space-y-4">
+						<div className="flex items-center justify-between">
+							<h2 className="text-xl font-semibold">{activeTab}</h2>
+							<span className="text-sm text-gray-500 dark:text-gray-400">
+								{filteredSessions.length} session{filteredSessions.length !== 1 ? 's' : ''}
+							</span>
 						</div>
-					)}
-				</div>
-			) : (
-				<ProgramAgenda
-					sessions={sessions}
-					conferenceStart={conf.startsAtUtc}
-					conferenceEnd={conf.endsAtUtc}
-				/>
-			)}
+
+						{filteredSessions.length === 0 ? (
+							<div className="text-center py-12 text-gray-500 dark:text-gray-400">
+								<div className="text-4xl mb-4">📅</div>
+								<p>No {activeTab.toLowerCase()} scheduled yet.</p>
+							</div>
+						) : (
+							<div className="grid gap-4">
+								{filteredSessions.map((session) => (
+									<SessionCard key={session.id} session={session} />
+								))}
+							</div>
+						)}
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }

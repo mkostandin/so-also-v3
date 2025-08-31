@@ -38,6 +38,28 @@ async function seedConferenceData() {
   const baseDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // Start 30 days from now
 
   const conferences: ConferenceData[] = [
+    // NECYPAA 35 Conference
+    {
+      name: 'NECYPAA 35th Annual Conference',
+      city: 'Manchester',
+      stateProv: 'NH',
+      country: 'USA',
+      latitude: 42.9956,
+      longitude: -71.4548,
+      programUrl: 'https://necypaa.org/conferences/necypaa35/program',
+      hotelMapUrl: 'https://necypaa.org/conferences/necypaa35/hotels',
+      flyerUrl: 'https://necypaa.org/conferences/necypaa35/flyer.pdf',
+      websiteUrl: 'https://necypaa.org/conferences/necypaa35',
+      imageUrls: [
+        'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800',
+        'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800',
+        'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800'
+      ],
+      startsAtUtc: new Date(2026, 0, 9, 8, 0, 0), // January 9, 2026, 8 AM
+      endsAtUtc: new Date(2026, 0, 11, 22, 0, 0), // January 11, 2026, 10 PM
+      description: 'NECYPAA 35th Annual Conference at 700 Elm Street, Manchester, NH. Three days of fellowship, service, and spiritual growth featuring workshops, panels, dances, and community building activities.'
+    },
+
     // Northeast Regional Conferences
     {
       name: 'NECYPAA 36th Annual Conference',
@@ -207,7 +229,9 @@ async function seedConferenceData() {
       console.log(`✅ Inserted conference: ${conference.name}`);
 
       // Generate conference sessions for this conference
-      const conferenceSessions = generateConferenceSessions(insertedConference.id, conference.startsAtUtc, conference.endsAtUtc);
+      const conferenceSessions = conference.name === 'NECYPAA 35th Annual Conference'
+        ? generateNECYPAA35Sessions(insertedConference.id, conference.startsAtUtc, conference.endsAtUtc)
+        : generateConferenceSessions(insertedConference.id, conference.startsAtUtc, conference.endsAtUtc);
 
       for (const session of conferenceSessions) {
         try {
@@ -394,6 +418,213 @@ function generateConferenceSessions(conferenceId: string, conferenceStart: Date,
         desc: 'Full-day intensive workshop series covering multiple professional development topics.',
         startsAtUtc: new Date(dayStart.getTime() + dayStartHour * 60 * 60 * 1000),
         endsAtUtc: new Date(dayStart.getTime() + dayEndHour * 60 * 60 * 1000), // All day
+      });
+    }
+  }
+
+  return sessions;
+}
+
+function generateNECYPAA35Sessions(conferenceId: string, conferenceStart: Date, conferenceEnd: Date): ConferenceSessionData[] {
+  const sessions: ConferenceSessionData[] = [];
+
+  // Conference spans 3 days (Jan 9-11, 2026)
+  const days = 3;
+
+  for (let day = 0; day < days; day++) {
+    const dayStart = new Date(conferenceStart.getTime() + day * 24 * 60 * 60 * 1000);
+
+    // Day 1: Opening ceremonies and introductory sessions (Jan 9)
+    if (day === 0) {
+      // Opening Ceremony
+      sessions.push({
+        title: 'Opening Ceremony & Welcome',
+        type: 'main',
+        room: 'Grand Ballroom',
+        desc: 'Official opening of NECYPAA 35th Annual Conference with welcoming remarks from leadership, traditional ceremonies, and fellowship.',
+        startsAtUtc: new Date(dayStart.getTime() + 8 * 60 * 60 * 1000), // 8:00 AM
+        endsAtUtc: new Date(dayStart.getTime() + 9.5 * 60 * 60 * 1000), // 9:30 AM (1.5 hours)
+      });
+
+      // Keynote Address
+      sessions.push({
+        title: 'Keynote: Unity in Recovery - Our Shared Journey',
+        type: 'main',
+        room: 'Grand Ballroom',
+        desc: 'Inspiring keynote address on the power of unity, fellowship, and spiritual growth in our recovery journey.',
+        startsAtUtc: new Date(dayStart.getTime() + 10 * 60 * 60 * 1000), // 10:00 AM
+        endsAtUtc: new Date(dayStart.getTime() + 11.5 * 60 * 60 * 1000), // 11:30 AM (1.5 hours)
+      });
+
+      // Morning Workshops
+      sessions.push({
+        title: 'Workshop: Effective Sponsorship & Mentorship',
+        type: 'workshop',
+        room: 'Conference Room A',
+        desc: 'Learn the principles of effective sponsorship, building meaningful relationships, and being of service to others in recovery.',
+        startsAtUtc: new Date(dayStart.getTime() + 13 * 60 * 60 * 1000), // 1:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 14.5 * 60 * 60 * 1000), // 2:30 PM (1.5 hours)
+      });
+
+      sessions.push({
+        title: 'Workshop: Working the Steps in Daily Life',
+        type: 'workshop',
+        room: 'Conference Room B',
+        desc: 'Practical application of the Twelve Steps in everyday situations, relationships, and challenges.',
+        startsAtUtc: new Date(dayStart.getTime() + 15 * 60 * 60 * 1000), // 3:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 16.5 * 60 * 60 * 1000), // 4:30 PM (1.5 hours)
+      });
+
+      // Afternoon Panels
+      sessions.push({
+        title: 'Panel: AA Sponsorship - Living the Traditions',
+        type: 'panel',
+        room: 'Grand Ballroom',
+        desc: 'Panel discussion with experienced sponsors sharing insights on living the Twelve Traditions in sponsorship relationships.',
+        startsAtUtc: new Date(dayStart.getTime() + 17 * 60 * 60 * 1000), // 5:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 18.5 * 60 * 60 * 1000), // 6:30 PM (1.5 hours)
+      });
+
+      // Welcome Reception
+      sessions.push({
+        title: 'Welcome Reception & Fellowship',
+        type: 'event',
+        room: 'Dining Hall',
+        desc: 'Opening reception with light refreshments and opportunity for fellowship among attendees.',
+        startsAtUtc: new Date(dayStart.getTime() + 19 * 60 * 60 * 1000), // 7:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 21 * 60 * 60 * 1000), // 9:00 PM (2 hours)
+      });
+    }
+
+    // Day 2: Core programming day (Jan 10)
+    if (day === 1) {
+      // Morning Workshops
+      sessions.push({
+        title: 'Workshop: The Big Book Study - Living Sober',
+        type: 'workshop',
+        room: 'Conference Room A',
+        desc: 'In-depth study of Big Book principles and how to apply them in maintaining long-term sobriety.',
+        startsAtUtc: new Date(dayStart.getTime() + 8 * 60 * 60 * 1000), // 8:00 AM
+        endsAtUtc: new Date(dayStart.getTime() + 9.5 * 60 * 60 * 1000), // 9:30 AM (1.5 hours)
+      });
+
+      sessions.push({
+        title: 'Workshop: Service Work - Giving Back to the Fellowship',
+        type: 'workshop',
+        room: 'Conference Room B',
+        desc: 'Understanding the importance of service work and how to get involved at various levels of AA.',
+        startsAtUtc: new Date(dayStart.getTime() + 10 * 60 * 60 * 1000), // 10:00 AM
+        endsAtUtc: new Date(dayStart.getTime() + 11.5 * 60 * 60 * 1000), // 11:30 AM (1.5 hours)
+      });
+
+      sessions.push({
+        title: 'Workshop: Family & Relationships in Recovery',
+        type: 'workshop',
+        room: 'Conference Room C',
+        desc: 'Building healthy relationships with family members and loved ones during recovery.',
+        startsAtUtc: new Date(dayStart.getTime() + 13 * 60 * 60 * 1000), // 1:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 14.5 * 60 * 60 * 1000), // 2:30 PM (1.5 hours)
+      });
+
+      // Networking Lunch
+      sessions.push({
+        title: 'Networking Luncheon',
+        type: 'event',
+        room: 'Dining Hall',
+        desc: 'Lunchtime networking opportunity to connect with fellow attendees and share experiences.',
+        startsAtUtc: new Date(dayStart.getTime() + 12 * 60 * 60 * 1000), // 12:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 13 * 60 * 60 * 1000), // 1:00 PM (1 hour)
+      });
+
+      // Afternoon Panels
+      sessions.push({
+        title: 'Panel: Bill Wilson\'s Vision - Carrying the Message',
+        type: 'panel',
+        room: 'Grand Ballroom',
+        desc: 'Panel discussion on Bill Wilson\'s vision for AA and the importance of carrying the message of recovery.',
+        startsAtUtc: new Date(dayStart.getTime() + 15 * 60 * 60 * 1000), // 3:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 16.5 * 60 * 60 * 1000), // 4:30 PM (1.5 hours)
+      });
+
+      sessions.push({
+        title: 'Panel: Young People in AA - Staying Sober in Today\'s World',
+        type: 'panel',
+        desc: 'Discussion on challenges and opportunities for young people maintaining sobriety in contemporary society.',
+        room: 'Conference Room A',
+        startsAtUtc: new Date(dayStart.getTime() + 17 * 60 * 60 * 1000), // 5:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 18.5 * 60 * 60 * 1000), // 6:30 PM (1.5 hours)
+      });
+
+      // Evening Dance
+      sessions.push({
+        title: 'Evening Dance & Social Gathering',
+        type: 'dance',
+        room: 'Ballroom Lounge',
+        desc: 'Evening dance and social gathering for fellowship, fun, and building connections with fellow attendees.',
+        startsAtUtc: new Date(dayStart.getTime() + 20 * 60 * 60 * 1000), // 8:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 23 * 60 * 60 * 1000), // 11:00 PM (3 hours)
+      });
+    }
+
+    // Day 3: Closing and special sessions (Jan 11)
+    if (day === 2) {
+      // Morning Workshops
+      sessions.push({
+        title: 'Workshop: Spiritual Growth & Higher Power',
+        type: 'workshop',
+        room: 'Conference Room A',
+        desc: 'Exploring spiritual growth, developing a relationship with a Higher Power, and maintaining spiritual fitness.',
+        startsAtUtc: new Date(dayStart.getTime() + 8 * 60 * 60 * 1000), // 8:00 AM
+        endsAtUtc: new Date(dayStart.getTime() + 9.5 * 60 * 60 * 1000), // 9:30 AM (1.5 hours)
+      });
+
+      sessions.push({
+        title: 'Workshop: Relapse Prevention & Continued Sobriety',
+        type: 'workshop',
+        room: 'Conference Room B',
+        desc: 'Strategies for preventing relapse, maintaining long-term sobriety, and supporting others in their recovery.',
+        startsAtUtc: new Date(dayStart.getTime() + 10 * 60 * 60 * 1000), // 10:00 AM
+        endsAtUtc: new Date(dayStart.getTime() + 11.5 * 60 * 60 * 1000), // 11:30 AM (1.5 hours)
+      });
+
+      // Networking Lunch
+      sessions.push({
+        title: 'Closing Luncheon & Fellowship',
+        type: 'event',
+        room: 'Dining Hall',
+        desc: 'Final luncheon with opportunity for fellowship and reflection on the conference experience.',
+        startsAtUtc: new Date(dayStart.getTime() + 12 * 60 * 60 * 1000), // 12:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 13 * 60 * 60 * 1000), // 1:00 PM (1 hour)
+      });
+
+      // Afternoon Closing Sessions
+      sessions.push({
+        title: 'Closing Panel: Our Future in AA',
+        type: 'panel',
+        room: 'Grand Ballroom',
+        desc: 'Panel discussion on the future of AA, attracting new members, and maintaining our traditions.',
+        startsAtUtc: new Date(dayStart.getTime() + 14 * 60 * 60 * 1000), // 2:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 15.5 * 60 * 60 * 1000), // 3:30 PM (1.5 hours)
+      });
+
+      // Awards Ceremony & Gala Dinner
+      sessions.push({
+        title: 'Awards Ceremony & Gala Dinner',
+        type: 'main_meeting',
+        room: 'Grand Ballroom',
+        desc: 'Formal dinner celebration with awards presentation, recognition of service, and closing remarks.',
+        startsAtUtc: new Date(dayStart.getTime() + 17 * 60 * 60 * 1000), // 5:00 PM
+        endsAtUtc: new Date(dayStart.getTime() + 21 * 60 * 60 * 1000), // 9:00 PM (4 hours)
+      });
+
+      // Farewell Dance
+      sessions.push({
+        title: 'Farewell Dance & Celebration',
+        type: 'dance',
+        room: 'Ballroom Lounge',
+        desc: 'Final celebration with dancing, fellowship, and goodbyes as we carry the message forward.',
+        startsAtUtc: new Date(dayStart.getTime() + 21.5 * 60 * 60 * 1000), // 9:30 PM
+        endsAtUtc: new Date(dayStart.getTime() + 23 * 60 * 60 * 1000), // 11:00 PM (1.5 hours)
       });
     }
   }
