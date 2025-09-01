@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getPermissionState, getCurrentPosition, GeoPermissionState } from '@/lib/geolocation';
 
 export function useUserLocation() {
@@ -14,7 +14,7 @@ export function useUserLocation() {
 		};
 	}, []);
 
-	const request = async () => {
+	const request = useCallback(async () => {
 		try {
 			const pos = await getCurrentPosition({ enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
 			setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
@@ -23,7 +23,7 @@ export function useUserLocation() {
 			setError(e?.message || 'Location error');
 			setStatus('denied');
 		}
-	};
+	}, []);
 
 	return { coords, status, error, request };
 }

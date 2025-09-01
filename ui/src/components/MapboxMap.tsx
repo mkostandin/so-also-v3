@@ -20,8 +20,17 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
   const [popup, setPopup] = useState<mapboxgl.Popup | null>(null);
   const [popupLoading, setPopupLoading] = useState<boolean>(false);
   const [popupError, setPopupError] = useState<string | null>(null);
-  const { coords: userCoords } = useUserLocation();
+  const { coords: userCoords, status: locationStatus, request: requestLocation } = useUserLocation();
   const navigate = useNavigate();
+
+  // Request user location on component mount if permission allows
+  useEffect(() => {
+    console.log('Location status:', locationStatus);
+    if (locationStatus === 'granted' || locationStatus === 'prompt') {
+      console.log('Requesting user location...');
+      requestLocation();
+    }
+  }, [locationStatus, requestLocation]);
 
   // Filter events based on selected types
   const filteredEvents = events.filter(event => {
@@ -45,13 +54,16 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
     console.log('Mapbox access token:', !!import.meta.env.VITE_MAPBOX_ACCESS_TOKEN);
 
     // Center on user location if available
+    console.log('handleMapLoad - userCoords:', userCoords);
     if (userCoords) {
+      console.log('Centering on user location during map load');
       map.setCenter([userCoords.lng, userCoords.lat]);
-      map.setZoom(12);
+      map.setZoom(7);
     } else {
+      console.log('Centering on Derry, NH fallback during map load');
       // Default to Derry, NH (6 Railroad Ave) if no user location
       map.setCenter([-71.3273, 42.8806]); // Derry, NH coordinates
-      map.setZoom(13); // Slightly higher zoom for city-level view
+      map.setZoom(7); // Broader view for fallback
     }
 
     // Add clustering data source
@@ -563,6 +575,17 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
     new mapboxgl.Marker({ element: userMarkerElement })
       .setLngLat([userCoords.lng, userCoords.lat])
       .addTo(map);
+  }, [map, userCoords]);
+
+  // Center map on user's location when it becomes available after map load
+  useEffect(() => {
+    console.log('Map centering effect - map:', !!map, 'userCoords:', userCoords);
+    if (!map || !userCoords) return;
+
+    console.log('Centering map on user location:', userCoords);
+    // Center map on user's location when it becomes available
+    map.setCenter([userCoords.lng, userCoords.lat]);
+    map.setZoom(7);
   }, [map, userCoords]);
 
   // Render React component into popup when popup and event are available
