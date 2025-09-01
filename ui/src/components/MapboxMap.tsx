@@ -49,9 +49,9 @@ export default function MapboxMap({ selectedEventTypes = [], className = '' }: M
       map.setCenter([userCoords.lng, userCoords.lat]);
       map.setZoom(12);
     } else {
-      // Default to a reasonable location if no user location
-      map.setCenter([-122.4194, 37.7749]); // San Francisco
-      map.setZoom(10);
+      // Default to Derry, NH (6 Railroad Ave) if no user location
+      map.setCenter([-71.3273, 42.8806]); // Derry, NH coordinates
+      map.setZoom(13); // Slightly higher zoom for city-level view
     }
 
     // Add clustering data source

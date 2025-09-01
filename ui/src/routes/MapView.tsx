@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import MapboxMap from '@/components/MapboxMap';
-import EventTypeFilter from '@/components/EventTypeFilter';
+import EventTypeFilter, { EVENT_TYPES } from '@/components/EventTypeFilter';
 import { useMobileDebug } from '@/hooks/useMobileDebug';
 
 export default function MapView() {
-	const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+	const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([...EVENT_TYPES]);
 	const [mapLoadTimeout, setMapLoadTimeout] = useState(false);
 	const { logAction, setLoading, setError, isMobile } = useMobileDebug();
 

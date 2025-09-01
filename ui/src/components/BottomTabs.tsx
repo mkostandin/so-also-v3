@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 export default function BottomTabs() {
 	const base = '/app';
 	const tabs = [
-		{ to: `${base}/map`, label: 'Map' },
+		{ to: `${base}/map`, label: 'Browse' },
 		{ to: `${base}/submit`, label: 'Submit' },
 		{ to: `${base}/conferences`, label: 'Conferences' },
 		{ to: `${base}/settings`, label: 'Settings' },
