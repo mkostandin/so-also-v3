@@ -38,12 +38,6 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapO
         // Add navigation controls
         map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-        // Add scale control with miles instead of km
-        const scaleControl = new mapboxgl.ScaleControl({
-          unit: 'imperial' // This will show miles instead of km
-        });
-        map.addControl(scaleControl, 'bottom-left');
-
         // Add geolocation control
         map.addControl(
           new mapboxgl.GeolocateControl({

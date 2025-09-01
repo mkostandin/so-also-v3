@@ -3,33 +3,109 @@ import MapboxMap from '@/components/MapboxMap';
 import EventTypeFilter, { EVENT_TYPES } from '@/components/EventTypeFilter';
 import { useMobileDebug } from '@/hooks/useMobileDebug';
 
+// Network-aware timeout calculation with browser compatibility
+const getTimeoutDuration = (isMobile: boolean) => {
+	// Base timeouts: mobile 60s, desktop 25s
+	const baseTimeout = isMobile ? 60000 : 25000;
+
+	// Check for Network Information API support
+	const hasNetworkInfo = 'connection' in navigator ||
+	                      'mozConnection' in navigator ||
+	                      'webkitConnection' in navigator;
+
+	if (!hasNetworkInfo) {
+		// Fallback: use basic connectivity check
+		const isOnline = navigator.onLine;
+		if (!isOnline) {
+			return 120000; // 2 minutes for offline scenarios
+		}
+		return baseTimeout;
+	}
+
+	// Get connection object with fallbacks
+	const connection = (navigator as any).connection ||
+	                  (navigator as any).mozConnection ||
+	                  (navigator as any).webkitConnection;
+
+	if (!connection || !connection.effectiveType) {
+		// No effectiveType available, use basic online check
+		const isOnline = navigator.onLine;
+		if (!isOnline) {
+			return 120000; // 2 minutes for offline scenarios
+		}
+		return baseTimeout;
+	}
+
+	// Adjust timeout based on connection speed
+	switch (connection.effectiveType) {
+		case '4g':
+			return isMobile ? 45000 : 20000; // Faster on 4G
+		case '3g':
+			return isMobile ? 60000 : 25000; // Standard timeouts
+		case '2g':
+		case 'slow-2g':
+			return 90000; // Much longer for slow connections
+		default:
+			return baseTimeout;
+	}
+};
+
 export default function MapView() {
 	const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([...EVENT_TYPES]);
 	const [mapLoadTimeout, setMapLoadTimeout] = useState(false);
+	const [retryCount, setRetryCount] = useState(0);
+	const [isRetrying, setIsRetrying] = useState(false);
+	const maxRetries = 2;
 	const { logAction, setLoading, setError, isMobile } = useMobileDebug();
 
 	useEffect(() => {
-		logAction('MapView component mounted');
-		setLoading(true, 'Loading map...');
+		logAction(`MapView component mounted (retry: ${retryCount}/${maxRetries})`);
 
-		// Set a timeout for map loading (30 seconds on mobile, 10 on desktop)
-		const timeout = isMobile ? 30000 : 10000;
+		// Update loading message based on retry status
+		const loadingMessage = isRetrying
+			? `Retrying map load... (${retryCount}/${maxRetries})`
+			: retryCount > 0
+			? `Loading map... (attempt ${retryCount + 1})`
+			: 'Loading map...';
+
+		setLoading(true, loadingMessage);
+
+		// Get network-aware timeout duration
+		const timeout = getTimeoutDuration(isMobile);
+		const timeoutSeconds = Math.round(timeout / 1000);
+
+		logAction(`Setting map timeout: ${timeoutSeconds}s (mobile: ${isMobile})`);
+
 		const timer = setTimeout(() => {
-			if (isMobile) {
-				logAction('Map load timeout - showing fallback');
-				setMapLoadTimeout(true);
-				setError('Map failed to load within 30 seconds. This is common on mobile devices.');
+			logAction(`Map load timeout after ${timeoutSeconds}s - retry ${retryCount}/${maxRetries}`);
+
+			// Implement retry logic
+			if (retryCount < maxRetries) {
+				setRetryCount(prev => prev + 1);
+				setIsRetrying(true);
+				logAction(`Attempting retry ${retryCount + 1}/${maxRetries}`);
+				return; // Don't show error yet, retry instead
 			}
+
+			// Max retries reached, show fallback
+			logAction('Max retries reached - showing fallback');
+			setMapLoadTimeout(true);
+
+			const errorMessage = isMobile
+				? `Map failed to load after ${maxRetries + 1} attempts. This is common on mobile devices with slow connections.`
+				: `Map failed to load after ${maxRetries + 1} attempts. Please check your connection and try again.`;
+
+			setError(errorMessage);
 		}, timeout);
 
 		return () => {
 			clearTimeout(timer);
 			setLoading(false, 'MapView unmounted');
 		};
-	}, [isMobile, logAction, setLoading, setError]);
+	}, [isMobile, logAction, setLoading, setError, retryCount, maxRetries, isRetrying]);
 
-	// Simple fallback UI for when map fails on mobile
-	if (mapLoadTimeout && isMobile) {
+	// Simple fallback UI for when map fails to load
+	if (mapLoadTimeout) {
 		return (
 			<div className="flex flex-col h-full items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
 				<div className="text-center max-w-md">
@@ -42,15 +118,16 @@ export default function MapView() {
 						Map Loading Issue
 					</h2>
 					<p className="text-gray-600 dark:text-gray-400 mb-4">
-						The interactive map couldn't load on your device. This is common with mobile browsers due to memory or compatibility limitations.
+						The interactive map couldn't load. This can happen due to slow connections, network issues, or browser limitations. {isMobile ? 'This is common on mobile devices.' : 'Please try again or check your connection.'}
 					</p>
 					<div className="space-y-2">
 						<button
 							onClick={() => {
 								setMapLoadTimeout(false);
 								setError('');
-								logAction('Retrying map load');
-								window.location.reload();
+								setRetryCount(0);
+								setIsRetrying(false);
+								logAction('Manual retry initiated');
 							}}
 							className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
 						>
@@ -85,6 +162,8 @@ export default function MapView() {
 				<MapboxMap
 					selectedEventTypes={selectedEventTypes}
 					className="h-full w-full"
+					retryCount={retryCount}
+					key={`map-retry-${retryCount}`} // Force re-mount on retry
 				/>
 			</div>
 		</div>
