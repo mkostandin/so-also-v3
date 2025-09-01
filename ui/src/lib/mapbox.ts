@@ -60,14 +60,6 @@ export const cleanupMapContainer = (container: HTMLElement) => {
   // Also clear any text content that might remain
   container.textContent = '';
 
-  // Log cleanup for debugging (can be removed later)
-  console.log('Map container cleaned:', {
-    id: container.id,
-    className: container.className,
-    childrenCount: container.children.length,
-    hasTextContent: !!container.textContent?.trim()
-  });
-
   // Remove any Mapbox-related classes that might interfere
   const mapboxClasses = container.className.split(' ').filter(cls =>
     cls.startsWith('mapbox') ||
@@ -97,30 +89,17 @@ export const cleanupMapContainer = (container: HTMLElement) => {
 
 // Validate container is ready for Mapbox initialization
 export const validateMapContainer = (container: HTMLElement): boolean => {
-  if (!container) {
-    console.warn('Map container validation failed: container is null/undefined');
-    return false;
-  }
+  if (!container) return false;
 
   // Check if container is in DOM
-  if (!document.contains(container)) {
-    console.warn('Map container validation failed: container not in DOM');
-    return false;
-  }
+  if (!document.contains(container)) return false;
 
   // Check if container has any child elements (should be empty for Mapbox)
-  if (container.children.length > 0) {
-    console.warn('Map container validation failed: has child elements', container.children.length);
-    return false;
-  }
+  if (container.children.length > 0) return false;
 
   // Check if container has text content (should be empty)
-  if (container.textContent && container.textContent.trim().length > 0) {
-    console.warn('Map container validation failed: has text content', container.textContent.trim());
-    return false;
-  }
+  if (container.textContent && container.textContent.trim().length > 0) return false;
 
-  console.log('Map container validation passed');
   return true;
 };
 

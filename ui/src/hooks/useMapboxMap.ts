@@ -27,27 +27,20 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapO
         }
 
         // Clean up container before initialization to prevent Mapbox warnings
-        console.log('Starting map container cleanup...');
         cleanupMapContainer(container.current);
 
         // Small delay to ensure DOM is fully ready
         await new Promise(resolve => setTimeout(resolve, 10));
 
         // Validate container is ready for Mapbox (with retry)
-        console.log('Validating map container...');
         if (!validateMapContainer(container.current)) {
-          console.log('First validation failed, attempting cleanup retry...');
           // One more cleanup attempt
           cleanupMapContainer(container.current);
           await new Promise(resolve => setTimeout(resolve, 5));
 
           if (!validateMapContainer(container.current)) {
             console.warn('Map container validation failed after retry, but proceeding with Mapbox initialization');
-          } else {
-            console.log('Map container validation passed after retry');
           }
-        } else {
-          console.log('Map container validation passed on first attempt');
         }
 
         // Initialize Mapbox
