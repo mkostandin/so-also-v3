@@ -18,10 +18,6 @@ export default function EventTypeFilter({ selectedTypes, onTypesChange }: EventT
 
   return (
     <div className="flex flex-col gap-3 p-4 bg-white dark:bg-gray-900 border-b">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Event Type</h3>
-      </div>
-
       {/* Pill-style filter buttons */}
       <div className="flex flex-wrap gap-2">
         {EVENT_TYPES.map(type => {
