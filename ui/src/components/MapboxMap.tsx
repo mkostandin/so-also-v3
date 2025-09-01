@@ -285,18 +285,25 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
 
   return (
     <div className={`relative h-full ${className}`}>
+      {/* Loading overlay - positioned outside map container */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg z-10">
+        <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg z-10 pointer-events-none">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Loading map...</p>
           </div>
         </div>
       )}
-      <div ref={mapContainerRef} className="h-full w-full rounded-lg" />
 
-      {/* Map Components */}
-      {map && (
+      {/* Map container - must remain completely empty for Mapbox */}
+      <div
+        ref={mapContainerRef}
+        className="h-full w-full rounded-lg relative"
+        data-map-container="true"
+      />
+
+      {/* Map Components - rendered conditionally when map is ready */}
+      {map && !isLoading && (
         <>
           <MapLayers map={map} onEventClick={handleEventClick} />
           <MapControls map={map} />

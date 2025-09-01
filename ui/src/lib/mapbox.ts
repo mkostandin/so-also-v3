@@ -48,6 +48,82 @@ export const getDefaultMapConfig = () => ({
   bearing: 0,
 });
 
+// Container cleanup utilities
+export const cleanupMapContainer = (container: HTMLElement) => {
+  if (!container) return;
+
+  // Clear all child elements and text nodes
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
+
+  // Also clear any text content that might remain
+  container.textContent = '';
+
+  // Log cleanup for debugging (can be removed later)
+  console.log('Map container cleaned:', {
+    id: container.id,
+    className: container.className,
+    childrenCount: container.children.length,
+    hasTextContent: !!container.textContent?.trim()
+  });
+
+  // Remove any Mapbox-related classes that might interfere
+  const mapboxClasses = container.className.split(' ').filter(cls =>
+    cls.startsWith('mapbox') ||
+    cls.includes('mapboxgl') ||
+    cls.includes('map-container')
+  );
+
+  if (mapboxClasses.length > 0) {
+    container.className = container.className.split(' ')
+      .filter(cls => !mapboxClasses.includes(cls))
+      .join(' ');
+  }
+
+  // Remove any attributes that might interfere with Mapbox (but keep style for positioning)
+  const attributesToRemove = ['data-mapbox', 'data-loaded', 'data-map-container'];
+  attributesToRemove.forEach(attr => {
+    if (container.hasAttribute(attr)) {
+      container.removeAttribute(attr);
+    }
+  });
+
+  // Ensure container has proper positioning for Mapbox
+  container.style.position = 'relative';
+  container.style.width = '100%';
+  container.style.height = '100%';
+};
+
+// Validate container is ready for Mapbox initialization
+export const validateMapContainer = (container: HTMLElement): boolean => {
+  if (!container) {
+    console.warn('Map container validation failed: container is null/undefined');
+    return false;
+  }
+
+  // Check if container is in DOM
+  if (!document.contains(container)) {
+    console.warn('Map container validation failed: container not in DOM');
+    return false;
+  }
+
+  // Check if container has any child elements (should be empty for Mapbox)
+  if (container.children.length > 0) {
+    console.warn('Map container validation failed: has child elements', container.children.length);
+    return false;
+  }
+
+  // Check if container has text content (should be empty)
+  if (container.textContent && container.textContent.trim().length > 0) {
+    console.warn('Map container validation failed: has text content', container.textContent.trim());
+    return false;
+  }
+
+  console.log('Map container validation passed');
+  return true;
+};
+
 // Map container styles
 export const mapContainerStyles = {
   width: '100%',
