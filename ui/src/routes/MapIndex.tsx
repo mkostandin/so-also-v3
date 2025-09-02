@@ -1,11 +1,40 @@
-import { useEffect } from 'react';
+import { useEffect, useState, createContext, useContext, useCallback } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { EVENT_TYPES } from '@/components/EventTypeFilter';
+
+// Create context for sharing filter state
+interface FilterContextType {
+	selectedEventTypes: string[];
+	setSelectedEventTypes: (types: string[] | ((prev: string[]) => string[])) => void;
+}
+
+export const FilterContext = createContext<FilterContextType | undefined>(undefined);
+
+// Hook to use filter context
+export const useFilterContext = () => {
+	const context = useContext(FilterContext);
+	if (!context) {
+		throw new Error('useFilterContext must be used within FilterContext.Provider');
+	}
+	return context;
+};
 
 export default function MapIndex() {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const base = '/app/map';
+	const [selectedEventTypes, setSelectedEventTypesState] = useState<string[]>(() => [...EVENT_TYPES]);
+
+	const setSelectedEventTypes = useCallback((types: string[] | ((prev: string[]) => string[])) => {
+		setSelectedEventTypesState(prev => {
+			if (typeof types === 'function') {
+				return types(prev);
+			}
+			return types;
+		});
+	}, []);
+
 	const routeToTab = (pathname: string) => {
 		if (pathname.startsWith(`${base}/calendar`)) return 'calendar';
 		if (pathname.startsWith(`${base}/list`)) return 'list';
@@ -19,21 +48,23 @@ export default function MapIndex() {
 	};
 
 	return (
-		<div className="flex flex-col h-full">
-			<div className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60">
-				<div className="mx-auto max-w-3xl p-2">
-					<Tabs value={current} onValueChange={onValueChange}>
-						<TabsList className="grid w-full grid-cols-3">
-							<TabsTrigger value="map">Map</TabsTrigger>
-							<TabsTrigger value="list">List</TabsTrigger>
-							<TabsTrigger value="calendar">Calendar</TabsTrigger>
-						</TabsList>
-					</Tabs>
+		<FilterContext.Provider value={{ selectedEventTypes, setSelectedEventTypes }}>
+			<div className="flex flex-col h-full">
+				<div className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60">
+					<div className="mx-auto max-w-3xl p-2">
+						<Tabs value={current} onValueChange={onValueChange}>
+							<TabsList className="grid w-full grid-cols-3">
+								<TabsTrigger value="map">Map</TabsTrigger>
+								<TabsTrigger value="list">List</TabsTrigger>
+								<TabsTrigger value="calendar">Calendar</TabsTrigger>
+							</TabsList>
+						</Tabs>
+					</div>
+				</div>
+				<div className="flex-1 overflow-hidden">
+					<Outlet />
 				</div>
 			</div>
-			<div className="flex-1 overflow-hidden">
-				<Outlet />
-			</div>
-		</div>
+		</FilterContext.Provider>
 	);
 }

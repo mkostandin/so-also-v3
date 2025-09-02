@@ -18,7 +18,7 @@ const DEFAULT_RADIUS_METERS = 80467; // 50 miles in meters
 const DEFAULT_LAT = 42.3601; // Boston, MA as fallback (near seeded test data)
 const DEFAULT_LNG = -71.0589;
 
-export function useCalendarEvents(range: number = 90): CalendarEventsData {
+export function useCalendarEvents(range: number = 90, selectedEventTypes: string[] = []): CalendarEventsData {
   const { coords: userCoords } = useUserLocation();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +41,7 @@ export function useCalendarEvents(range: number = 90): CalendarEventsData {
         radius,
       });
 
-      // Transform events to calendar format
+      // Store raw events without filtering (filtering will happen in useMemo)
       const calendarEvents: CalendarEvent[] = rawEvents.map(event => {
         const eventDate = event.startsAtUtc ? new Date(event.startsAtUtc) : new Date();
         const dateKey = eventDate.toISOString().split('T')[0]; // YYYY-MM-DD
@@ -59,25 +59,31 @@ export function useCalendarEvents(range: number = 90): CalendarEventsData {
     } finally {
       setLoading(false);
     }
-  }, [userCoords, range]);
+  }, [userCoords, range]); // Removed selectedEventTypes from dependencies
 
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
 
+  const filteredEvents = useMemo(() => {
+    return selectedEventTypes.length === 0
+      ? events
+      : events.filter(event => event.eventType && selectedEventTypes.includes(event.eventType));
+  }, [events, selectedEventTypes]);
+
   const eventsByDate = useMemo(() => {
     const grouped: Record<string, CalendarEvent[]> = {};
-    events.forEach(event => {
+    filteredEvents.forEach(event => {
       if (!grouped[event.dateKey]) {
         grouped[event.dateKey] = [];
       }
       grouped[event.dateKey].push(event);
     });
     return grouped;
-  }, [events]);
+  }, [filteredEvents]);
 
   return {
-    events,
+    events: filteredEvents,
     eventsByDate,
     loading,
     error,

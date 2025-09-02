@@ -6,6 +6,8 @@ import { useLocationPreferences } from '@/hooks/useLocationPreferences';
 import { haversineMeters, metersToMiles } from '@/lib/location-utils';
 import LocationPermissionBanner from '@/components/LocationPermissionBanner';
 import NearbyEventsToggle from '@/components/NearbyEventsToggle';
+import EventTypeFilter from '@/components/EventTypeFilter';
+import { useFilterContext } from './MapIndex';
 
 export default function ListView() {
 	const [items, setItems] = useState<EventItem[]>([]);
@@ -13,6 +15,7 @@ export default function ListView() {
 	const { coords } = useUserLocation();
 	const { prefs } = useLocationPreferences();
 	const navigate = useNavigate();
+	const { selectedEventTypes, setSelectedEventTypes } = useFilterContext();
 
 	const handleEventClick = (event: EventItem) => {
 		navigate(`/app/e/${event.id}`);
@@ -33,8 +36,14 @@ export default function ListView() {
 	}, []);
 
 	const sorted = useMemo(() => {
+		// First filter by event types
+		const typeFiltered = items.filter((item) => {
+			if (selectedEventTypes.length === 0) return true;
+			return item.eventType && selectedEventTypes.includes(item.eventType);
+		});
+
 		if (prefs.nearbyEnabled && coords) {
-			const withDistances = items.map((it) => {
+			const withDistances = typeFiltered.map((it) => {
 				const la = it.latitude != null ? Number(it.latitude) : null;
 				const lo = it.longitude != null ? Number(it.longitude) : null;
 				if (la == null || lo == null) return { ...it, distanceMeters: Number.POSITIVE_INFINITY };
@@ -44,16 +53,20 @@ export default function ListView() {
 				.filter((i) => (i.distanceMeters ?? Infinity) <= prefs.radiusMeters)
 				.sort((a, b) => (a.distanceMeters ?? Infinity) - (b.distanceMeters ?? Infinity));
 		}
-		return [...items].sort((a, b) => {
+		return [...typeFiltered].sort((a, b) => {
 			const ta = a.startsAtUtc ? new Date(a.startsAtUtc).getTime() : 0;
 			const tb = b.startsAtUtc ? new Date(b.startsAtUtc).getTime() : 0;
 			return ta - tb;
 		});
-	}, [items, prefs, coords]);
+	}, [items, prefs, coords, selectedEventTypes]);
 
 	return (
 		<div className="mx-auto max-w-3xl p-2">
 			<div className="space-y-3">
+				<EventTypeFilter
+					selectedTypes={selectedEventTypes}
+					onTypesChange={setSelectedEventTypes}
+				/>
 				<LocationPermissionBanner />
 				<div className="flex items-center justify-between">
 					<h3 className="text-lg font-semibold">Upcoming</h3>

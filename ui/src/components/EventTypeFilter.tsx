@@ -1,20 +1,22 @@
 import { cn } from '@/lib/utils';
+import { useCallback } from 'react';
 
 export const EVENT_TYPES = ['Event', 'Committee Meeting', 'Conference', 'YPAA Meeting', 'Other'] as const;
 
 interface EventTypeFilterProps {
   selectedTypes: string[];
-  onTypesChange: (types: string[]) => void;
+  onTypesChange: (types: string[] | ((prev: string[]) => string[])) => void;
 }
 
 export default function EventTypeFilter({ selectedTypes, onTypesChange }: EventTypeFilterProps) {
-  const handleTypeToggle = (type: string) => {
-    if (selectedTypes.includes(type)) {
-      onTypesChange(selectedTypes.filter(t => t !== type));
-    } else {
-      onTypesChange([...selectedTypes, type]);
-    }
-  };
+  const handleTypeToggle = useCallback((type: string) => {
+    onTypesChange(prevTypes => {
+      const isSelected = prevTypes.includes(type);
+      return isSelected
+        ? prevTypes.filter(t => t !== type)
+        : [...prevTypes, type];
+    });
+  }, [onTypesChange]);
 
   return (
     <div className="flex flex-col gap-3 p-4 bg-white dark:bg-gray-900 border-b">

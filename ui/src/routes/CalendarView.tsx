@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import CalendarGrid from '@/components/CalendarGrid';
 import CalendarEventList from '@/components/CalendarEventList';
 import CalendarEventPopup from '@/components/CalendarEventPopup';
@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, RefreshCw, Calendar as CalendarIcon } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import EventTypeFilter from '@/components/EventTypeFilter';
+import { useFilterContext } from './MapIndex';
 
 export default function CalendarView() {
 	const [cursor, setCursor] = useState(new Date());
@@ -15,47 +17,48 @@ export default function CalendarView() {
 	const [popupDate, setPopupDate] = useState<Date | null>(null);
 	const [popupEvents, setPopupEvents] = useState<CalendarEvent[]>([]);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
+	const { selectedEventTypes, setSelectedEventTypes } = useFilterContext();
 
 	const year = cursor.getFullYear();
 	const month = cursor.getMonth();
 
-	const { events, eventsByDate, loading, error, refetch } = useCalendarEvents(90);
+	const { events, eventsByDate, loading, error, refetch } = useCalendarEvents(90, selectedEventTypes);
 
-	const handleDateClick = (date: Date, events: CalendarEvent[]) => {
+	const handleDateClick = useCallback((date: Date, events: CalendarEvent[]) => {
 		setSelectedDate(date);
 		setPopupDate(date);
 		setPopupEvents(events);
 		setIsPopupOpen(true);
-	};
+	}, []);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const handleDateHover = (_date: Date, _events: CalendarEvent[]) => {
+	const handleDateHover = useCallback((_date: Date, _events: CalendarEvent[]) => {
 		// Optional: Could show a tooltip or mini preview on hover
 		// Parameters are available for future tooltip/preview implementation
-	};
+	}, []);
 
-	const handlePopupClose = () => {
+	const handlePopupClose = useCallback(() => {
 		setIsPopupOpen(false);
 		setPopupDate(null);
 		setPopupEvents([]);
-	};
+	}, []);
 
-	const handleTodayClick = () => {
+	const handleTodayClick = useCallback(() => {
 		const today = new Date();
 		setCursor(today);
 		setSelectedDate(today);
-	};
+	}, []);
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const handleEventClick = (_event: CalendarEvent) => {
+	const handleEventClick = useCallback((_event: CalendarEvent) => {
 		// Event navigation is handled by Link component in CalendarEventList/CalendarEventPopup
 		// Parameter is available for future analytics or additional functionality
 		setIsPopupOpen(false);
-	};
+	}, []);
 
 	if (loading) {
 		return (
-			<div className="mx-auto max-w-4xl p-4">
+			<div className="mx-auto max-w-4xl p-2">
 				<div className="space-y-4">
 					<Skeleton className="h-8 w-64" />
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -72,8 +75,14 @@ export default function CalendarView() {
 	}
 
 	return (
-		<div className="mx-auto max-w-4xl p-4">
+		<div className="mx-auto max-w-4xl p-2">
 			<div className="space-y-4">
+				{/* Event Type Filter */}
+				<EventTypeFilter
+					selectedTypes={selectedEventTypes}
+					onTypesChange={setSelectedEventTypes}
+				/>
+
 				{/* Header with navigation */}
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-4">

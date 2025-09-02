@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import MapboxMap from '@/components/MapboxMap';
-import EventTypeFilter, { EVENT_TYPES } from '@/components/EventTypeFilter';
+import EventTypeFilter from '@/components/EventTypeFilter';
 import { useMobileDebug } from '@/hooks/useMobileDebug';
+import { useFilterContext } from './MapIndex';
 
 // Network-aware timeout calculation with browser compatibility
 const getTimeoutDuration = (isMobile: boolean) => {
@@ -51,7 +52,7 @@ const getTimeoutDuration = (isMobile: boolean) => {
 };
 
 export default function MapView() {
-	const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([...EVENT_TYPES]);
+	const { selectedEventTypes, setSelectedEventTypes } = useFilterContext();
 	const [mapLoadTimeout, setMapLoadTimeout] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
 	const [isRetrying, setIsRetrying] = useState(false);
