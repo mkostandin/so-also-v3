@@ -3,12 +3,24 @@ import { getPermissionState, getCurrentPosition, GeoPermissionState } from '@/li
 
 export function useUserLocation() {
 	const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-	const [status, setStatus] = useState<GeoPermissionState>('prompt');
+	const [status, setStatus] = useState<GeoPermissionState>('checking');
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
-		getPermissionState().then((s) => mounted && setStatus(s));
+
+		// Check permission state and update status
+		getPermissionState().then((permissionState) => {
+			if (mounted) {
+				setStatus(permissionState);
+			}
+		}).catch(() => {
+			// If permission check fails, assume prompt state
+			if (mounted) {
+				setStatus('prompt');
+			}
+		});
+
 		return () => {
 			mounted = false;
 		};

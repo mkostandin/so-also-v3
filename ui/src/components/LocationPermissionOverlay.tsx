@@ -6,7 +6,7 @@ import { MapPin, AlertCircle } from 'lucide-react';
 export default function LocationPermissionOverlay() {
   const { status, request } = useUserLocation();
 
-  // Only show overlay when location is denied or prompt
+  // Only show overlay when location is denied or prompt (not during checking)
   if (status !== 'denied' && status !== 'prompt') {
     return null;
   }

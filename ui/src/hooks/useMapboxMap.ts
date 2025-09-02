@@ -6,9 +6,10 @@ interface UseMapboxMapOptions {
   container: RefObject<HTMLElement>;
   onMapLoad?: (map: mapboxgl.Map) => void;
   onMapError?: (error: Error) => void;
+  onProgress?: () => void;
 }
 
-export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapOptions) => {
+export const useMapboxMap = ({ container, onMapLoad, onMapError, onProgress }: UseMapboxMapOptions) => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -94,6 +95,24 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapO
           onMapError?.(error);
         });
 
+        // Handle progress events to reset parent timeouts (throttled to prevent excessive resets)
+        let lastProgressCall = 0;
+        const progressThrottleMs = 1000; // Only reset timeout once per second
+
+        const handleProgress = () => {
+          const now = Date.now();
+          if (now - lastProgressCall >= progressThrottleMs) {
+            lastProgressCall = now;
+            onProgress?.();
+          }
+        };
+
+        // Only listen to significant progress events, not every render
+        const progressEvents = ['styledata', 'sourcedata', 'idle'];
+        progressEvents.forEach(event => {
+          map.on(event, handleProgress);
+        });
+
         return () => {
           map.remove();
           document.head.removeChild(styleSheet);
@@ -115,7 +134,7 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError }: UseMapboxMapO
     return () => {
       cleanup?.then(cleanupFn => cleanupFn?.());
     };
-  }, [container.current, onMapLoad, onMapError]);
+  }, [container.current, onMapLoad, onMapError, onProgress]);
 
   return {
     map: mapRef.current,

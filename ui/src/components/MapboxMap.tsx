@@ -12,9 +12,19 @@ interface MapboxMapProps {
   selectedEventTypes?: string[];
   className?: string;
   retryCount?: number;
+  onReady?: () => void;
+  onError?: (error: Error) => void;
+  onProgress?: () => void;
 }
 
-export default function MapboxMap({ selectedEventTypes = [], className = '', retryCount = 0 }: MapboxMapProps) {
+export default function MapboxMap({
+  selectedEventTypes = [],
+  className = '',
+  retryCount = 0,
+  onReady,
+  onError,
+  onProgress
+}: MapboxMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [events, setEvents] = useState<EventItem[]>([]);
   const { coords: userCoords, status: locationStatus, request: requestLocation } = useUserLocation();
@@ -124,6 +134,9 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
 
   // Handle map load - simplified with component delegation
   const handleMapLoad = useCallback(async (map: mapboxgl.Map) => {
+    console.log('Map loaded successfully');
+    onReady?.();
+
     // Center on user location if available
     if (userCoords) {
       map.setCenter([userCoords.lng, userCoords.lat]);
@@ -138,19 +151,21 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
     if (map) {
       loadEvents(map);
     }
-  }, [userCoords, loadEvents]);
+  }, [userCoords, loadEvents, onReady]);
 
   // Handle map errors
   const handleMapError = useCallback((_error: Error) => {
     // Map error handling is managed by the parent component
     console.debug('Map error handled by parent component:', _error);
-  }, []);
+    onError?.(_error);
+  }, [onError]);
 
   // Use the map hook
   const { map, isLoading, error } = useMapboxMap({
     container: mapContainerRef as React.RefObject<HTMLElement>,
     onMapLoad: handleMapLoad,
     onMapError: handleMapError,
+    onProgress,
   });
 
 

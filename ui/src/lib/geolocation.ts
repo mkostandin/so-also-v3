@@ -1,4 +1,4 @@
-export type GeoPermissionState = 'granted' | 'denied' | 'prompt' | 'unsupported';
+export type GeoPermissionState = 'granted' | 'denied' | 'prompt' | 'checking' | 'unsupported';
 
 export async function getPermissionState(): Promise<GeoPermissionState> {
 	if (!('permissions' in navigator) || !('geolocation' in navigator)) return 'unsupported';

@@ -2,6 +2,7 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 
 export default function LocationPermissionBanner() {
 	const { status, request, error } = useUserLocation();
+	// Only show banner when status is 'prompt' (not during 'checking' or when granted/denied)
 	if (status !== 'prompt') return null;
 	return (
 		<div className="mb-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900/40 dark:bg-blue-900/20 dark:text-blue-100">

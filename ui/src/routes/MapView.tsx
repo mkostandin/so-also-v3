@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import MapboxMap from '@/components/MapboxMap';
 import EventTypeFilter from '@/components/EventTypeFilter';
 import { useMobileDebug } from '@/hooks/useMobileDebug';
 import { useFilterContext } from './MapIndex';
+import { isRecoverableError, getErrorMessage } from '@/lib/mapbox';
 
 // Network-aware timeout calculation with browser compatibility
 const getTimeoutDuration = (isMobile: boolean) => {
@@ -51,6 +52,8 @@ const getTimeoutDuration = (isMobile: boolean) => {
 	}
 };
 
+
+
 export default function MapView() {
 	const { selectedEventTypes, setSelectedEventTypes } = useFilterContext();
 	const [mapLoadTimeout, setMapLoadTimeout] = useState(false);
@@ -58,6 +61,61 @@ export default function MapView() {
 	const [isRetrying, setIsRetrying] = useState(false);
 	const maxRetries = 2;
 	const { logAction, setLoading, setError, isMobile } = useMobileDebug();
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const lastProgressRef = useRef<number>(Date.now());
+
+	// Handle retry logic
+	const handleRetry = useCallback(() => {
+		if (retryCount < maxRetries) {
+			logAction(`Attempting retry ${retryCount + 1}/${maxRetries}`);
+			setRetryCount(prev => prev + 1);
+			setIsRetrying(true);
+			setMapLoadTimeout(false);
+			setError('');
+			setLoading(true, `Retrying map load... (${retryCount + 1}/${maxRetries})`);
+		} else {
+			logAction('Max retries reached - showing fallback');
+			setMapLoadTimeout(true);
+			setLoading(false);
+			setError(`Map failed to load after ${maxRetries + 1} attempts. Please try again.`);
+		}
+	}, [retryCount, maxRetries, logAction, setLoading, setError]);
+
+	// Reset timeout on progress
+	const resetTimeout = useCallback(() => {
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+		}
+		lastProgressRef.current = Date.now();
+		logAction('Timeout reset due to map progress');
+	}, [logAction]);
+
+	// Memoized callback functions to prevent infinite re-renders
+	const handleMapReady = useCallback(() => {
+		// Cancel timeout, clear loading state
+		setMapLoadTimeout(false);
+		setIsRetrying(false);
+		setLoading(false, 'Map loaded successfully');
+		logAction('Map ready - canceling timeout and clearing loading state');
+	}, [setMapLoadTimeout, setIsRetrying, setLoading, logAction]);
+
+	const handleMapError = useCallback((error: Error) => {
+		// Classify error and decide whether to retry
+		logAction(`Map error received: ${error.message}`);
+		if (isRecoverableError(error)) {
+			handleRetry();
+		} else {
+			setMapLoadTimeout(true);
+			setError(getErrorMessage(error));
+		}
+	}, [handleRetry, setMapLoadTimeout, setError, logAction]);
+
+	const handleMapProgress = useCallback(() => {
+		// Reset timeout on progress
+		logAction('Map progress detected - resetting timeout');
+		resetTimeout();
+	}, [logAction, resetTimeout]);
 
 	useEffect(() => {
 		logAction(`MapView component mounted (retry: ${retryCount}/${maxRetries})`);
@@ -71,25 +129,23 @@ export default function MapView() {
 
 		setLoading(true, loadingMessage);
 
+		// Clear any existing timeout
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+		}
+
 		// Get network-aware timeout duration
 		const timeout = getTimeoutDuration(isMobile);
 		const timeoutSeconds = Math.round(timeout / 1000);
 
 		logAction(`Setting map timeout: ${timeoutSeconds}s (mobile: ${isMobile})`);
 
-		const timer = setTimeout(() => {
-			logAction(`Map load timeout after ${timeoutSeconds}s - retry ${retryCount}/${maxRetries}`);
+		// Set new timeout that can be reset by progress events
+		timeoutRef.current = setTimeout(() => {
+			logAction(`Map load timeout after ${timeoutSeconds}s - showing fallback`);
 
-			// Implement retry logic
-			if (retryCount < maxRetries) {
-				setRetryCount(prev => prev + 1);
-				setIsRetrying(true);
-				logAction(`Attempting retry ${retryCount + 1}/${maxRetries}`);
-				return; // Don't show error yet, retry instead
-			}
-
-			// Max retries reached, show fallback
-			logAction('Max retries reached - showing fallback');
+			// Clear loading state and show fallback
+			setLoading(false);
 			setMapLoadTimeout(true);
 
 			const errorMessage = isMobile
@@ -100,10 +156,13 @@ export default function MapView() {
 		}, timeout);
 
 		return () => {
-			clearTimeout(timer);
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+				timeoutRef.current = null;
+			}
 			setLoading(false, 'MapView unmounted');
 		};
-	}, [isMobile, logAction, setLoading, setError, retryCount, maxRetries, isRetrying]);
+	}, [isMobile, logAction, setLoading, setError, retryCount, maxRetries]);
 
 	// Simple fallback UI for when map fails to load
 	if (mapLoadTimeout) {
@@ -129,6 +188,8 @@ export default function MapView() {
 								setRetryCount(0);
 								setIsRetrying(false);
 								logAction('Manual retry initiated');
+								// Reset progress timestamp for new attempt
+								lastProgressRef.current = Date.now();
 							}}
 							className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
 						>
@@ -163,8 +224,9 @@ export default function MapView() {
 				<MapboxMap
 					selectedEventTypes={selectedEventTypes}
 					className="h-full w-full"
-					retryCount={retryCount}
-					key={`map-retry-${retryCount}`} // Force re-mount on retry
+					onReady={handleMapReady}
+					onError={handleMapError}
+					onProgress={handleMapProgress}
 				/>
 			</div>
 		</div>
