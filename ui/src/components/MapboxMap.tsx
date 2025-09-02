@@ -59,8 +59,9 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
         try {
           const additionalEventData = await api.browse({ range: 90 }); // Get events for next 90 days
           setEvents(additionalEventData);
-        } catch (error) {
+        } catch (_error) {
           // Keep initial events if additional load fails
+          console.debug('Failed to load additional events:', _error);
         }
       }, 2000); // Load additional events after 2 seconds
 
@@ -88,21 +89,35 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
         }));
       }
 
-      const source = mapInstance.getSource('events') as mapboxgl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: 'FeatureCollection',
-          features
-        });
+      // Update clustering data source if map is ready
+      if (mapInstance && mapInstance.isStyleLoaded()) {
+        try {
+          const source = mapInstance.getSource('events') as mapboxgl.GeoJSONSource;
+          if (source) {
+            source.setData({
+              type: 'FeatureCollection',
+              features
+            });
+          }
+        } catch (sourceError) {
+          console.warn('Failed to update events source:', sourceError);
+        }
       }
     } catch (error) {
+      console.warn('Failed to load events:', error);
       // Failed to load events - show empty map
-      const source = mapInstance.getSource('events') as mapboxgl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: 'FeatureCollection',
-          features: []
-        });
+      if (mapInstance && mapInstance.isStyleLoaded()) {
+        try {
+          const source = mapInstance.getSource('events') as mapboxgl.GeoJSONSource;
+          if (source) {
+            source.setData({
+              type: 'FeatureCollection',
+              features: []
+            });
+          }
+        } catch (sourceError) {
+          console.warn('Failed to clear events source:', sourceError);
+        }
       }
     }
   }, []);
@@ -128,6 +143,7 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
   // Handle map errors
   const handleMapError = useCallback((_error: Error) => {
     // Map error handling is managed by the parent component
+    console.debug('Map error handled by parent component:', _error);
   }, []);
 
   // Use the map hook
@@ -160,12 +176,19 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
         }
       }));
 
-    const source = map.getSource('events') as mapboxgl.GeoJSONSource;
-    if (source) {
-      source.setData({
-        type: 'FeatureCollection',
-        features
-      });
+    // Update clustering data source if map is ready
+    if (map && map.isStyleLoaded()) {
+      try {
+        const source = map.getSource('events') as mapboxgl.GeoJSONSource;
+        if (source) {
+          source.setData({
+            type: 'FeatureCollection',
+            features
+          });
+        }
+      } catch (sourceError) {
+        console.warn('Failed to update filtered events source:', sourceError);
+      }
     }
   }, [map, filteredEvents]);
 
@@ -243,9 +266,10 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
       );
 
       // Store root for cleanup
-      (popup as any)._reactRoot = root;
+      (popup as { _reactRoot?: ReturnType<typeof createRoot> })._reactRoot = root;
     } catch (error) {
       // Fallback to simple HTML
+      console.debug('Failed to create React popup, using fallback HTML:', error);
       popupContainer.innerHTML = `
         <div class="p-4 max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg">
           <h3 class="font-semibold text-gray-900 dark:text-white text-base mb-2">${event.name}</h3>
@@ -259,8 +283,9 @@ export default function MapboxMap({ selectedEventTypes = [], className = '', ret
 
     // Cleanup on popup close
     popup.on('close', () => {
-      if ((popup as any)._reactRoot) {
-        (popup as any)._reactRoot.unmount();
+      const typedPopup = popup as { _reactRoot?: ReturnType<typeof createRoot> };
+      if (typedPopup._reactRoot) {
+        typedPopup._reactRoot.unmount();
       }
     });
   }, [map, handleLearnMore]);

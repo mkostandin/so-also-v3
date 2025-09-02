@@ -7,6 +7,8 @@ import { EVENT_TYPES } from '@/components/EventTypeFilter';
 interface FilterContextType {
 	selectedEventTypes: string[];
 	setSelectedEventTypes: (types: string[] | ((prev: string[]) => string[])) => void;
+	selectedDistance: string;
+	setSelectedDistance: (distance: string) => void;
 }
 
 export const FilterContext = createContext<FilterContextType | undefined>(undefined);
@@ -25,6 +27,7 @@ export default function MapIndex() {
 	const navigate = useNavigate();
 	const base = '/app/map';
 	const [selectedEventTypes, setSelectedEventTypesState] = useState<string[]>(() => [...EVENT_TYPES]);
+	const [selectedDistance, setSelectedDistanceState] = useState<string>("150");
 
 	const setSelectedEventTypes = useCallback((types: string[] | ((prev: string[]) => string[])) => {
 		setSelectedEventTypesState(prev => {
@@ -33,6 +36,10 @@ export default function MapIndex() {
 			}
 			return types;
 		});
+	}, []);
+
+	const setSelectedDistance = useCallback((distance: string) => {
+		setSelectedDistanceState(distance);
 	}, []);
 
 	const routeToTab = (pathname: string) => {
@@ -48,7 +55,7 @@ export default function MapIndex() {
 	};
 
 	return (
-		<FilterContext.Provider value={{ selectedEventTypes, setSelectedEventTypes }}>
+		<FilterContext.Provider value={{ selectedEventTypes, setSelectedEventTypes, selectedDistance, setSelectedDistance }}>
 			<div className="flex flex-col h-full">
 				<div className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60">
 					<div className="mx-auto max-w-3xl p-2">

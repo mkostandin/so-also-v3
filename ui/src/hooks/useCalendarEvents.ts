@@ -15,10 +15,21 @@ export interface CalendarEventsData {
 }
 
 const DEFAULT_RADIUS_METERS = 80467; // 50 miles in meters
-const DEFAULT_LAT = 42.3601; // Boston, MA as fallback (near seeded test data)
-const DEFAULT_LNG = -71.0589;
+const DEFAULT_LAT = 42.8864; // Derry, NH as fallback
+const DEFAULT_LNG = -71.3247;
 
-export function useCalendarEvents(range: number = 90, selectedEventTypes: string[] = []): CalendarEventsData {
+// Convert distance string to radius meters
+const getRadiusFromDistance = (distance: string): number | undefined => {
+	switch (distance) {
+		case "all": return undefined;
+		case "500": return 804670; // 500 miles in meters
+		case "150": return 241402; // 150 miles in meters
+		case "50": return 80467;   // 50 miles in meters
+		default: return 241402;
+	}
+};
+
+export function useCalendarEvents(distance: string = "150", selectedEventTypes: string[] = []): CalendarEventsData {
   const { coords: userCoords } = useUserLocation();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,10 +43,9 @@ export function useCalendarEvents(range: number = 90, selectedEventTypes: string
       // Use user location if available, otherwise fallback to default
       const lat = userCoords?.lat ?? DEFAULT_LAT;
       const lng = userCoords?.lng ?? DEFAULT_LNG;
-      const radius = DEFAULT_RADIUS_METERS;
+      const radius = getRadiusFromDistance(distance);
 
       const rawEvents = await api.browse({
-        range,
         lat,
         lng,
         radius,
@@ -59,7 +69,7 @@ export function useCalendarEvents(range: number = 90, selectedEventTypes: string
     } finally {
       setLoading(false);
     }
-  }, [userCoords, range]); // Removed selectedEventTypes from dependencies
+  }, [userCoords, distance]); // Updated dependency to use distance instead of range
 
   useEffect(() => {
     fetchEvents();

@@ -66,11 +66,32 @@ export function useMobileDebug() {
   // Track window errors
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
+      // Suppress Mapbox telemetry errors that are blocked by client
+      if (event.filename?.includes('mapbox') ||
+          event.message?.includes('ERR_BLOCKED_BY_CLIENT') ||
+          event.message?.includes('events.mapbox.com')) {
+        console.debug('Suppressed Mapbox telemetry error:', event.message);
+        event.preventDefault();
+        return;
+      }
+
       setError(`JavaScript Error: ${event.message} at ${event.filename}:${event.lineno}`);
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      // Suppress Mapbox telemetry promise rejections
+      const reasonString = String(event.reason);
+      if (reasonString.includes('ERR_BLOCKED_BY_CLIENT') ||
+          reasonString.includes('events.mapbox.com') ||
+          reasonString.includes('mapbox')) {
+        console.debug('Suppressed Mapbox telemetry promise rejection:', event.reason);
+        event.preventDefault();
+        return;
+      }
+
       setError(`Unhandled Promise Rejection: ${event.reason}`);
+      // Prevent the error from being logged as unhandled
+      event.preventDefault();
     };
 
     window.addEventListener('error', handleError);

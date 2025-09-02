@@ -47,7 +47,7 @@ export default function CalendarEventPopup({ events, date, isOpen, onClose, onEv
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
       <Card
         className="max-w-md w-full max-h-[80vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -62,6 +62,7 @@ export default function CalendarEventPopup({ events, date, isOpen, onClose, onEv
               size="sm"
               onClick={onClose}
               className="h-6 w-6 p-0"
+              aria-label="Close event popup"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -136,16 +137,7 @@ export default function CalendarEventPopup({ events, date, isOpen, onClose, onEv
             ))}
         </div>
 
-        <div className="p-4 border-t bg-gray-50 dark:bg-gray-800/50">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Click an event to view details
-            </span>
-            <Button variant="outline" size="sm" onClick={onClose}>
-              Close
-            </Button>
-          </div>
-        </div>
+
       </Card>
     </div>
   );

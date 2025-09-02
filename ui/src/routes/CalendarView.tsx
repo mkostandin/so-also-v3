@@ -1,14 +1,14 @@
 import { useState, useCallback } from 'react';
 import CalendarGrid from '@/components/CalendarGrid';
-import CalendarEventList from '@/components/CalendarEventList';
 import CalendarEventPopup from '@/components/CalendarEventPopup';
-import LocationStatus from '@/components/LocationStatus';
+import LocationPermissionOverlay from '@/components/LocationPermissionOverlay';
 import { useCalendarEvents, CalendarEvent } from '@/hooks/useCalendarEvents';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, RefreshCw, Calendar as CalendarIcon } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import EventTypeFilter from '@/components/EventTypeFilter';
+import DistanceFilter from '@/components/DistanceFilter';
 import { useFilterContext } from './MapIndex';
 
 export default function CalendarView() {
@@ -17,12 +17,28 @@ export default function CalendarView() {
 	const [popupDate, setPopupDate] = useState<Date | null>(null);
 	const [popupEvents, setPopupEvents] = useState<CalendarEvent[]>([]);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
-	const { selectedEventTypes, setSelectedEventTypes } = useFilterContext();
+	const { selectedEventTypes, setSelectedEventTypes, selectedDistance, setSelectedDistance } = useFilterContext();
 
 	const year = cursor.getFullYear();
 	const month = cursor.getMonth();
 
-	const { events, eventsByDate, loading, error, refetch } = useCalendarEvents(90, selectedEventTypes);
+	const { eventsByDate, loading, error, refetch } = useCalendarEvents(selectedDistance, selectedEventTypes);
+
+	// Helper function to get event count display text
+	const getEventCountDisplayText = (distance: string): string => {
+		switch (distance) {
+			case "all":
+				return "Showing all events";
+			case "500":
+				return "Showing events within 500 miles";
+			case "150":
+				return "Showing events within 150 miles";
+			case "50":
+				return "Showing events within 50 miles";
+			default:
+				return "Showing events within 150 miles";
+		}
+	};
 
 	const handleDateClick = useCallback((date: Date, events: CalendarEvent[]) => {
 		setSelectedDate(date);
@@ -43,15 +59,11 @@ export default function CalendarView() {
 		setPopupEvents([]);
 	}, []);
 
-	const handleTodayClick = useCallback(() => {
-		const today = new Date();
-		setCursor(today);
-		setSelectedDate(today);
-	}, []);
+
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handleEventClick = useCallback((_event: CalendarEvent) => {
-		// Event navigation is handled by Link component in CalendarEventList/CalendarEventPopup
+		// Event navigation is handled by Link component in CalendarEventPopup
 		// Parameter is available for future analytics or additional functionality
 		setIsPopupOpen(false);
 	}, []);
@@ -61,13 +73,8 @@ export default function CalendarView() {
 			<div className="mx-auto max-w-4xl p-2">
 				<div className="space-y-4">
 					<Skeleton className="h-8 w-64" />
-					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-						<div className="lg:col-span-2">
-							<Skeleton className="h-96 w-full" />
-						</div>
-						<div>
-							<Skeleton className="h-64 w-full" />
-						</div>
+					<div className="grid grid-cols-1 gap-6">
+						<Skeleton className="h-96 w-full" />
 					</div>
 				</div>
 			</div>
@@ -83,35 +90,11 @@ export default function CalendarView() {
 					onTypesChange={setSelectedEventTypes}
 				/>
 
-				{/* Header with navigation */}
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-4">
-						<CalendarIcon className="h-6 w-6 text-gray-600" />
-						<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-							Event Calendar
-						</h1>
-					</div>
-					<div className="flex items-center gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={handleTodayClick}
-						>
-							Today
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={refetch}
-							disabled={loading}
-						>
-							<RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-						</Button>
-					</div>
-				</div>
-
-				{/* Location Status */}
-				<LocationStatus />
+				{/* Distance Filter */}
+				<DistanceFilter
+					selectedDistance={selectedDistance}
+					onDistanceChange={setSelectedDistance}
+				/>
 
 				{/* Error State */}
 				{error && (
@@ -119,14 +102,6 @@ export default function CalendarView() {
 						<AlertCircle className="h-4 w-4" />
 						<AlertDescription>
 							{error}
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={refetch}
-								className="ml-2"
-							>
-								Retry
-							</Button>
 						</AlertDescription>
 					</Alert>
 				)}
@@ -137,7 +112,7 @@ export default function CalendarView() {
 						variant="outline"
 						onClick={() => setCursor(new Date(year, month - 1, 1))}
 					>
-						← Previous
+						<ChevronLeft className="h-4 w-4" />
 					</Button>
 					<div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
 						{cursor.toLocaleString(undefined, { month: 'long', year: 'numeric' })}
@@ -146,75 +121,32 @@ export default function CalendarView() {
 						variant="outline"
 						onClick={() => setCursor(new Date(year, month + 1, 1))}
 					>
-						Next →
+						<ChevronRight className="h-4 w-4" />
 					</Button>
 				</div>
 
 				{/* Main Content */}
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 gap-6">
 					{/* Calendar Grid */}
-					<div className="lg:col-span-2">
-						<div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
-							<CalendarGrid
-								year={year}
-								month={month}
-								eventsByDate={eventsByDate}
-								onDateClick={handleDateClick}
-								onDateHover={handleDateHover}
-								selectedDate={selectedDate || undefined}
-							/>
-						</div>
-					</div>
-
-					{/* Event List for Selected Date */}
-					<div className="lg:col-span-1">
-						{selectedDate ? (
-							<CalendarEventList
-								events={eventsByDate[selectedDate.toISOString().split('T')[0]] || []}
-								selectedDate={selectedDate}
-								onEventClick={handleEventClick}
-							/>
-						) : (
-							<div className="bg-white dark:bg-gray-900 p-6 rounded-lg border text-center">
-								<CalendarIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-								<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-									Select a Date
-								</h3>
-								<p className="text-gray-600 dark:text-gray-400">
-									Click on a date in the calendar to view events for that day.
-								</p>
-							</div>
-						)}
+					<div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+						<CalendarGrid
+							year={year}
+							month={month}
+							eventsByDate={eventsByDate}
+							onDateClick={handleDateClick}
+							onDateHover={handleDateHover}
+							selectedDate={selectedDate || undefined}
+						/>
 					</div>
 				</div>
 
-				{/* Statistics */}
-				<div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
-					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-						<div>
-							<div className="text-2xl font-bold text-blue-600">{events.length}</div>
-							<div className="text-sm text-gray-600 dark:text-gray-400">Total Events</div>
-						</div>
-						<div>
-							<div className="text-2xl font-bold text-green-600">
-								{Object.keys(eventsByDate).length}
-							</div>
-							<div className="text-sm text-gray-600 dark:text-gray-400">Days with Events</div>
-						</div>
-						<div>
-							<div className="text-2xl font-bold text-purple-600">
-								{events.filter(e => e.itemType === 'event').length}
-							</div>
-							<div className="text-sm text-gray-600 dark:text-gray-400">One-time Events</div>
-						</div>
-						<div>
-							<div className="text-2xl font-bold text-orange-600">
-								{events.filter(e => e.itemType === 'occurrence').length}
-							</div>
-							<div className="text-sm text-gray-600 dark:text-gray-400">Recurring Events</div>
-						</div>
-					</div>
+				{/* Event Count Display */}
+				<div className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
+					{getEventCountDisplayText(selectedDistance)}
 				</div>
+
+				{/* Location Permission Overlay */}
+				<LocationPermissionOverlay />
 
 				{/* Event Popup */}
 				<CalendarEventPopup
