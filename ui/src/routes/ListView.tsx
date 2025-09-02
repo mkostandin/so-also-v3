@@ -17,6 +17,8 @@ export default function ListView() {
 	const navigate = useNavigate();
 	const { selectedEventTypes, setSelectedEventTypes } = useFilterContext();
 
+
+
 	const eventsPerPage = 50;
 
 	const handleEventClick = (event: EventItem) => {
@@ -28,7 +30,19 @@ export default function ListView() {
 		(async () => {
 			setLoading(true);
 			try {
-				const data = await api.browse({ range: 90 });
+				// Use location-based API call when coordinates are available
+				let apiParams: any = { range: 90 };
+
+				if (coords) {
+					// Use location-based browsing when user location is available
+					apiParams = {
+						lat: coords.lat,
+						lng: coords.lng,
+						radius: 321869 // 200 miles in meters (increased from 50 miles for better coverage)
+					};
+				}
+
+				const data = await api.browse(apiParams);
 				if (mounted) setAllEvents(data || []);
 			} catch (error) {
 				console.error('Failed to fetch events:', error);
@@ -38,17 +52,19 @@ export default function ListView() {
 			}
 		})();
 		return () => { mounted = false; };
-	}, []);
+	}, [coords]); // Added coords dependency to refetch when location becomes available
 
 	// Auto-request location when no coords available
+	// Ensures list view uses user's actual location for better event relevance
 	useEffect(() => {
-		if (!coords && status === 'prompt') {
+		if (!coords && (status === 'prompt' || status === 'granted')) {
 			request();
 		}
 	}, [coords, status, request]);
 
 	// Calculate displayed events based on pagination and location
 	const { displayedEvents, totalEvents, hasMoreEvents } = useMemo(() => {
+
 		// First filter by event types (only if we have specific types selected)
 		let filtered = allEvents;
 
@@ -64,11 +80,14 @@ export default function ListView() {
 
 		if (coords) {
 			// Calculate distances and sort by proximity
-			sortedEvents = filtered
-				.filter(event => event.latitude != null && event.longitude != null) // Only events with coordinates
+			const eventsWithCoords = filtered.filter(event => event.latitude != null && event.longitude != null);
+			const eventsWithoutCoords = filtered.filter(event => event.latitude == null || event.longitude == null);
+
+			sortedEvents = eventsWithCoords
 				.map(event => ({
 					...event,
-					distanceMeters: haversineMeters(
+					// Only calculate distance if not already provided by API
+					distanceMeters: event.distanceMeters ?? haversineMeters(
 						coords.lat,
 						coords.lng,
 						Number(event.latitude),
@@ -78,9 +97,6 @@ export default function ListView() {
 				.sort((a, b) => (a.distanceMeters ?? Infinity) - (b.distanceMeters ?? Infinity));
 
 			// Add events without coordinates at the end
-			const eventsWithoutCoords = filtered.filter(event =>
-				event.latitude == null || event.longitude == null
-			);
 			sortedEvents = [...sortedEvents, ...eventsWithoutCoords];
 		} else {
 			// No coordinates available, sort by time

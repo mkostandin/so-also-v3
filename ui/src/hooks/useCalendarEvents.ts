@@ -30,10 +30,18 @@ const getRadiusFromDistance = (distance: string): number | undefined => {
 };
 
 export function useCalendarEvents(distance: string = "150", selectedEventTypes: string[] = []): CalendarEventsData {
-  const { coords: userCoords } = useUserLocation();
+  const { coords: userCoords, status, request } = useUserLocation();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-request location when no coords available
+  // This ensures calendar shows relevant events instead of always falling back to Derry, NH
+  useEffect(() => {
+    if (!userCoords && (status === 'prompt' || status === 'granted')) {
+      request();
+    }
+  }, [userCoords, status, request]);
 
   const fetchEvents = useCallback(async () => {
     try {

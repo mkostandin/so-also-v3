@@ -46,9 +46,11 @@ ui/src/hooks/useUserLocation.ts         # Location services
 
 #### Event Fetching Process
 1. **Initial Load**: Fetches events for the next 90 days on component mount
-2. **Filtering**: Applies event type filters client-side for immediate response
-3. **Sorting**: Sorts by distance (if location available) or chronologically
-4. **Pagination**: Applies pagination to limit displayed events
+2. **Location-Based API**: Uses user coordinates when available for better relevance
+3. **Enhanced Coverage**: 200-mile radius (up from 50 miles) ensures users always see events
+4. **Filtering**: Applies event type filters client-side for immediate response
+5. **Sorting**: Sorts by distance (if location available) or chronologically
+6. **Pagination**: Applies pagination to limit displayed events
 
 #### State Management
 ```typescript
@@ -59,6 +61,22 @@ const [isLoadingMore, setIsLoadingMore] = useState(false);
 ```
 
 ### Sorting Logic
+
+#### Location-Based API Usage
+```typescript
+// Enhanced API call with location parameters when available
+if (coords) {
+  // Use location-based browsing for better relevance
+  apiParams = {
+    lat: coords.lat,
+    lng: coords.lng,
+    radius: 321869 // 200 miles in meters (increased from 50 miles)
+  };
+} else {
+  // Fallback to time-based browsing
+  apiParams = { range: 90 };
+}
+```
 
 #### Distance-Based Sorting (when location available)
 ```typescript
@@ -156,6 +174,8 @@ sortedEvents = [...filtered].sort((a, b) => {
 
 ### Geolocation Support
 - **Automatic Detection**: Seamless location detection on load
+- **Location-Based API**: Uses user coordinates in API calls for better event relevance
+- **Enhanced Coverage**: Increased from 50 to 200 miles to prevent empty results
 - **Permission Handling**: Clear user experience for location requests
 - **Fallback Behavior**: Works perfectly without location access
 - **Privacy Respectful**: No forced location requirements
@@ -172,6 +192,7 @@ sortedEvents = [...filtered].sort((a, b) => {
 ```typescript
 const eventsPerPage = 50; // Events loaded per page
 const initialRange = 90;  // Days of events to fetch initially
+const enhancedRadius = 321869; // 200 miles in meters (increased from 50 miles)
 ```
 
 ### Loading Behavior

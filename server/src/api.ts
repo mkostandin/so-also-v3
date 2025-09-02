@@ -348,12 +348,19 @@ api.get('/browse', async (c) => {
       .map((m) => {
         const la = m.latitude ? Number(m.latitude) : undefined;
         const lo = m.longitude ? Number(m.longitude) : undefined;
-        if (la === undefined || lo === undefined) return null;
+        if (la === undefined || lo === undefined) {
+          // Return events without coordinates but without distance
+          return { ...m, distanceMeters: undefined };
+        }
         const d = haversineMeters(latNum, lngNum, la, lo);
         return { ...m, distanceMeters: d };
       })
       .filter(Boolean) as Item[];
-    filtered = filtered.filter((m) => (m.distanceMeters ?? Infinity) <= radiusNum);
+    // Only filter by radius for events that have coordinates and distance calculated
+    filtered = filtered.filter((m) => {
+      if (m.distanceMeters === undefined) return true; // Include events without coordinates
+      return (m.distanceMeters ?? Infinity) <= radiusNum; // Filter by radius for events with coordinates
+    });
   }
 
   filtered.sort((a, b) => {

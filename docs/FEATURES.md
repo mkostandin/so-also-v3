@@ -53,6 +53,8 @@ This application is a comprehensive event management system built on top of the 
 - **Event List**: Scrollable, paginated list of events with detailed information
 - **Smart Sorting**: Sorts by distance when location available, otherwise by chronological order
 - **Progressive Loading**: Load more functionality for handling large event sets
+- **Location-Based API**: Uses user coordinates for better event relevance when available
+- **Enhanced Coverage**: 200-mile radius ensures users always see events (up from 50 miles)
 - **Event Cards**: Rich event information including name, description, address, and date/time
 - **Distance Badges**: Shows distance from user location when available
 - **Event Type Filtering**: Consistent filtering across all three views

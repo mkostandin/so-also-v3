@@ -1,23 +1,18 @@
 import { useEffect } from 'react';
+import type { Map, GeoJSONSource, MapMouseEvent, MapboxGeoJSONFeature } from 'mapbox-gl';
+import type { EventItem } from '@/lib/api-client';
 
 interface MapLayersProps {
-  map: mapboxgl.Map;
-  onEventClick: (event: any, coordinates: [number, number]) => void;
+  map: Map;
+  onEventClick: (event: EventItem, coordinates: [number, number]) => void;
 }
 
-interface EventData {
-  id: string;
-  name: string;
-  description: string;
-  eventType: string;
-  latitude: number;
-  longitude: number;
-  startsAtUtc: null;
-  endsAtUtc: null;
-  itemType: 'event';
-  distanceMeters: null;
-  imageUrls: string[];
-}
+// Type definitions for Mapbox GL events and geometry
+type MapboxClickEvent = MapMouseEvent & {
+  features?: MapboxGeoJSONFeature[];
+};
+
+type PointGeometry = GeoJSON.Point;
 
 export default function MapLayers({ map, onEventClick }: MapLayersProps) {
   useEffect(() => {
@@ -137,20 +132,21 @@ export default function MapLayers({ map, onEventClick }: MapLayersProps) {
     });
 
     // Add click handlers for clusters
-    map.on('click', 'clusters', (e) => {
+    map.on('click', 'clusters', (e: MapboxClickEvent) => {
       const features = map.queryRenderedFeatures(e.point, {
         layers: ['clusters']
       });
       const clusterId = features[0].properties?.cluster_id;
       if (!clusterId) return;
 
-      (map.getSource('events') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(
+      (map.getSource('events') as GeoJSONSource).getClusterExpansionZoom(
         clusterId,
         (err, zoom) => {
           if (err || zoom == null) return;
 
+          const geometry = features[0].geometry as PointGeometry;
           map.easeTo({
-            center: (features[0].geometry as any).coordinates,
+            center: geometry.coordinates as [number, number],
             zoom: zoom
           });
         }
@@ -158,23 +154,24 @@ export default function MapLayers({ map, onEventClick }: MapLayersProps) {
     });
 
     // Add click handlers for event labels
-    map.on('click', 'event-labels', (e) => {
-      const coordinates = (e.features![0].geometry as any).coordinates.slice();
+    map.on('click', 'event-labels', (e: MapboxClickEvent) => {
+      const geometry = e.features![0].geometry as PointGeometry;
+      const coordinates = [...geometry.coordinates] as [number, number];
       const properties = e.features![0].properties;
 
       if (!properties) return;
 
-      const event: EventData = {
+      const eventData: EventItem = {
         id: properties.id || '',
         name: properties.name || '',
-        description: properties.description || '',
-        eventType: properties.eventType || '',
+        description: properties.description || null,
+        eventType: (properties.eventType as EventItem['eventType']) || 'Other',
         latitude: coordinates[1],
         longitude: coordinates[0],
         startsAtUtc: null,
         endsAtUtc: null,
         itemType: 'event' as const,
-        distanceMeters: null,
+        distanceMeters: undefined,
         imageUrls: []
       };
 
@@ -182,27 +179,28 @@ export default function MapLayers({ map, onEventClick }: MapLayersProps) {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
-      onEventClick(event, coordinates);
+      onEventClick(eventData, coordinates);
     });
 
     // Add click handlers for unclustered points
-    map.on('click', 'unclustered-point', (e) => {
-      const coordinates = (e.features![0].geometry as any).coordinates.slice();
+    map.on('click', 'unclustered-point', (e: MapboxClickEvent) => {
+      const geometry = e.features![0].geometry as PointGeometry;
+      const coordinates = [...geometry.coordinates] as [number, number];
       const properties = e.features![0].properties;
 
       if (!properties) return;
 
-      const event: EventData = {
+      const eventData: EventItem = {
         id: properties.id || '',
         name: properties.name || '',
-        description: properties.description || '',
-        eventType: properties.eventType || '',
+        description: properties.description || null,
+        eventType: (properties.eventType as EventItem['eventType']) || 'Other',
         latitude: coordinates[1],
         longitude: coordinates[0],
         startsAtUtc: null,
         endsAtUtc: null,
         itemType: 'event' as const,
-        distanceMeters: null,
+        distanceMeters: undefined,
         imageUrls: []
       };
 
@@ -210,7 +208,7 @@ export default function MapLayers({ map, onEventClick }: MapLayersProps) {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
-      onEventClick(event, coordinates);
+      onEventClick(eventData, coordinates);
     });
 
     // Add hover effects for clusters

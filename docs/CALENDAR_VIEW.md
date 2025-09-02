@@ -67,6 +67,16 @@ const distanceOptions = [
 ];
 ```
 
+#### Automatic Location Request
+```typescript
+// In useCalendarEvents.ts - Automatically request location when needed
+useEffect(() => {
+  if (!userCoords && (status === 'prompt' || status === 'granted')) {
+    request(); // Request user location for relevant event filtering
+  }
+}, [userCoords, status, request]);
+```
+
 ### State Management
 
 #### Filter Context Integration
@@ -144,6 +154,7 @@ const { selectedEventTypes } = useFilterContext();
 
 ### Geolocation Support
 - **Automatic Detection**: Seamless location detection on load
+- **Automatic Location Request**: Proactively requests user location when needed for relevant events
 - **Permission Handling**: Clear permission request flow
 - **Fallback System**: Derry, NH coordinates when location unavailable
 - **Accuracy Display**: Location precision indicators

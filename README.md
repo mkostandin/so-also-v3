@@ -49,6 +49,8 @@ This application has been extended beyond the base template with a comprehensive
 ### 📅 **Calendar View**
 - **Event Calendar**: Interactive calendar showing events by date
 - **Distance Filtering**: Configurable distance options (All Events, 500 miles, 150 miles, 50 miles)
+- **Automatic Location Detection**: Seamlessly requests user location on load to show relevant events
+- **Smart Location Fallback**: Graceful fallback to Derry, NH when location unavailable
 - **Location-Based Events**: Shows nearest events based on user location or fallback coordinates
 - **Event Details**: Click events to view detailed information in popup overlays
 - **Navigation**: Arrow-based month navigation with smooth transitions
