@@ -8,15 +8,37 @@ import { api, type EventItem } from '@/lib/api-client';
 import MapLayers from './MapLayers';
 import MapControls from './MapControls';
 
+/**
+ * Props for the MapboxMap component
+ */
 interface MapboxMapProps {
+  /** Array of selected event types to filter markers */
   selectedEventTypes?: string[];
+  /** Additional CSS classes for styling */
   className?: string;
+  /** Number of retry attempts for map loading */
   retryCount?: number;
+  /** Callback fired when map is fully loaded and ready */
   onReady?: () => void;
+  /** Callback fired when map encounters an error */
   onError?: (error: Error) => void;
+  /** Callback fired during map loading progress */
   onProgress?: () => void;
 }
 
+/**
+ * Interactive Mapbox GL map component for displaying events geographically
+ *
+ * Features:
+ * - Event markers with clustering
+ * - User location display
+ * - Real-time filtering
+ * - Responsive design
+ * - Error handling and retry logic
+ *
+ * @param props - Component props
+ * @returns React component
+ */
 export default function MapboxMap({
   selectedEventTypes = [],
   className = '',
@@ -50,13 +72,20 @@ export default function MapboxMap({
     return event.eventType && selectedEventTypes.includes(event.eventType);
   });
 
-  // Handle navigation to event details
+  /**
+   * Navigate to event details page when user clicks "Learn More" on a marker popup
+   * @param event - The event object to navigate to
+   */
   const handleLearnMore = useCallback((event: EventItem) => {
     // Navigate to event details page (correct URL format)
     navigate(`/app/e/${event.id}`);
   }, [navigate]);
 
-  // Load events from API with progressive loading
+  /**
+   * Load events from API and update map markers with progressive loading
+   * Loads initial events quickly, then additional events in background for better UX
+   * @param mapInstance - The Mapbox GL map instance to update
+   */
   const loadEvents = useCallback(async (mapInstance: mapboxgl.Map) => {
     try {
       // Load fewer events initially for faster map load

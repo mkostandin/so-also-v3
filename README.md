@@ -34,6 +34,51 @@ Start with everything running locally on your machine, then progressively connec
 - 🗄️ Neon, Supabase, or custom PostgreSQL
 - 🔐 Production Firebase Auth
 
+## ✨ **Implemented Features**
+
+This application has been extended beyond the base template with a comprehensive event management system featuring maps, calendars, and location-based functionality:
+
+### 🗺️ **Interactive Map View**
+- **Mapbox GL Integration**: Full-featured map with custom markers and clustering
+- **Event Visualization**: Display events as interactive markers with custom styling
+- **User Location**: Real-time geolocation with accuracy indicators
+- **Event Filtering**: Filter events by type (Event, Committee Meeting, Conference, etc.)
+- **Responsive Design**: Optimized for both desktop and mobile devices
+- **Clustering**: Automatic marker grouping at lower zoom levels for performance
+
+### 📅 **Calendar View**
+- **Event Calendar**: Interactive calendar showing events by date
+- **Distance Filtering**: Configurable distance options (All Events, 500 miles, 150 miles, 50 miles)
+- **Location-Based Events**: Shows nearest events based on user location or fallback coordinates
+- **Event Details**: Click events to view detailed information in popup overlays
+- **Navigation**: Arrow-based month navigation with smooth transitions
+- **Event Limits**: Displays nearest 200 events with clear count indicators
+
+### 🔍 **Advanced Filtering & Search**
+- **Event Type Filter**: Pill-style buttons for filtering by event categories
+- **Distance Filter**: Configurable radius-based filtering for calendar view
+- **Real-time Updates**: Filters apply immediately with smooth UI transitions
+- **Persistent State**: Filter selections maintained across view changes
+
+### 📍 **Location Services**
+- **Geolocation Integration**: Automatic user location detection with permission handling
+- **Location Fallback**: Graceful fallback to Derry, NH coordinates when location unavailable
+- **Permission Management**: Clear user experience for location permission requests
+- **Accuracy Indicators**: Visual representation of location accuracy
+
+### 🎨 **User Experience Enhancements**
+- **Loading States**: Skeleton loading and progress indicators throughout
+- **Error Handling**: Comprehensive error states with user-friendly messages
+- **Responsive Design**: Mobile-optimized layouts and touch interactions
+- **Smooth Animations**: Polished transitions and visual feedback
+- **Accessibility**: Proper ARIA labels and keyboard navigation support
+
+### 🔧 **Technical Features**
+- **Map Loading Optimization**: Intelligent retry logic and readiness detection
+- **Performance Monitoring**: Efficient re-renders and memory management
+- **Cross-View Consistency**: Unified filtering and navigation across map and calendar views
+- **API Integration**: Seamless integration with backend event data endpoints
+
 ## 🛠️ **Development**
 
 Start both frontend and backend (with embedded PostgreSQL database and Firebase emulator):

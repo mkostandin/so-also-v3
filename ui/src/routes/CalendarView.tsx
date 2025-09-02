@@ -11,6 +11,18 @@ import EventTypeFilter from '@/components/EventTypeFilter';
 import DistanceFilter from '@/components/DistanceFilter';
 import { useFilterContext } from './MapIndex';
 
+/**
+ * Interactive calendar view component for displaying events by date
+ *
+ * Features:
+ * - Monthly calendar with event indicators
+ * - Click-to-view event details in popup
+ * - Distance and event type filtering
+ * - Location-based event discovery
+ * - Responsive design for all devices
+ *
+ * @returns React component
+ */
 export default function CalendarView() {
 	const [cursor, setCursor] = useState(new Date());
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -24,7 +36,11 @@ export default function CalendarView() {
 
 	const { eventsByDate, loading, error, refetch } = useCalendarEvents(selectedDistance, selectedEventTypes);
 
-	// Helper function to get event count display text
+	/**
+	 * Generate user-friendly text for displaying event count based on selected distance
+	 * @param distance - The selected distance filter value
+	 * @returns Localized display text for event count
+	 */
 	const getEventCountDisplayText = (distance: string): string => {
 		switch (distance) {
 			case "all":
@@ -40,6 +56,11 @@ export default function CalendarView() {
 		}
 	};
 
+	/**
+	 * Handle user clicking on a calendar date to show event details popup
+	 * @param date - The clicked date
+	 * @param events - Array of events for that date
+	 */
 	const handleDateClick = useCallback((date: Date, events: CalendarEvent[]) => {
 		setSelectedDate(date);
 		setPopupDate(date);
@@ -72,6 +93,18 @@ export default function CalendarView() {
 		return (
 			<div className="mx-auto max-w-4xl p-2">
 				<div className="space-y-4">
+					{/* Event Type Filter - Keep it visible during loading */}
+					<EventTypeFilter
+						selectedTypes={selectedEventTypes}
+						onTypesChange={setSelectedEventTypes}
+					/>
+
+					{/* Distance Filter - Keep it visible during loading */}
+					<DistanceFilter
+						selectedDistance={selectedDistance}
+						onDistanceChange={setSelectedDistance}
+					/>
+
 					<Skeleton className="h-8 w-64" />
 					<div className="grid grid-cols-1 gap-6">
 						<Skeleton className="h-96 w-full" />
