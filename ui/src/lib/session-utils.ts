@@ -44,6 +44,11 @@ export const formatDate = (dateString: string): string => {
 	return date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
 };
 
+export const formatDateShort = (dateString: string): string => {
+	const date = new Date(dateString);
+	return date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+};
+
 export const calculateDuration = (start: string, end?: string): number | null => {
 	if (!end) return null;
 	const startTime = new Date(start).getTime();

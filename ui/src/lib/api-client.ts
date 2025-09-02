@@ -10,6 +10,9 @@ export type EventItem = {
 	distanceMeters?: number;
 	eventType?: 'Event' | 'Committee Meeting' | 'Conference' | 'YPAA Meeting' | 'Other';
 	imageUrls?: string[];
+	address?: string | null;
+	committee?: string | null;
+	committeeSlug?: string | null;
 };
 
 export type Conference = {
@@ -55,7 +58,12 @@ function buildUrl(path: string): string {
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
 	const url = buildUrl(path);
 	const res = await fetch(url, { ...init, headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) } });
-	if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+	if (!res.ok) {
+		console.error('API Error:', res.status, await res.text());
+		throw new Error(`HTTP ${res.status}`);
+	}
+
 	return res.json();
 }
 
