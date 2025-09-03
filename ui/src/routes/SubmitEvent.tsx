@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '@/lib/api-client';
 import ImageUpload from '@/components/ImageUpload';
 import SeriesForm, { SeriesConfig } from '@/components/SeriesForm';
+import { useToastHook } from '@/hooks/use-toast';
 
 // Form validation schemas
 const eventTypes = ['Event', 'Committee Meeting', 'Conference', 'YPAA Meeting', 'Other'] as const;
@@ -68,6 +69,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function SubmitEvent() {
   const navigate = useNavigate();
+  const { toast } = useToastHook();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [showAdvancedSeries, setShowAdvancedSeries] = useState(false);
@@ -190,7 +192,11 @@ export default function SubmitEvent() {
       navigate('/app/map/list');
     } catch (error) {
       console.error('Failed to create event:', error);
-      alert('Failed to create event. Please try again.');
+      toast({
+        title: 'Failed to Create Event',
+        description: 'Please check your information and try again.',
+        variant: 'destructive'
+      });
     } finally {
       setIsSubmitting(false);
     }

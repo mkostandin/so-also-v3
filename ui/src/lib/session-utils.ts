@@ -63,23 +63,44 @@ export const getUniqueValues = <T,>(array: T[], key: keyof T): T[keyof T][] => {
 };
 
 // PWA Installation Utilities
+
+/**
+ * Checks if the application is currently running as a Progressive Web App (PWA).
+ * Detects both standard PWA mode and iOS-specific PWA installations.
+ *
+ * @returns True if running in PWA mode, false otherwise
+ */
 export const isPWAInstalled = (): boolean => {
-	// Check if running in standalone mode (PWA)
+	// Check if running in standalone mode (standard PWA detection)
 	const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-	// Check for iOS PWA
+	// Check for iOS PWA (iOS uses different property)
 	const isIOSApp = (window.navigator as any).standalone === true;
 	return isStandalone || isIOSApp;
 };
 
+/**
+ * Determines if the current browser supports PWA installation.
+ * Checks for the beforeinstallprompt API or if already installed.
+ *
+ * @returns True if PWA installation is supported, false otherwise
+ */
 export const canInstallPWA = (): boolean => {
-	// Check if the browser supports PWA installation
+	// Check if browser supports the beforeinstallprompt event
 	return 'beforeinstallprompt' in window || isPWAInstalled();
 };
 
+/**
+ * Triggers the PWA installation prompt and handles the user's response.
+ * Should only be called after receiving a beforeinstallprompt event.
+ *
+ * @param deferredPrompt The deferred installation prompt from beforeinstallprompt event
+ * @returns Promise resolving to true if user accepted installation, false otherwise
+ */
 export const installPWA = async (deferredPrompt: any): Promise<boolean> => {
 	if (!deferredPrompt) {
 		// Fallback for browsers that don't support beforeinstallprompt
-		alert('To install the app, please use your browser\'s "Add to Home Screen" feature.');
+		// Note: This function should be called from a component that has access to toast
+		console.warn('PWA installation not supported in this browser. Please use the browser\'s "Add to Home Screen" feature.');
 		return false;
 	}
 

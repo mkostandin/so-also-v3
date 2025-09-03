@@ -100,7 +100,23 @@ export const api = {
 	conferences: () => http<Conference[]>(`/conferences`),
 	conference: (id: string) => http<Conference>(`/conferences/${id}`),
 	sessions: (id: string) => http<ConferenceSession[]>(`/conferences/${id}/sessions`),
-	createConference: (conferenceData: Partial<Conference>) => http<Conference>(`/conferences`, { method: 'POST', body: JSON.stringify(conferenceData) }),
+	createConference: (conferenceData: Partial<Conference>) => {
+		// Transform camelCase to snake_case for backend compatibility
+		const transformedData = {
+			name: conferenceData.name,
+			city: conferenceData.city,
+			description: conferenceData.description,
+			starts_at_utc: conferenceData.startsAtUtc,
+			ends_at_utc: conferenceData.endsAtUtc,
+			website_url: conferenceData.websiteUrl,
+			program_url: conferenceData.programUrl,
+			hotel_map_url: conferenceData.hotelMapUrl,
+			flyer_url: conferenceData.flyerUrl,
+			image_urls: conferenceData.imageUrls,
+			status: conferenceData.status,
+		};
+		return http<Conference>(`/conferences`, { method: 'POST', body: JSON.stringify(transformedData) });
+	},
 	flags: (payload: {
 		targetType: 'event' | 'conference' | 'session' | 'series';
 		targetId: string;

@@ -1,11 +1,13 @@
-import { useState, createContext, useContext, useCallback } from 'react';
+import { useState, createContext, useContext, useCallback, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EVENT_TYPES } from '@/components/EventTypeFilter';
+import { api, EventItem } from '@/lib/api-client';
+import { useUserLocation } from '@/hooks/useUserLocation';
 
 /**
- * Context type for sharing filter state across map, list, and calendar views
- * Includes event type filters, distance filters, and scroll position persistence
+ * Context type for sharing filter state and events data across map, list, and calendar views
+ * Includes event type filters, distance filters, scroll position persistence, and shared events
  */
 interface FilterContextType {
 	/** Currently selected event type filters */
@@ -20,6 +22,12 @@ interface FilterContextType {
 	filterScrollPosition: number;
 	/** Function to update filter scroll position for persistence */
 	setFilterScrollPosition: (position: number) => void;
+	/** Shared events data for all views */
+	events: EventItem[];
+	/** Loading state for events */
+	eventsLoading: boolean;
+	/** Error state for events */
+	eventsError: string | null;
 }
 
 /**
@@ -52,20 +60,30 @@ export default function MapIndex() {
 	const navigate = useNavigate();
 	const base = '/app/map';
 
+	// Move expensive mapping outside component to prevent recalculation on every render
+	const EVENT_TYPE_MAPPING: Record<string, string> = {
+		'Events': 'Event',
+		'Committee Meetings': 'Committee Meeting',
+		'Conferences': 'Conference',
+		'YPAA Meetings': 'YPAA Meeting',
+		'Other': 'Other'
+	};
+
 	// Filter state management with default values
 	// Initialize with data values (singular) instead of display names (plural)
-	const [selectedEventTypes, setSelectedEventTypesState] = useState<string[]>(() => {
-		const EVENT_TYPE_MAPPING: Record<string, string> = {
-			'Events': 'Event',
-			'Committee Meetings': 'Committee Meeting',
-			'Conferences': 'Conference',
-			'YPAA Meetings': 'YPAA Meeting',
-			'Other': 'Other'
-		};
-		return EVENT_TYPES.map(displayName => EVENT_TYPE_MAPPING[displayName] || displayName);
-	});
+	const [selectedEventTypes, setSelectedEventTypesState] = useState<string[]>(() =>
+		EVENT_TYPES.map(displayName => EVENT_TYPE_MAPPING[displayName] || displayName)
+	);
 	const [selectedDistance, setSelectedDistanceState] = useState<string>("150");
 	const [filterScrollPosition, setFilterScrollPositionState] = useState<number>(0);
+
+	// Shared events state for all views
+	const [events, setEvents] = useState<EventItem[]>([]);
+	const [eventsLoading, setEventsLoading] = useState(true);
+	const [eventsError, setEventsError] = useState<string | null>(null);
+
+	// Location hook for location-based API calls
+	const { coords, status } = useUserLocation();
 
 	/**
 	 * Callback to update selected event types
@@ -89,6 +107,51 @@ export default function MapIndex() {
 	const setFilterScrollPosition = useCallback((position: number) => {
 		setFilterScrollPositionState(position);
 	}, []);
+
+	// Fetch events once and share across all views
+	useEffect(() => {
+		let mounted = true;
+
+		const fetchEvents = async () => {
+			try {
+				setEventsLoading(true);
+				setEventsError(null);
+
+				// Use location-based API call when coordinates are available
+				let apiParams: any = { range: 30 }; // Reduced from 90 to 30 for better performance
+
+				if (coords) {
+					// Use location-based browsing when user location is available
+					apiParams = {
+						lat: coords.lat,
+						lng: coords.lng,
+						radius: 321869 // 200 miles in meters
+					};
+				}
+
+				const data = await api.browse(apiParams);
+				if (mounted) {
+					setEvents(data || []);
+				}
+			} catch (error) {
+				console.error('Failed to fetch events:', error);
+				if (mounted) {
+					setEventsError('Failed to load events');
+					setEvents([]);
+				}
+			} finally {
+				if (mounted) {
+					setEventsLoading(false);
+				}
+			}
+		};
+
+		fetchEvents();
+
+		return () => {
+			mounted = false;
+		};
+	}, [coords]); // Re-fetch when coordinates change
 
 	/**
 	 * Maps current pathname to tab identifier
@@ -121,7 +184,10 @@ export default function MapIndex() {
 			selectedDistance,
 			setSelectedDistance,
 			filterScrollPosition,
-			setFilterScrollPosition
+			setFilterScrollPosition,
+			events,
+			eventsLoading,
+			eventsError
 		}}>
 			{/* Main layout container with full height */}
 			<div className="flex flex-col h-full">

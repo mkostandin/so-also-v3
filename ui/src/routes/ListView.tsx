@@ -9,13 +9,11 @@ import EventTypeFilter from '@/components/EventTypeFilter';
 import { useFilterContext } from './MapIndex';
 
 export default function ListView() {
-	const [allEvents, setAllEvents] = useState<EventItem[]>([]);
 	const [page, setPage] = useState(1);
-	const [loading, setLoading] = useState(true);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const { coords, status, request } = useUserLocation();
 	const navigate = useNavigate();
-	const { selectedEventTypes, setSelectedEventTypes } = useFilterContext();
+	const { selectedEventTypes, setSelectedEventTypes, events, eventsLoading, eventsError } = useFilterContext();
 
 
 
@@ -25,34 +23,8 @@ export default function ListView() {
 		navigate(`/app/e/${event.id}`);
 	};
 
-	useEffect(() => {
-		let mounted = true;
-		(async () => {
-			setLoading(true);
-			try {
-				// Use location-based API call when coordinates are available
-				let apiParams: any = { range: 90 };
-
-				if (coords) {
-					// Use location-based browsing when user location is available
-					apiParams = {
-						lat: coords.lat,
-						lng: coords.lng,
-						radius: 321869 // 200 miles in meters (increased from 50 miles for better coverage)
-					};
-				}
-
-				const data = await api.browse(apiParams);
-				if (mounted) setAllEvents(data || []);
-			} catch (error) {
-				console.error('Failed to fetch events:', error);
-				if (mounted) setAllEvents([]);
-			} finally {
-				if (mounted) setLoading(false);
-			}
-		})();
-		return () => { mounted = false; };
-	}, [coords]); // Added coords dependency to refetch when location becomes available
+	// Events are now loaded once at the MapIndex level and shared via context
+	// No need for individual API calls in each view component
 
 	// Auto-request location when no coords available
 	// Ensures list view uses user's actual location for better event relevance
@@ -66,11 +38,11 @@ export default function ListView() {
 	const { displayedEvents, totalEvents, hasMoreEvents } = useMemo(() => {
 
 		// First filter by event types (only if we have specific types selected)
-		let filtered = allEvents;
+		let filtered = events;
 
 		// Only filter by event type if we have specific types selected (not all types)
 		if (selectedEventTypes.length > 0 && selectedEventTypes.length < 5) {
-			filtered = allEvents.filter((item) => {
+			filtered = events.filter((item) => {
 				return item.eventType && selectedEventTypes.includes(item.eventType);
 			});
 		}
@@ -117,7 +89,7 @@ export default function ListView() {
 			totalEvents: sortedEvents.length,
 			hasMoreEvents
 		};
-	}, [allEvents, selectedEventTypes, coords, page]);
+	}, [events, selectedEventTypes, coords, page]);
 
 	const handleLoadMore = () => {
 		setIsLoadingMore(true);
@@ -174,11 +146,11 @@ export default function ListView() {
 			</div>
 
 			<div className="flex-1 min-h-0 overflow-y-auto">
-				{loading ? (
+				{eventsLoading ? (
 					<div className="h-full rounded border p-3 text-sm flex items-center justify-center">Loading…</div>
 				) : displayedEvents.length === 0 ? (
 					<div className="h-full rounded border p-3 text-sm text-gray-500 flex items-center justify-center">
-						{allEvents.length === 0
+						{events.length === 0
 							? "No events available"
 							: "No events match your filters"}
 					</div>

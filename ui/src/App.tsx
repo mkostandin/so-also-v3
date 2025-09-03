@@ -1,6 +1,8 @@
 import { AuthProvider } from '@/lib/auth-context';
 import { ThemeProvider } from "@/components/theme-provider";
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { ToastProviderComponent } from '@/components/ui/toast';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Landing from '@/routes/Landing';
 import EmbedView from '@/routes/EmbedView';
 import MapIndex from '@/routes/MapIndex';
@@ -66,13 +68,17 @@ function App() {
         disableTransitionOnChange
         storageKey="volo-app-theme"
       >
-        <Router>
-          <AppContent />
-          {/* Mobile debug panel - only shows on mobile */}
-          <MobileDebugPanel />
-          {/* Global error overlay for critical failures */}
-          <ErrorOverlay />
-        </Router>
+        <ErrorBoundary>
+          <ToastProviderComponent>
+            <Router>
+              <AppContent />
+              {/* Mobile debug panel - only shows on mobile */}
+              <MobileDebugPanel />
+              {/* Global error overlay for critical failures */}
+              <ErrorOverlay />
+            </Router>
+          </ToastProviderComponent>
+        </ErrorBoundary>
       </ThemeProvider>
     </AuthProvider>
   );

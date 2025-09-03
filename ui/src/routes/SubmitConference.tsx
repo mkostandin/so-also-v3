@@ -47,23 +47,8 @@ export default function SubmitConference() {
       setIsSubmitting(true);
       setSubmitError(null);
 
-      // Transform data to match API expectations
-      const conferenceData = {
-        name: data.name,
-        city: data.city,
-        description: data.description,
-        starts_at_utc: data.startsAtUtc,
-        ends_at_utc: data.endsAtUtc,
-        website_url: data.websiteUrl || null,
-        program_url: data.programUrl || null,
-        hotel_map_url: data.hotelMapUrl || null,
-        flyer_url: data.flyerUrl || null,
-        image_urls: data.imageUrls || [],
-        status: 'pending',
-      };
-
-      // Submit conference
-      const result = await api.createConference(conferenceData);
+      // Submit conference (API client handles camelCase to snake_case transformation)
+      const result = await api.createConference(data);
 
       // Navigate to the new conference
       navigate(`/app/conferences/${result.id}`);
