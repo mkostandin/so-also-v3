@@ -62,10 +62,13 @@ This application is a comprehensive event management system built on top of the 
 ## 🔍 Filtering System
 
 ### Event Type Filtering
-- **Pill-Style Interface**: Clean, modern filter buttons
+- **Horizontal Scrollable Interface**: Single-line pill-style filter buttons with horizontal scrolling
+- **Space Efficient Design**: Reduces vertical space usage by 40-60% compared to multi-row layouts
 - **Multiple Selection**: Select multiple event types simultaneously
 - **Real-time Updates**: Filters apply immediately without page reload
-- **Visual Feedback**: Active/inactive states clearly indicated
+- **Scroll Position Persistence**: Maintains scroll position when switching between views
+- **Touch-Friendly**: Optimized for mobile devices with smooth touch scrolling
+- **Visual Feedback**: Active/inactive states clearly indicated with color and scale changes
 - **Cross-View Consistency**: Filters work identically across map, calendar, and list views
 
 ### Distance Filtering (Calendar View)

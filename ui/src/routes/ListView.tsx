@@ -131,8 +131,8 @@ export default function ListView() {
 	// Show location permission banner if no coordinates and permission was denied
 	if (!coords && status === 'denied') {
 		return (
-			<div className="mx-auto max-w-3xl p-2">
-				<div className="space-y-3">
+			<div className="mx-auto max-w-3xl">
+				<div className="space-y-2">
 					<EventTypeFilter
 						selectedTypes={selectedEventTypes}
 						onTypesChange={setSelectedEventTypes}
@@ -153,8 +153,8 @@ export default function ListView() {
 	}
 
 	return (
-		<div className="mx-auto max-w-3xl p-2">
-			<div className="space-y-3">
+		<div className="mx-auto max-w-3xl">
+			<div className="space-y-2">
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
 					onTypesChange={setSelectedEventTypes}

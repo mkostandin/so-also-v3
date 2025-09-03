@@ -57,10 +57,11 @@ This application has been extended beyond the base template with a comprehensive
 - **Event Limits**: Displays nearest 200 events with clear count indicators
 
 ### 🔍 **Advanced Filtering & Search**
-- **Event Type Filter**: Pill-style buttons for filtering by event categories
+- **Event Type Filter**: Horizontal scrollable pill-style buttons for filtering by event categories
 - **Distance Filter**: Configurable radius-based filtering for calendar view
 - **Real-time Updates**: Filters apply immediately with smooth UI transitions
 - **Persistent State**: Filter selections maintained across view changes
+- **Space Efficient**: Single-line horizontal layout reduces vertical space usage
 
 ### 📍 **Location Services**
 - **Geolocation Integration**: Automatic user location detection with permission handling

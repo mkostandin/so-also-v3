@@ -91,8 +91,8 @@ export default function CalendarView() {
 
 	if (loading) {
 		return (
-			<div className="mx-auto max-w-4xl p-2">
-				<div className="space-y-4">
+			<div className="mx-auto max-w-4xl">
+				<div className="space-y-2">
 					{/* Event Type Filter - Keep it visible during loading */}
 					<EventTypeFilter
 						selectedTypes={selectedEventTypes}
@@ -115,8 +115,8 @@ export default function CalendarView() {
 	}
 
 	return (
-		<div className="mx-auto max-w-4xl p-2">
-			<div className="space-y-4">
+		<div className="mx-auto max-w-4xl">
+			<div className="space-y-2">
 				{/* Event Type Filter */}
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
