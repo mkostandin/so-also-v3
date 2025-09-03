@@ -153,9 +153,7 @@ export default function ListView() {
 	}
 
 	return (
-		{/* Full-height layout container with responsive width constraints */}
 		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0">
-			{/* Fixed header section that doesn't scroll */}
 			<div className="flex-shrink-0 space-y-2">
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
@@ -175,7 +173,6 @@ export default function ListView() {
 				</div>
 			</div>
 
-			{/* Scrollable content area that uses remaining height */}
 			<div className="flex-1 min-h-0 overflow-y-auto">
 				{loading ? (
 					<div className="h-full rounded border p-3 text-sm flex items-center justify-center">Loading…</div>
