@@ -153,15 +153,17 @@ export default function ListView() {
 	}
 
 	return (
-		<div className="mx-auto max-w-3xl">
-			<div className="space-y-2">
+		{/* Full-height layout container with responsive width constraints */}
+		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0">
+			{/* Fixed header section that doesn't scroll */}
+			<div className="flex-shrink-0 space-y-2">
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
 					onTypesChange={setSelectedEventTypes}
 				/>
 				{!coords && status === 'prompt' && <LocationPermissionBanner />}
 
-				<div className="flex items-center justify-between">
+				<div className="flex items-center justify-between px-4">
 					<h3 className="text-lg font-semibold">
 						{coords ? 'Events by Distance' : 'Upcoming Events'}
 						{displayedEvents.length > 0 && (
@@ -171,61 +173,62 @@ export default function ListView() {
 						)}
 					</h3>
 				</div>
+			</div>
 
+			{/* Scrollable content area that uses remaining height */}
+			<div className="flex-1 min-h-0 overflow-y-auto">
 				{loading ? (
-					<div className="rounded border p-3 text-sm">Loading…</div>
+					<div className="h-full rounded border p-3 text-sm flex items-center justify-center">Loading…</div>
 				) : displayedEvents.length === 0 ? (
-					<div className="rounded border p-3 text-sm text-gray-500">
+					<div className="h-full rounded border p-3 text-sm text-gray-500 flex items-center justify-center">
 						{allEvents.length === 0
 							? "No events available"
 							: "No events match your filters"}
 					</div>
 				) : (
 					<>
-						<div className="max-h-[60vh] md:max-h-[70vh] overflow-y-auto">
-							<ul className="divide-y rounded border bg-white dark:bg-gray-900">
-								{displayedEvents.map((event) => (
-									<li
-										key={event.id}
-										className="p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-										onClick={() => handleEventClick(event)}
-									>
-										<div className="flex items-center justify-between">
-											<div className="flex-1">
-												<div className="font-medium">{event.name}</div>
-												{event.address && (
-													<div className="text-xs text-gray-500 mt-1">
-														{event.address}
-													</div>
-												)}
-												{event.description && (
-													<div className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-														{event.description}
-													</div>
-												)}
-												{event.startsAtUtc && (
-													<div className="text-xs text-gray-500 mt-1">
-														{formatDateShort(event.startsAtUtc)} • {formatTime(event.startsAtUtc)}
-													</div>
-												)}
-											</div>
-											<div className="flex flex-col items-end gap-1">
-												{coords && event.distanceMeters !== undefined && isFinite(event.distanceMeters) && (
-													<div className="text-xs text-gray-600 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-														{metersToMiles(event.distanceMeters).toFixed(1)} mi
-													</div>
-												)}
-												{event.eventType && (
-													<div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
-														{event.eventType}
-													</div>
-												)}
-											</div>
+						<ul className="divide-y rounded border bg-white dark:bg-gray-900">
+							{displayedEvents.map((event) => (
+								<li
+									key={event.id}
+									className="p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleEventClick(event)}
+								>
+									<div className="flex items-center justify-between">
+										<div className="flex-1">
+											<div className="font-medium">{event.name}</div>
+											{event.address && (
+												<div className="text-xs text-gray-500 mt-1">
+													{event.address}
+												</div>
+											)}
+											{event.description && (
+												<div className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+													{event.description}
+												</div>
+											)}
+											{event.startsAtUtc && (
+												<div className="text-xs text-gray-500 mt-1">
+													{formatDateShort(event.startsAtUtc)} • {formatTime(event.startsAtUtc)}
+												</div>
+											)}
 										</div>
-									</li>
-								))}
-							</ul>
-						</div>
+										<div className="flex flex-col items-end gap-1">
+											{coords && event.distanceMeters !== undefined && isFinite(event.distanceMeters) && (
+												<div className="text-xs text-gray-600 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+													{metersToMiles(event.distanceMeters).toFixed(1)} mi
+												</div>
+											)}
+											{event.eventType && (
+												<div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+													{event.eventType}
+												</div>
+											)}
+										</div>
+									</div>
+								</li>
+							))}
+						</ul>
 
 						{hasMoreEvents && (
 							<div className="flex justify-center mt-6">

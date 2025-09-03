@@ -11,7 +11,8 @@ The List View provides a scrollable, paginated list interface for browsing event
 - **Event Details**: Comprehensive event information including name, description, address, date/time
 - **Distance Indicators**: Shows distance badges when user location is available
 - **Event Type Badges**: Color-coded event type indicators
-- **Responsive Layout**: Optimized for desktop, tablet, and mobile devices
+- **Full-Height Layout**: Utilizes complete viewport height for maximum content visibility
+- **Responsive Layout**: Optimized for desktop, tablet, and mobile devices with improved width handling
 
 ### Smart Sorting & Filtering
 - **Location-Aware Sorting**: Sorts by distance when user location available, otherwise by chronological order
@@ -36,7 +37,8 @@ The List View provides a scrollable, paginated list interface for browsing event
 
 #### Key Files
 ```
-ui/src/routes/ListView.tsx              # Main list view component
+ui/src/routes/ListView.tsx              # Main list view component (full-height layout)
+ui/src/routes/MapIndex.tsx              # Parent layout component (height management)
 ui/src/components/EventTypeFilter.tsx   # Event type filtering
 ui/src/components/LocationPermissionBanner.tsx # Location permission UI
 ui/src/hooks/useUserLocation.ts         # Location services
@@ -58,6 +60,40 @@ const [allEvents, setAllEvents] = useState<EventItem[]>([]);
 const [page, setPage] = useState(1);
 const [loading, setLoading] = useState(true);
 const [isLoadingMore, setIsLoadingMore] = useState(false);
+```
+
+### Layout & Responsive Design
+
+#### Full-Height Layout Implementation
+```typescript
+// Main container uses flexbox for full height utilization
+<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0">
+  {/* Fixed header section */}
+  <div className="flex-shrink-0 space-y-2">
+    {/* Header content with proper spacing */}
+  </div>
+
+  {/* Scrollable content area uses remaining height */}
+  <div className="flex-1 min-h-0 overflow-y-auto">
+    {/* Event list content */}
+  </div>
+</div>
+```
+
+#### Responsive Width Handling
+- **Mobile**: `max-w-full` - Uses full available width for better mobile experience
+- **Small screens**: `sm:max-w-2xl` - Balanced width for small tablets
+- **Medium screens**: `md:max-w-3xl` - Standard desktop width
+- **Large screens**: `lg:max-w-4xl` - Wider layout for large displays
+
+#### Title Container Spacing
+```typescript
+// Proper horizontal padding for visual balance
+<div className="flex items-center justify-between px-4">
+  <h3 className="text-lg font-semibold">
+    {coords ? 'Events by Distance' : 'Upcoming Events'}
+  </h3>
+</div>
 ```
 
 ### Sorting Logic
@@ -145,6 +181,7 @@ sortedEvents = [...filtered].sort((a, b) => {
 
 ### Mobile Experience
 - **Touch Optimization**: Larger touch targets for mobile interaction
+- **Full-Width Layout**: Utilizes complete screen width for better mobile experience
 - **Readable Typography**: Appropriate font sizes for mobile screens
 - **Vertical Layout**: Optimized for portrait orientation
 - **Swipe-Friendly**: Smooth scrolling and touch interactions
