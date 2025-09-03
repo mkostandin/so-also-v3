@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { api } from '@/lib/api-client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-export default function FlagButton(props: { targetType: 'event'|'conference'|'session'|'series'; targetId: string; committeeSlug?: string }) {
+export default function FlagButton(props: {
+	targetType: 'event'|'conference'|'session'|'series';
+	targetId: string;
+	committeeSlug?: string;
+	className?: string
+}) {
 	const [open, setOpen] = useState(false);
 	const [reason, setReason] = useState('incorrect_time');
 	const [message, setMessage] = useState('');
@@ -42,11 +47,18 @@ export default function FlagButton(props: { targetType: 'event'|'conference'|'se
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="destructive" size="sm">Report issue</Button>
+				{props.className ? (
+					<span className={props.className}>Report issue</span>
+				) : (
+					<Button variant="destructive" size="sm">Report issue</Button>
+				)}
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Report an issue</DialogTitle>
+					<DialogDescription>
+						Help us improve by reporting any issues with this event.
+					</DialogDescription>
 				</DialogHeader>
 				<div className="space-y-3">
 					<label className="block text-sm">

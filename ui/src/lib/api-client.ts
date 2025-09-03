@@ -11,6 +11,14 @@ export type EventItem = {
 	eventType?: 'Event' | 'Committee Meeting' | 'Conference' | 'YPAA Meeting' | 'Other';
 	imageUrls?: string[];
 	address?: string | null;
+	city?: string | null;
+	stateProv?: string | null;
+	country?: string | null;
+	postal?: string | null;
+	flyerUrl?: string | null;
+	websiteUrl?: string | null;
+	contactEmail?: string | null;
+	contactPhone?: string | null;
 	committee?: string | null;
 	committeeSlug?: string | null;
 };

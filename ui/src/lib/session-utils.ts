@@ -61,3 +61,41 @@ export const calculateDuration = (start: string, end?: string): number | null =>
 export const getUniqueValues = <T,>(array: T[], key: keyof T): T[keyof T][] => {
 	return [...new Set(array.map(item => item[key]))];
 };
+
+// PWA Installation Utilities
+export const isPWAInstalled = (): boolean => {
+	// Check if running in standalone mode (PWA)
+	const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+	// Check for iOS PWA
+	const isIOSApp = (window.navigator as any).standalone === true;
+	return isStandalone || isIOSApp;
+};
+
+export const canInstallPWA = (): boolean => {
+	// Check if the browser supports PWA installation
+	return 'beforeinstallprompt' in window || isPWAInstalled();
+};
+
+export const installPWA = async (deferredPrompt: any): Promise<boolean> => {
+	if (!deferredPrompt) {
+		// Fallback for browsers that don't support beforeinstallprompt
+		alert('To install the app, please use your browser\'s "Add to Home Screen" feature.');
+		return false;
+	}
+
+	try {
+		deferredPrompt.prompt();
+		const { outcome } = await deferredPrompt.userChoice;
+
+		if (outcome === 'accepted') {
+			console.log('User accepted the PWA install prompt');
+			return true;
+		} else {
+			console.log('User dismissed the PWA install prompt');
+			return false;
+		}
+	} catch (error) {
+		console.error('Error during PWA installation:', error);
+		return false;
+	}
+};
