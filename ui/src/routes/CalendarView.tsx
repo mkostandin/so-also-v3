@@ -35,7 +35,7 @@ export default function CalendarView() {
 	const year = cursor.getFullYear();
 	const month = cursor.getMonth();
 
-	const { eventsByDate, loading, error, refetch } = useCalendarEvents(selectedDistance, selectedEventTypes);
+	const { eventsByDate, loading, error, refetch } = useCalendarEvents(selectedDistance, selectedEventTypes, selectedCommittees);
 
 	/**
 	 * Generate user-friendly text for displaying event count based on selected distance

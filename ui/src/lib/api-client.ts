@@ -89,10 +89,14 @@ export type Committee = {
 	name: string; // ALL CAPS normalized name
 	slug: string;
 	lastSeen: string;
+	eventCount?: number; // Optional event count for enhanced UX
 };
 
 export const api = {
-	getCommittees: () => http<Committee[]>(`/committees`),
+	getCommittees: (includeCounts: boolean = false) => {
+		const params = includeCounts ? '?includeCounts=true' : '';
+		return http<Committee[]>(`/committees${params}`);
+	},
 	browse: (params: { committees?: string[]; committee?: string; range?: string | number; lat?: number; lng?: number; radius?: number }) => {
 		const usp = new URLSearchParams();
 		// Support both single committee (backward compatibility) and multiple committees

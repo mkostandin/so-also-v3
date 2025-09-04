@@ -10,6 +10,7 @@ interface Committee {
   name: string; // ALL CAPS normalized name
   slug: string;
   lastSeen: string;
+  eventCount?: number; // Number of upcoming events for this committee
 }
 
 /**
@@ -46,14 +47,15 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
   // Reference to dropdown container
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+
   /**
-   * Fetches committees from API
+   * Fetches committees from API with optional event counts
    */
   const fetchCommittees = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.getCommittees();
+      const data = await api.getCommittees(true); // Include event counts
       setCommittees(data || []);
     } catch (err) {
       console.error('Failed to fetch committees:', err);
@@ -61,12 +63,12 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
 
       // Provide sample data for development when API fails
       setCommittees([
-        { id: '1', name: 'NECYPAA', slug: 'necypaa', lastSeen: new Date().toISOString() },
-        { id: '2', name: 'MSCYPAA', slug: 'mscypaa', lastSeen: new Date().toISOString() },
-        { id: '3', name: 'RISCYPAA', slug: 'riscypaa', lastSeen: new Date().toISOString() },
-        { id: '4', name: 'NHSCYPAA', slug: 'nhscypaa', lastSeen: new Date().toISOString() },
-        { id: '5', name: 'NECYPAA ADVISORY', slug: 'necypaa-advisory', lastSeen: new Date().toISOString() },
-        { id: '6', name: 'RHODE ISLAND BID FOR NECYPAA', slug: 'rhode-island-bid-for-necypaa', lastSeen: new Date().toISOString() },
+        { id: '1', name: 'NECYPAA', slug: 'necypaa', lastSeen: new Date().toISOString(), eventCount: 15 },
+        { id: '2', name: 'MSCYPAA', slug: 'mscypaa', lastSeen: new Date().toISOString(), eventCount: 12 },
+        { id: '3', name: 'RISCYPAA', slug: 'riscypaa', lastSeen: new Date().toISOString(), eventCount: 8 },
+        { id: '4', name: 'NHSCYPAA', slug: 'nhscypaa', lastSeen: new Date().toISOString(), eventCount: 6 },
+        { id: '5', name: 'NECYPAA ADVISORY', slug: 'necypaa-advisory', lastSeen: new Date().toISOString(), eventCount: 3 },
+        { id: '6', name: 'RHODE ISLAND BID FOR NECYPAA', slug: 'rhode-island-bid-for-necypaa', lastSeen: new Date().toISOString(), eventCount: 2 },
       ]);
     } finally {
       setLoading(false);
@@ -159,6 +161,7 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
     );
   }
 
+
   return (
     <div className="bg-white dark:bg-gray-900 border-b relative">
       <div className="px-4 py-2">
@@ -177,7 +180,6 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
               "flex items-center justify-between"
             )}
             aria-label="Select committees to filter by"
-            aria-expanded={isOpen ? 'true' : 'false'}
             aria-haspopup="listbox"
           >
             <span className="text-sm font-medium truncate">
@@ -219,7 +221,6 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
                     : "text-gray-900 dark:text-gray-100"
                 )}
                 role="option"
-                aria-selected={isCommitteeSelected(null) ? 'true' : 'false'}
               >
                 <div className={cn(
                   "w-4 h-4 rounded border-2 flex-shrink-0",
@@ -250,7 +251,6 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
                       : "text-gray-900 dark:text-gray-100"
                   )}
                   role="option"
-                  aria-selected={isCommitteeSelected(committee.slug) ? 'true' : 'false'}
                 >
                   <div className={cn(
                     "w-4 h-4 rounded border-2 flex-shrink-0",
@@ -264,7 +264,14 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
                       </svg>
                     )}
                   </div>
-                  <span className="text-sm font-medium">{committee.name}</span>
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-sm font-medium">{committee.name}</span>
+                    {committee.eventCount !== undefined && committee.eventCount > 0 && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                        ({committee.eventCount})
+                      </span>
+                    )}
+                  </div>
                 </button>
               ))}
             </div>

@@ -14,6 +14,8 @@ import MapControls from './MapControls';
 interface MapboxMapProps {
   /** Array of selected event types to filter markers */
   selectedEventTypes?: string[];
+  /** Array of selected committee slugs to filter markers */
+  selectedCommittees?: string[];
   /** Additional CSS classes for styling */
   className?: string;
   /** Number of retry attempts for map loading */
@@ -41,6 +43,7 @@ interface MapboxMapProps {
  */
 export default function MapboxMap({
   selectedEventTypes = [],
+  selectedCommittees = [],
   className = '',
   retryCount = 0,
   onReady,
@@ -89,14 +92,20 @@ export default function MapboxMap({
   const loadEvents = useCallback(async (mapInstance: mapboxgl.Map) => {
     try {
       // Load fewer events initially for faster map load
-      const initialEventData = await api.browse({ range: 30 }); // Get events for next 30 days
+      const initialEventData = await api.browse({
+        range: 30, // Get events for next 30 days
+        committees: selectedCommittees.length > 0 ? selectedCommittees : undefined
+      });
 
       setEvents(initialEventData);
 
       // Load additional events in background
       setTimeout(async () => {
         try {
-          const additionalEventData = await api.browse({ range: 90 }); // Get events for next 90 days
+          const additionalEventData = await api.browse({
+            range: 90, // Get events for next 90 days
+            committees: selectedCommittees.length > 0 ? selectedCommittees : undefined
+          });
           setEvents(additionalEventData);
         } catch (_error) {
           // Keep initial events if additional load fails
@@ -159,7 +168,7 @@ export default function MapboxMap({
         }
       }
     }
-  }, []);
+  }, [selectedCommittees]);
 
   // Handle map load - simplified with component delegation
   const handleMapLoad = useCallback(async (map: mapboxgl.Map) => {

@@ -29,7 +29,7 @@ const getRadiusFromDistance = (distance: string): number | undefined => {
 	}
 };
 
-export function useCalendarEvents(distance: string = "150", selectedEventTypes: string[] = []): CalendarEventsData {
+export function useCalendarEvents(distance: string = "150", selectedEventTypes: string[] = [], selectedCommittees: string[] = []): CalendarEventsData {
   const { coords: userCoords, status, request } = useUserLocation();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,6 +57,7 @@ export function useCalendarEvents(distance: string = "150", selectedEventTypes: 
         lat,
         lng,
         radius,
+        committees: selectedCommittees.length > 0 ? selectedCommittees : undefined,
       });
 
       // Store raw events without filtering (filtering will happen in useMemo)
@@ -77,7 +78,7 @@ export function useCalendarEvents(distance: string = "150", selectedEventTypes: 
     } finally {
       setLoading(false);
     }
-  }, [userCoords, distance]); // Updated dependency to use distance instead of range
+  }, [userCoords, distance, selectedCommittees]); // Updated dependency to include selectedCommittees
 
   useEffect(() => {
     fetchEvents();

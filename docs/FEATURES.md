@@ -2,7 +2,7 @@
 
 ## Overview
 
-This application is a comprehensive event management system built on top of the volo-app template, featuring interactive maps, calendars, and list views with advanced location-based functionality. The system allows users to discover, filter, and view events through three complementary interfaces optimized for different user preferences.
+This application is a comprehensive event management system built on top of the volo-app template, featuring interactive maps, calendars, and list views with advanced location-based functionality and committee filtering. The system allows users to discover, filter, and view events through three complementary interfaces optimized for different user preferences, with powerful filtering capabilities for both event types and organizational committees.
 
 ## 🗺️ Interactive Map View
 
@@ -70,6 +70,15 @@ This application is a comprehensive event management system built on top of the 
 - **Touch-Friendly**: Optimized for mobile devices with smooth touch scrolling
 - **Visual Feedback**: Active/inactive states clearly indicated with color and scale changes
 - **Cross-View Consistency**: Filters work identically across map, calendar, and list views
+
+### Committee Filtering
+- **Multi-Select Dropdown**: Clean, accessible dropdown for committee selection
+- **ALL CAPS Display**: Consistent uppercase formatting for all committee names
+- **Smart Validation**: Real-time validation with user guidance during event submission
+- **Event Count Display**: Shows number of upcoming events per committee in parentheses
+- **Local Storage Persistence**: Committee selections saved across browser sessions
+- **Alphabetical Sorting**: Committees sorted alphabetically by normalized name
+- **Cross-View Integration**: Works seamlessly across map, list, and calendar views
 
 ### Distance Filtering (Calendar View)
 - **Flexible Options**: Four distance ranges plus "All Events"

@@ -11,6 +11,7 @@ import { and, desc, eq, gte, sql, inArray } from 'drizzle-orm';
 import { haversineMeters } from './lib/location';
 import { geolocationService } from './lib/geolocation';
 import { CommitteeValidator } from './lib/committee-validation';
+import { committeeRoutes } from './api/committees';
 
 type Env = {
   RUNTIME?: string;
@@ -923,142 +924,8 @@ api.post('/dev/run-materializer', async (c) => {
   return c.json({ ok: true, ...res });
 });
 
-// Committee-related endpoints
-
-// GET /api/v1/committees - Retrieve all available committees for dropdown options
-api.get('/committees', async (c) => {
-  try {
-    const db = await getDatabase(getDatabaseUrl());
-
-    // Check if test data should be included
-    const includeTestData = c.req.query('includeTestData') === 'true';
-
-    let committeeWhere = undefined;
-
-    // Only filter out test data if not explicitly including it
-    if (!includeTestData) {
-      committeeWhere = eq(schema.committees.test_data, false);
-    }
-
-    // Get all committees sorted alphabetically by name
-    const committees = await db
-      .select({
-        id: schema.committees.id,
-        name: schema.committees.name,
-        slug: schema.committees.slug,
-        lastSeen: schema.committees.last_seen,
-      })
-      .from(schema.committees)
-      .where(committeeWhere)
-      .orderBy(schema.committees.name);
-
-    return c.json(toCamel(committees));
-  } catch (error) {
-    console.error('Error fetching committees:', error);
-    return c.json({ error: 'Failed to fetch committees' }, 500);
-  }
-});
-
-// POST /api/v1/committees/sync - Sync committees collection with new entries from events
-api.post('/committees/sync', async (c) => {
-  try {
-    const db = await getDatabase(getDatabaseUrl());
-
-    // Get unique committee/committee_slug combinations from events
-    const eventCommittees = await db
-      .select({
-        committee: schema.events.committee,
-        committeeSlug: schema.events.committee_slug,
-      })
-      .from(schema.events)
-      .where(and(
-        eq(schema.events.test_data, false),
-        sql`${schema.events.committee} IS NOT NULL`,
-        sql`${schema.events.committee_slug} IS NOT NULL`
-      ));
-
-    const committeesToSync = new Map<string, { name: string; slug: string }>();
-
-    // Process and normalize committee data
-    for (const event of eventCommittees) {
-      if (event.committee && event.committeeSlug) {
-        // Remove leading "THE" from BID committees for deduplication
-        let normalizedName = event.committee.replace(/^THE\s+/i, '');
-
-        // Validate against strict patterns
-        const isValidRegional = /^[A-Z]+YPAA$/.test(normalizedName);
-        const isValidAdvisory = /^[A-Z]+YPAA ADVISORY$/.test(normalizedName);
-        const isValidBid = /^[A-Z\s]+BID FOR Y?PAA$/.test(normalizedName);
-
-        if (!isValidRegional && !isValidAdvisory && !isValidBid) {
-          // Skip invalid committee names (like "NECYPAA EXECUTIVE", "THE NEW HAMPSHIRE CONFERENCE OF YOUNG PEOPLE IN AA")
-          continue;
-        }
-
-        // Normalize to ALL CAPS
-        normalizedName = normalizedName.toUpperCase();
-
-        committeesToSync.set(event.committeeSlug, {
-          name: normalizedName,
-          slug: event.committeeSlug,
-        });
-      }
-    }
-
-    const results = {
-      processed: 0,
-      inserted: 0,
-      updated: 0,
-      skipped: 0,
-    };
-
-    // Sync committees to database
-    for (const [slug, committeeData] of committeesToSync) {
-      results.processed++;
-
-      // Check if committee already exists
-      const existing = await db
-        .select()
-        .from(schema.committees)
-        .where(eq(schema.committees.slug, slug))
-        .limit(1);
-
-      if (existing.length === 0) {
-        // Insert new committee
-        await db.insert(schema.committees).values({
-          name: committeeData.name,
-          slug: committeeData.slug,
-          test_data: false,
-          last_seen: new Date(),
-        });
-        results.inserted++;
-      } else {
-        // Update last_seen timestamp
-        await db
-          .update(schema.committees)
-          .set({ last_seen: new Date() })
-          .where(eq(schema.committees.slug, slug));
-        results.updated++;
-      }
-    }
-
-    // Get total count of committees after sync
-    const totalCount = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(schema.committees)
-      .where(eq(schema.committees.test_data, false));
-
-    return c.json({
-      success: true,
-      results,
-      totalCommittees: totalCount[0].count,
-    });
-
-  } catch (error) {
-    console.error('Error syncing committees:', error);
-    return c.json({ error: 'Failed to sync committees' }, 500);
-  }
-});
+// Mount committee routes
+api.route('/committees', committeeRoutes);
 
 // Protected routes - require authentication
 const protectedRoutes = new Hono();
