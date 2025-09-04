@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Info } from 'lucide-react';
 
 /**
  * Props for the MobileTooltip component
@@ -34,21 +33,27 @@ export default function MobileTooltip({ children, content, ariaLabel = "Informat
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Detect if device is touch-enabled (mobile)
-  const isTouchDevice = useCallback(() => {
-    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  }, []);
+  // Detect if device is touch-enabled (mobile) - synchronous for immediate use
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
   const closeTooltip = useCallback(() => {
     setIsTooltipOpen(false);
   }, []);
 
   useEffect(() => {
-    if (!isTouchDevice()) return;
+    if (!isTouchDevice) return;
+
+    let touchStartTime = 0;
+    const TOUCH_DELAY = 300; // ms - standard touch delay
 
     // Mobile-specific: close tooltip on scroll or outside tap
     const handleScroll = () => closeTooltip();
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      // Prevent rapid successive touches
+      const now = Date.now();
+      if (now - touchStartTime < TOUCH_DELAY) return;
+      touchStartTime = now;
+
       const target = e.target as Element;
       // Primary detection: Use React refs for reliable element detection
       const container = containerRef.current;
@@ -59,28 +64,22 @@ export default function MobileTooltip({ children, content, ariaLabel = "Informat
         if (!container.contains(target) && !trigger.contains(target)) {
           closeTooltip();
         }
-      } else {
-        // Fallback detection: Use CSS class selectors if refs are unavailable
-        // This ensures robustness even if refs fail to attach properly
-        if (!target.closest('.mobile-tooltip-container') && !target.closest('.mobile-tooltip-trigger')) {
-          closeTooltip();
-        }
       }
     };
 
-    // Add event listeners with capture phase for better reliability
-    document.addEventListener('click', handleClickOutside, true);
-    document.addEventListener('touchstart', handleClickOutside, true);
+    // Use bubbling phase instead of capture phase for better compatibility
+    document.addEventListener('click', handleClickOutside, false);
+    document.addEventListener('touchend', handleClickOutside, { passive: true });
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      document.removeEventListener('click', handleClickOutside, true);
-      document.removeEventListener('touchstart', handleClickOutside, true);
+      document.removeEventListener('click', handleClickOutside, false);
+      document.removeEventListener('touchend', handleClickOutside, false);
       window.removeEventListener('scroll', handleScroll);
     };
   }, [closeTooltip, isTouchDevice]);
 
-  if (!isTouchDevice()) {
+  if (!isTouchDevice) {
     // For desktop, just return the children without tooltip functionality
     return <>{children}</>;
   }

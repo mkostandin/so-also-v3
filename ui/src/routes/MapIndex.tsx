@@ -192,7 +192,7 @@ export default function MapIndex() {
 			{/* Main layout container with full height */}
 			<div className="flex flex-col h-full">
 				{/* Sticky navigation header with backdrop blur effect */}
-				<div className="sticky top-0 z-40 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60">
+				<div className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60 touch-pan-y">
 					<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl p-2">
 						{/* Tab navigation for switching between map, list, and calendar views */}
 						<Tabs value={current} onValueChange={onValueChange}>
@@ -205,7 +205,7 @@ export default function MapIndex() {
 					</div>
 				</div>
 				{/* Main content area that takes remaining height and enables full-height child layouts */}
-				<div className="flex-1 min-h-0">
+				<div className="flex-1 min-h-0 relative z-0">
 					<Outlet />  {/* Render current route component (MapView, ListView, or CalendarView) */}
 				</div>
 			</div>

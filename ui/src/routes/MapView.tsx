@@ -220,7 +220,7 @@ export default function MapView() {
 					onTypesChange={setSelectedEventTypes}
 				/>
 			</div>
-			<div className="flex-1 min-h-0">
+			<div className="flex-1 min-h-0 relative z-0">
 				<MapboxMap
 					selectedEventTypes={selectedEventTypes}
 					className="h-full w-full"

@@ -20,6 +20,7 @@ import MobileDebugPanel from '@/components/MobileDebugPanel';
 import ErrorOverlay from '@/components/ErrorOverlay';
 
 function AppContent() {
+
   return (
     <Routes>
       <Route path="/" element={<Landing />} />

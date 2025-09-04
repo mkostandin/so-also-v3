@@ -20,24 +20,26 @@ interface EventHeaderProps {
  */
 export default function EventHeader({ name, onBack }: EventHeaderProps) {
   return (
-    <div className="space-y-4">
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onBack();
-        }}
-        onTouchEnd={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onBack();
-        }}
-        className="mobile-touch-button bg-gray-600 text-white px-4 py-3 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] min-w-[44px] flex items-center justify-center"
-        title="Go back to So Also main list"
-        aria-label="Go back to So Also main list"
-      >
-        ← Back to So Also
-      </button>
+    <div className="space-y-6 px-4 sm:px-0">
+      <div className="flex justify-start">
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onBack();
+          }}
+          className="mobile-touch-button event-header-back-btn bg-gray-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[48px] min-w-[48px] flex items-center justify-center relative z-[60] shadow-sm"
+          title="Go back to So Also main list"
+          aria-label="Go back to So Also main list"
+          style={{
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            WebkitTapHighlightColor: 'transparent'
+          }}
+        >
+          ← Back to So Also
+        </button>
+      </div>
 
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{name}</h1>

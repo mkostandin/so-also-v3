@@ -4,7 +4,6 @@ import { api, EventItem } from '@/lib/api-client';
 import FlagButton from '@/components/FlagButton';
 import ImageGallery from '@/components/ImageGallery';
 import CommitteeNotificationsToggle from '@/components/CommitteeNotificationsToggle';
-import EventHeader from '@/components/EventHeader';
 import EventTags from '@/components/EventTags';
 import EventActions from '@/components/EventActions';
 import EventContent from '@/components/EventContent';
@@ -21,8 +20,10 @@ export default function EventDetail() {
 	const [error, setError] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const [isTouchDevice, setIsTouchDevice] = useState(false);
 	const [showNoEmailDialog, setShowNoEmailDialog] = useState(false);
+
+	// Detect touch device synchronously to avoid timing issues
+	const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 	// Callback to close the 3-dot menu, memoized to prevent unnecessary re-renders
 	const closeMenu = useCallback(() => {
@@ -33,8 +34,8 @@ export default function EventDetail() {
 	const handleBack = useCallback(() => {
 		// For shared links and better UX, always go to the main list view
 		// This provides a consistent experience regardless of how users arrived at the event
-		window.location.href = '/app/map/list';
-	}, []);
+		navigate('/app/map/list');
+	}, [navigate]);
 
 	const handleContactCommittee = useCallback(() => {
 		if (event?.contactEmail) {
@@ -43,12 +44,6 @@ export default function EventDetail() {
 			setShowNoEmailDialog(true);
 		}
 	}, [event?.contactEmail]);
-
-	// Detect touch device on mount
-	useEffect(() => {
-		const touchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-		setIsTouchDevice(touchDevice);
-	}, []);
 
 	useEffect(() => {
 		if (!id) return;
@@ -80,8 +75,15 @@ export default function EventDetail() {
 		// Optimized mobile event listeners - only add when menu is actually open
 		// This prevents unnecessary event listeners when menu is closed for better performance
 		if (isTouchDevice && isMenuOpen) {
+			let lastTouchTime = 0;
+			const TOUCH_DEBOUNCE = 200; // Prevent rapid successive touches
+
 			const handleScroll = () => closeMenu();
 			const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+				const now = Date.now();
+				if (now - lastTouchTime < TOUCH_DEBOUNCE) return;
+				lastTouchTime = now;
+
 				const target = e.target as Element;
 				// Close menu if click is outside both the menu container and the menu button
 				if (!target.closest('.menu-container') && !target.closest('button[aria-label="More options"]')) {
@@ -89,15 +91,15 @@ export default function EventDetail() {
 				}
 			};
 
-			// Use passive listeners for better performance
+			// Use passive listeners for better performance and bubbling phase to avoid conflicts
 			window.addEventListener('scroll', handleScroll, { passive: true });
-			document.addEventListener('click', handleClickOutside, { passive: true });
-			document.addEventListener('touchstart', handleClickOutside, { passive: true });
+			document.addEventListener('click', handleClickOutside, false);
+			document.addEventListener('touchend', handleClickOutside, { passive: true });
 
 			return () => {
 				window.removeEventListener('scroll', handleScroll);
-				document.removeEventListener('click', handleClickOutside);
-				document.removeEventListener('touchstart', handleClickOutside);
+				document.removeEventListener('click', handleClickOutside, false);
+				document.removeEventListener('touchend', handleClickOutside, false);
 			};
 		}
 	}, [id, closeMenu, isTouchDevice, isMenuOpen]);
@@ -141,26 +143,42 @@ export default function EventDetail() {
 
 	if (loading) {
 		return (
-			<div className="space-y-3">
-				<button
-					onClick={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						handleBack();
-					}}
-					onTouchEnd={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						handleBack();
-					}}
-					className="mobile-touch-button bg-gray-600 text-white px-4 py-3 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] min-w-[44px] flex items-center justify-center"
-				>
-					← Back to So Also
-				</button>
-				<div className="flex items-center justify-center p-8">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-						<p className="text-sm text-gray-600 dark:text-gray-400">Loading event details...</p>
+			<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4">
+				<div className="max-w-2xl mx-auto px-4 sm:px-0">
+					<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
+						{/* Back button and title at the top of the card */}
+						<div className="space-y-4 pb-6 border-b border-gray-100 dark:border-gray-700">
+							<div className="flex justify-start">
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										handleBack();
+									}}
+									className="mobile-touch-button event-header-back-btn bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] flex items-center justify-center relative z-[60]"
+									title="Go back to So Also main list"
+									aria-label="Go back to So Also main list"
+									style={{
+										WebkitTouchCallout: 'none',
+										WebkitUserSelect: 'none',
+										WebkitTapHighlightColor: 'transparent'
+									}}
+								>
+									← Back to So Also
+								</button>
+							</div>
+
+							<div className="text-center">
+								<h1 className="text-2xl font-bold text-gray-900 dark:text-white">Loading...</h1>
+							</div>
+						</div>
+
+						<div className="flex items-center justify-center p-8">
+							<div className="text-center">
+								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+								<p className="text-sm text-gray-600 dark:text-gray-400">Loading event details...</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -169,36 +187,78 @@ export default function EventDetail() {
 
 	if (error || !event) {
 		return (
-			<div className="space-y-3">
-				<button
-					onClick={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						handleBack();
-					}}
-					onTouchEnd={(e) => {
-						e.preventDefault();
-						e.stopPropagation();
-						handleBack();
-					}}
-					className="mobile-touch-button bg-gray-600 text-white px-4 py-3 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] min-w-[44px] flex items-center justify-center"
-				>
-					← Back to So Also
-				</button>
-				<div className="text-center p-8">
-					<p className="text-red-600 dark:text-red-400">{error || 'Event not found'}</p>
+			<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4">
+				<div className="max-w-2xl mx-auto px-4 sm:px-0">
+					<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
+						{/* Back button and title at the top of the card */}
+						<div className="space-y-4 pb-6 border-b border-gray-100 dark:border-gray-700">
+							<div className="flex justify-start">
+								<button
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										handleBack();
+									}}
+									className="mobile-touch-button event-header-back-btn bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] flex items-center justify-center relative z-[60]"
+									title="Go back to So Also main list"
+									aria-label="Go back to So Also main list"
+									style={{
+										WebkitTouchCallout: 'none',
+										WebkitUserSelect: 'none',
+										WebkitTapHighlightColor: 'transparent'
+									}}
+								>
+									← Back to So Also
+								</button>
+							</div>
+
+							<div className="text-center">
+								<h1 className="text-2xl font-bold text-gray-900 dark:text-white">Error</h1>
+							</div>
+						</div>
+
+						<div className="text-center p-8">
+							<p className="text-red-600 dark:text-red-400">{error || 'Event not found'}</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		);
 	}
 
 	return (
-		<div className="space-y-4">
-			<EventHeader name={event.name} onBack={handleBack} />
+		<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4">
+			<div className="max-w-2xl mx-auto px-4 sm:px-0">
+				<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
+					{/* Back button and title at the top of the card */}
+					<div className="space-y-4 pb-6 border-b border-gray-100 dark:border-gray-700">
+						<div className="flex justify-start">
+							<button
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									handleBack();
+								}}
+								className="mobile-touch-button event-header-back-btn bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] flex items-center justify-center relative z-[60]"
+								title="Go back to So Also main list"
+								aria-label="Go back to So Also main list"
+								style={{
+									WebkitTouchCallout: 'none',
+									WebkitUserSelect: 'none',
+									WebkitTapHighlightColor: 'transparent'
+								}}
+							>
+								← Back to So Also
+							</button>
+						</div>
 
-			<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
-				{/* 3-dot menu button - positioned absolutely in top-right corner */}
-				<div className="absolute top-4 right-4 menu-container">
+						<div className="text-center">
+							<h1 className="text-2xl font-bold text-gray-900 dark:text-white">{event.name}</h1>
+						</div>
+					</div>
+
+					{/* 3-dot menu button - positioned absolutely in top-right corner */}
+					<div className="absolute top-4 right-4 menu-container">
 					<button
 						className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
 						aria-label="More options"
@@ -285,22 +345,23 @@ export default function EventDetail() {
 
 			</div>
 
-			{/* No Email Dialog */}
-			<Dialog open={showNoEmailDialog} onOpenChange={setShowNoEmailDialog}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>No Email Available</DialogTitle>
-						<DialogDescription>
-							No email was submitted with this event.
-						</DialogDescription>
-					</DialogHeader>
-					<div className="flex justify-end">
-						<Button onClick={() => setShowNoEmailDialog(false)}>
-							OK
-						</Button>
-					</div>
-				</DialogContent>
-			</Dialog>
+				{/* No Email Dialog */}
+				<Dialog open={showNoEmailDialog} onOpenChange={setShowNoEmailDialog}>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>No Email Available</DialogTitle>
+							<DialogDescription>
+								No email was submitted with this event.
+							</DialogDescription>
+						</DialogHeader>
+						<div className="flex justify-end">
+							<Button onClick={() => setShowNoEmailDialog(false)}>
+								OK
+							</Button>
+						</div>
+					</DialogContent>
+				</Dialog>
+			</div>
 		</div>
 	);
 }

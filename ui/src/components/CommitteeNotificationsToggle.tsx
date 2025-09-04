@@ -34,13 +34,10 @@ export default function CommitteeNotificationsToggle({
 	committeeName
 }: CommitteeNotificationsToggleProps) {
 	const [isEnabled, setIsEnabled] = useState(false);
-	const [isTouchDevice, setIsTouchDevice] = useState(false);
 	const storageKey = `soalso:notify:committee:${committeeSlug}`;
 
-	// Detect touch device on mount
-	useEffect(() => {
-		setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-	}, []);
+	// Detect touch device synchronously to avoid timing issues
+	const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 	// Load notification preference from localStorage on mount
 	useEffect(() => {

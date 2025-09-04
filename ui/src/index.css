@@ -7,6 +7,79 @@
 .mobile-touch-button {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Global touch optimizations for better mobile performance */
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable text selection for text inputs */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Ensure buttons are touch-friendly */
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure map containers don't interfere with touch events on overlay elements */
+[data-map-container="true"] {
+  touch-action: auto;
+  pointer-events: auto;
+}
+
+/* Fix for sticky positioned elements on mobile */
+.sticky {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Ensure tab buttons have highest touch priority */
+[data-radix-tabs-trigger] {
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  pointer-events: auto !important;
+  z-index: 50 !important;
+  position: relative !important;
+}
+
+/* Ensure back buttons have high touch priority */
+.mobile-touch-button {
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  pointer-events: auto !important;
+  z-index: 45 !important;
+}
+
+/* EventHeader back button - highest priority */
+.event-header-back-btn {
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  pointer-events: auto !important;
+  z-index: 60 !important;
+  position: relative !important;
+  /* Remove transitions to prevent jarring animations */
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Force hardware acceleration for touch elements */
+.mobile-touch-button,
+[data-radix-tabs-trigger] {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 :root {
