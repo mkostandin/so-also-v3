@@ -27,7 +27,6 @@ import EventTags from '@/components/EventTags';
 import EventActions from '@/components/EventActions';
 import EventContent from '@/components/EventContent';
 import EventContact from '@/components/EventContact';
-import { formatDate } from '@/lib/session-utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -249,7 +248,7 @@ export default function EventDetail() {
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4">
 			<div className="max-w-2xl mx-auto px-4 sm:px-0">
 				<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
-					{/* Back button and title at the top of the card */}
+					{/* Back button, title, and tags at the top of the card */}
 					<div className="space-y-4 pb-6 border-b border-gray-100 dark:border-gray-700">
 						<div className="flex justify-start">
 							<button
@@ -274,6 +273,9 @@ export default function EventDetail() {
 						<div className="text-center">
 							<h1 className="text-2xl font-bold text-gray-900 dark:text-white">{event.name}</h1>
 						</div>
+
+						{/* Event Tags - moved above separator */}
+						<EventTags eventType={event.eventType} committee={event.committee} />
 					</div>
 
 					{/* 3-dot menu button - positioned absolutely in top-right corner */}
@@ -322,8 +324,6 @@ export default function EventDetail() {
 					)}
 				</div>
 
-				{/* Event Tags */}
-				<EventTags eventType={event.eventType} committee={event.committee} />
 
 				{/* Image Gallery */}
 				{event.imageUrls && event.imageUrls.length > 0 && (
@@ -347,11 +347,11 @@ export default function EventDetail() {
 				<EventContent
 					description={event.description}
 					startsAtUtc={event.startsAtUtc}
+					endsAtUtc={event.endsAtUtc}
 					address={event.address}
 					city={event.city}
 					stateProv={event.stateProv}
 					distanceMeters={event.distanceMeters}
-					formatDate={formatDate}
 				/>
 
 				{/* Contact Information */}

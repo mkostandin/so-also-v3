@@ -44,6 +44,40 @@ export const formatDate = (dateString: string): string => {
 	return date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
 };
 
+export const formatDateWithOrdinal = (dateString: string): string => {
+	const date = new Date(dateString);
+	const day = date.getDate();
+	const weekday = date.toLocaleDateString([], { weekday: 'long' });
+	const month = date.toLocaleDateString([], { month: 'long' });
+
+	// Add ordinal suffix
+	const getOrdinalSuffix = (day: number): string => {
+		if (day > 3 && day < 21) return 'th';
+		switch (day % 10) {
+			case 1: return 'st';
+			case 2: return 'nd';
+			case 3: return 'rd';
+			default: return 'th';
+		}
+	};
+
+	return `${weekday}, ${month} ${day}${getOrdinalSuffix(day)}`;
+};
+
+export const formatTimeRange = (startDateString: string, endDateString?: string | null): string => {
+	const startDate = new Date(startDateString);
+	const startTime = startDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+	if (!endDateString) {
+		return startTime;
+	}
+
+	const endDate = new Date(endDateString);
+	const endTime = endDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+	return `${startTime} to ${endTime}`;
+};
+
 export const formatDateShort = (dateString: string): string => {
 	const date = new Date(dateString);
 	return date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });

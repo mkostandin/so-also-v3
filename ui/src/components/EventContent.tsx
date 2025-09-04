@@ -1,59 +1,98 @@
 import React from 'react';
 import { metersToMiles } from '@/lib/location-utils';
+import { formatDateWithOrdinal, formatTimeRange } from '@/lib/session-utils';
 
 interface EventContentProps {
   description?: string | null;
   startsAtUtc?: string | null;
+  endsAtUtc?: string | null;
   address?: string | null;
   city?: string | null;
   stateProv?: string | null;
   distanceMeters?: number | null;
-  formatDate: (dateString: string) => string;
 }
 
 export default function EventContent({
   description,
   startsAtUtc,
+  endsAtUtc,
   address,
   city,
   stateProv,
-  distanceMeters,
-  formatDate
+  distanceMeters
 }: EventContentProps) {
+  // Only render if there's content to show
+  const hasContent = description || startsAtUtc || address || city || stateProv;
+
+  if (!hasContent) {
+    return null;
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-6">
+      {/* Description section */}
       {description && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-left">{description}</p>
+        <div>
+          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed text-left">{description}</p>
         </div>
       )}
 
+      {/* Date and Time section */}
       {startsAtUtc && (
-        <div className="text-left">
-          <p className="text-xl font-semibold text-gray-900 dark:text-white">
-            {formatDate(startsAtUtc)}
+        <div>
+          <p className="text-base text-gray-900 dark:text-white text-left">
+            {formatDateWithOrdinal(startsAtUtc)}
+          </p>
+          <p className="text-base text-gray-700 dark:text-gray-300 text-left mt-1">
+            {formatTimeRange(startsAtUtc, endsAtUtc)}
           </p>
         </div>
       )}
 
+      {/* Location section */}
       {(address || city || stateProv) && (
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-3 text-left">Location</h3>
-          <div className="text-left space-y-1">
-            {address && (
-              <p className="text-gray-700 dark:text-gray-300">{address}</p>
-            )}
-            {(city || stateProv) && (
-              <p className="text-gray-700 dark:text-gray-300">
-                {[city, stateProv].filter(Boolean).join(', ')}
-              </p>
-            )}
-            {distanceMeters !== undefined && isFinite(distanceMeters) && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                {metersToMiles(distanceMeters).toFixed(1)} miles away
-              </p>
-            )}
-          </div>
+        <div className="text-left">
+          {address && (
+            <div className="space-y-1">
+              {/* Smart parsing to show venue name and street address */}
+              {(() => {
+                const addressParts = address.split(', ');
+
+                if (addressParts.length > 1) {
+                  // Address has multiple parts - assume first is venue, rest is street address
+                  const venueName = addressParts[0];
+                  const streetAddress = addressParts.slice(1).join(', ');
+                  return (
+                    <>
+                      <p className="text-base text-gray-900 dark:text-white leading-snug">
+                        {venueName}
+                      </p>
+                      <p className="text-base text-gray-700 dark:text-gray-300 leading-snug">
+                        {streetAddress}
+                      </p>
+                    </>
+                  );
+                } else {
+                  // Single address line - just display the address
+                  return (
+                    <p className="text-base text-gray-900 dark:text-white leading-snug">
+                      {address}
+                    </p>
+                  );
+                }
+              })()}
+            </div>
+          )}
+          {(city || stateProv) && (
+            <p className="text-base text-gray-600 dark:text-gray-400 mt-1">
+              {[city, stateProv].filter(Boolean).join(', ')}
+            </p>
+          )}
+          {distanceMeters !== undefined && distanceMeters !== null && isFinite(distanceMeters) && (
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+              {metersToMiles(distanceMeters).toFixed(1)} miles away
+            </p>
+          )}
         </div>
       )}
     </div>
