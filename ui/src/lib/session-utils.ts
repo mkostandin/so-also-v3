@@ -44,13 +44,18 @@ export const formatDate = (dateString: string): string => {
 	return date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
 };
 
+/**
+ * Formats a date string with ordinal suffixes for improved readability
+ * @param dateString - ISO date string to format
+ * @returns Formatted date with ordinal suffix (e.g., "Monday, November 4th")
+ */
 export const formatDateWithOrdinal = (dateString: string): string => {
 	const date = new Date(dateString);
 	const day = date.getDate();
 	const weekday = date.toLocaleDateString([], { weekday: 'long' });
 	const month = date.toLocaleDateString([], { month: 'long' });
 
-	// Add ordinal suffix
+	// Add ordinal suffix (1st, 2nd, 3rd, 4th, etc.)
 	const getOrdinalSuffix = (day: number): string => {
 		if (day > 3 && day < 21) return 'th';
 		switch (day % 10) {
@@ -64,6 +69,12 @@ export const formatDateWithOrdinal = (dateString: string): string => {
 	return `${weekday}, ${month} ${day}${getOrdinalSuffix(day)}`;
 };
 
+/**
+ * Formats a time range or single time for event display
+ * @param startDateString - ISO date string for event start time
+ * @param endDateString - Optional ISO date string for event end time
+ * @returns Time range (e.g., "6:00 PM to 9:00 PM") or single time (e.g., "6:00 PM")
+ */
 export const formatTimeRange = (startDateString: string, endDateString?: string | null): string => {
 	const startDate = new Date(startDateString);
 	const startTime = startDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });

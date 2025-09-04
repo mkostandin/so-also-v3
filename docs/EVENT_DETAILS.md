@@ -7,11 +7,11 @@ The Event Details Page is a comprehensive feature that provides users with a ric
 ## 🎯 Core Features
 
 ### Comprehensive Event Layout
-- **Event Header**: Title, back navigation, and consistent branding
-- **Event Tags**: Visual indicators for event type and committee affiliation
+- **Event Header**: Title, back navigation, and consistent branding with event tags positioned above separator for improved visual hierarchy
+- **Event Tags**: Visual indicators for event type and committee affiliation, now positioned in header section above separator
 - **Image Gallery**: Display of event images with responsive design
 - **Action Buttons**: Share functionality and directions integration
-- **Structured Content**: Organized sections for description, date, location, and contact information
+- **Structured Content**: Unified sections for description, date, location, and contact information with consistent typography and smart address parsing
 
 ### Committee Notifications System
 - **Toggle Controls**: Enable/disable notifications for specific committees
@@ -83,6 +83,7 @@ interface EventItem {
   committeeSlug?: string;
   description?: string;
   startsAtUtc: string;
+  endsAtUtc?: string;
   address?: string;
   city?: string;
   stateProv?: string;
@@ -92,6 +93,15 @@ interface EventItem {
   contactEmail?: string;
   imageUrls?: string[];
   distanceMeters?: number;
+}
+
+// Enhanced date/time formatting utilities
+function formatDateWithOrdinal(dateString: string): string {
+  // Returns formatted date with ordinal suffixes (e.g., "November 4th")
+}
+
+function formatTimeRange(startDate: string, endDate?: string): string {
+  // Returns time range (e.g., "6:00 PM to 9:00 PM") or single time
 }
 ```
 

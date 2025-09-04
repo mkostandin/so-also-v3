@@ -248,8 +248,9 @@ export default function EventDetail() {
 		<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4">
 			<div className="max-w-2xl mx-auto px-4 sm:px-0">
 				<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
-					{/* Back button, title, and tags at the top of the card */}
+					{/* Header section: Back button, title, and event tags above separator for improved visual hierarchy */}
 					<div className="space-y-4 pb-6 border-b border-gray-100 dark:border-gray-700">
+						{/* Back navigation button */}
 						<div className="flex justify-start">
 							<button
 								onClick={(e) => {
@@ -270,11 +271,12 @@ export default function EventDetail() {
 							</button>
 						</div>
 
+						{/* Event title */}
 						<div className="text-center">
 							<h1 className="text-2xl font-bold text-gray-900 dark:text-white">{event.name}</h1>
 						</div>
 
-						{/* Event Tags - moved above separator */}
+						{/* Event Tags - positioned above separator for better visual hierarchy */}
 						<EventTags eventType={event.eventType} committee={event.committee} />
 					</div>
 
@@ -343,11 +345,11 @@ export default function EventDetail() {
 					/>
 				)}
 
-				{/* Event Content */}
+				{/* Event Content - unified component with enhanced date/time formatting and smart address parsing */}
 				<EventContent
 					description={event.description}
 					startsAtUtc={event.startsAtUtc}
-					endsAtUtc={event.endsAtUtc}
+					endsAtUtc={event.endsAtUtc} // Added for comprehensive time range display
 					address={event.address}
 					city={event.city}
 					stateProv={event.stateProv}

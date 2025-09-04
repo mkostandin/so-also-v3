@@ -1,4 +1,3 @@
-import React from 'react';
 import { metersToMiles } from '@/lib/location-utils';
 import { formatDateWithOrdinal, formatTimeRange } from '@/lib/session-utils';
 
@@ -54,12 +53,13 @@ export default function EventContent({
         <div className="text-left">
           {address && (
             <div className="space-y-1">
-              {/* Smart parsing to show venue name and street address */}
+              {/* Smart address parsing: Split comma-separated address into venue name and street address */}
+              {/* This handles cases like "Convention Center, 123 Main St, City, State" */}
               {(() => {
                 const addressParts = address.split(', ');
 
                 if (addressParts.length > 1) {
-                  // Address has multiple parts - assume first is venue, rest is street address
+                  // Multi-part address: first part is venue name, rest is street address
                   const venueName = addressParts[0];
                   const streetAddress = addressParts.slice(1).join(', ');
                   return (
@@ -73,7 +73,7 @@ export default function EventContent({
                     </>
                   );
                 } else {
-                  // Single address line - just display the address
+                  // Single address line - display as-is
                   return (
                     <p className="text-base text-gray-900 dark:text-white leading-snug">
                       {address}

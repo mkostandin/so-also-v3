@@ -5,6 +5,10 @@ interface EventTagsProps {
   committee?: string;
 }
 
+/**
+ * EventTags component - displays event type and committee tags
+ * Positioned above the separator in the header section for improved visual hierarchy
+ */
 export default function EventTags({ eventType, committee }: EventTagsProps) {
   return (
     <div className="flex justify-center gap-3">
