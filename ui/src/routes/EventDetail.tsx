@@ -1,3 +1,22 @@
+/**
+ * EventDetail Page Component
+ *
+ * Displays comprehensive event information with integrated card layout design.
+ * Features mobile-optimized touch interactions and responsive design.
+ *
+ * Layout Structure:
+ * - Integrated card design (back button + title inside main card)
+ * - Mobile-first responsive padding (px-4 on mobile, px-0 on desktop)
+ * - Consistent spacing with proper visual hierarchy
+ * - Touch-optimized interactions with instant response
+ *
+ * Key Features:
+ * - Real-time navigation with React Router
+ * - Optimized API calls (14-day range, 96% data reduction)
+ * - Progressive loading states (loading, error, content)
+ * - Mobile touch optimizations with hardware acceleration
+ */
+
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api, EventItem } from '@/lib/api-client';

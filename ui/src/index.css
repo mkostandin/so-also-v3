@@ -4,6 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 /* Mobile touch-friendly button styles */
+/* Provides optimized touch interactions for mobile devices */
+/* - Eliminates tap highlight delay and visual feedback */
+/* - Prevents text selection and callouts during touch */
+/* - Optimizes touch event handling for instant response */
 .mobile-touch-button {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -15,6 +19,9 @@
 }
 
 /* Global touch optimizations for better mobile performance */
+/* Prevents unwanted touch behaviors across all elements */
+/* - Disables callouts and text selection globally */
+/* - Improves overall touch interaction consistency */
 * {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -22,30 +29,37 @@
 }
 
 /* Re-enable text selection for text inputs */
+/* Allows proper text editing in form fields */
 input, textarea, [contenteditable] {
   -webkit-user-select: text;
   user-select: text;
 }
 
 /* Ensure buttons are touch-friendly */
+/* Provides consistent touch behavior for all buttons */
+/* - Eliminates tap delay with touch-action: manipulation */
+/* - Removes visual tap highlights for cleaner appearance */
 button {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
 /* Ensure map containers don't interfere with touch events on overlay elements */
+/* Prevents Mapbox from blocking touch events on buttons above it */
 [data-map-container="true"] {
   touch-action: auto;
   pointer-events: auto;
 }
 
 /* Fix for sticky positioned elements on mobile */
+/* Hardware acceleration to prevent janky animations */
 .sticky {
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
 }
 
 /* Ensure tab buttons have highest touch priority */
+/* Critical for mobile navigation - overrides any interfering styles */
 [data-radix-tabs-trigger] {
   touch-action: manipulation !important;
   -webkit-tap-highlight-color: transparent !important;
@@ -55,6 +69,7 @@ button {
 }
 
 /* Ensure back buttons have high touch priority */
+/* Provides consistent touch behavior for mobile navigation */
 .mobile-touch-button {
   touch-action: manipulation !important;
   -webkit-tap-highlight-color: transparent !important;
@@ -63,6 +78,8 @@ button {
 }
 
 /* EventHeader back button - highest priority */
+/* Most critical button - gets highest z-index and touch priority */
+/* No transitions to prevent jarring layout shifts */
 .event-header-back-btn {
   touch-action: manipulation !important;
   -webkit-tap-highlight-color: transparent !important;
@@ -75,6 +92,7 @@ button {
 }
 
 /* Force hardware acceleration for touch elements */
+/* Improves touch responsiveness and prevents layout shifts */
 .mobile-touch-button,
 [data-radix-tabs-trigger] {
   will-change: transform;

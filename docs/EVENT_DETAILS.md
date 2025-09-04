@@ -26,7 +26,9 @@ The Event Details Page is a comprehensive feature that provides users with a ric
 - **Fallback Handling**: Graceful degradation for unsupported browsers
 
 ### Mobile-First Design
-- **Touch-Optimized Interactions**: Large touch targets and gesture support
+- **Touch-Optimized Interactions**: Large touch targets (44px minimum) and gesture support
+- **Instant Touch Response**: Eliminated touch delays with optimized event handling
+- **Enhanced Touch Targets**: Increased button sizes and improved touch area coverage
 - **Responsive Tooltips**: Mobile-specific tooltip behavior with tap-to-open/close
 - **Adaptive Layout**: Optimized for various screen sizes and orientations
 - **Performance Tuning**: Reduced data transfer and optimized rendering
@@ -110,8 +112,13 @@ interface EventItem {
 ## 🎛️ User Interface
 
 ### Page Layout Structure
+
+The Event Details page uses an integrated card design where the back button and title are contained within the main content card for a cohesive, unified appearance.
+
 ```
 ┌─────────────────────────────────────┐
+│         [Main Content Card]         │
+├─────────────────────────────────────┤
 │ ← Back Button          [3-dot menu] │
 ├─────────────────────────────────────┤
 │           Event Title               │

@@ -1,9 +1,36 @@
+/**
+ * Enhanced Tabs Components with Mobile Touch Optimizations
+ *
+ * This file contains mobile-optimized tab components that provide:
+ * - 44px minimum touch targets for accessibility compliance
+ * - Hardware-accelerated touch interactions
+ * - Instant touch response with optimized event handling
+ * - Prevention of text selection and unwanted callouts on touch
+ * - Proper z-index management for consistent layering
+ * - Responsive design that works across all device sizes
+ *
+ * Key mobile improvements:
+ * - touch-manipulation CSS for better touch handling
+ * - Hardware acceleration with translateZ(0)
+ * - Optimized touch event propagation
+ * - Enhanced accessibility with proper ARIA support
+ */
+
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 import { cn } from "@/lib/utils"
 
 const Tabs = TabsPrimitive.Root
 
+/**
+ * Enhanced TabsList component with mobile layout optimizations
+ *
+ * Key improvements:
+ * - Increased height (h-14) to accommodate larger touch targets
+ * - High z-index (z-50) for proper layering
+ * - Relative positioning for proper stacking context
+ * - Responsive design with proper touch target spacing
+ */
 const TabsList = React.forwardRef<
 	React.ElementRef<typeof TabsPrimitive.List>,
 	React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -16,6 +43,18 @@ const TabsList = React.forwardRef<
 ))
 TabsList.displayName = TabsPrimitive.List.displayName
 
+/**
+ * Enhanced TabsTrigger component with mobile touch optimizations
+ *
+ * Key mobile improvements:
+ * - 44px minimum touch targets for accessibility compliance
+ * - Hardware-accelerated touch interactions
+ * - Optimized touch event handling for instant response
+ * - Prevents text selection and callouts on touch
+ *
+ * @param props - Standard Radix TabsTrigger props
+ * @param ref - Forwarded ref for DOM access
+ */
 const TabsTrigger = React.forwardRef<
 	React.ElementRef<typeof TabsPrimitive.Trigger>,
 	React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
