@@ -14,7 +14,7 @@ import MapControls from './MapControls';
 interface MapboxMapProps {
   /** Array of selected event types to filter markers */
   selectedEventTypes?: string[];
-  /** Array of selected committee slugs to filter markers */
+  /** Array of selected committee slugs to filter markers by committee */
   selectedCommittees?: string[];
   /** Additional CSS classes for styling */
   className?: string;
@@ -92,6 +92,7 @@ export default function MapboxMap({
   const loadEvents = useCallback(async (mapInstance: mapboxgl.Map) => {
     try {
       // Load fewer events initially for faster map load
+      // Include committee filtering if committees are selected
       const initialEventData = await api.browse({
         range: 30, // Get events for next 30 days
         committees: selectedCommittees.length > 0 ? selectedCommittees : undefined
@@ -102,6 +103,7 @@ export default function MapboxMap({
       // Load additional events in background
       setTimeout(async () => {
         try {
+          // Load additional events with same committee filtering
           const additionalEventData = await api.browse({
             range: 90, // Get events for next 90 days
             committees: selectedCommittees.length > 0 ? selectedCommittees : undefined
@@ -168,7 +170,7 @@ export default function MapboxMap({
         }
       }
     }
-  }, [selectedCommittees]);
+  }, [selectedCommittees]); // Include selectedCommittees to reload events when committee filters change
 
   // Handle map load - simplified with component delegation
   const handleMapLoad = useCallback(async (map: mapboxgl.Map) => {

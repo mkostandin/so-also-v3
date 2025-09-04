@@ -35,6 +35,7 @@ export default function CalendarView() {
 	const year = cursor.getFullYear();
 	const month = cursor.getMonth();
 
+	// Fetch calendar events with distance, event type, and committee filtering
 	const { eventsByDate, loading, error, refetch } = useCalendarEvents(selectedDistance, selectedEventTypes, selectedCommittees);
 
 	/**

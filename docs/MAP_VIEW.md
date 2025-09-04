@@ -64,10 +64,11 @@ ui/src/routes/MapView.tsx            # Route wrapper with loading/error states
 ### Event Data Integration
 
 #### Data Flow
-1. **API Fetching**: Calls `/api/v1/browse` endpoint with location and filter parameters
+1. **API Fetching**: Calls `/api/v1/browse` endpoint with location, event type, and committee filter parameters
 2. **Data Processing**: Converts event data to map markers
 3. **Marker Creation**: Creates Mapbox markers with custom styling
 4. **Clustering Setup**: Configures marker clustering for performance
+5. **Committee Filtering**: Applies selected committee filters to displayed markers
 
 #### Marker Styling
 ```typescript
@@ -104,9 +105,11 @@ const marker = new mapboxgl.Marker({
 
 ### Filter Integration
 - **Event Type Filter**: Pill-style buttons above map
+- **Committee Filter**: Multi-select dropdown for filtering events by specific committees
+- **Universal Committee Filtering**: Committee selections now apply to map markers in real-time
 - **Real-time Updates**: Markers update immediately when filters change
 - **State Persistence**: Filter selections maintained across navigation
-- **Cross-View Consistency**: Same filters work in calendar view
+- **Cross-View Consistency**: Same filters work in calendar and list views
 
 ### Loading States
 - **Skeleton Loading**: Professional loading indicators during initialization

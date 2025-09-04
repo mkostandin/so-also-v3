@@ -29,6 +29,13 @@ const getRadiusFromDistance = (distance: string): number | undefined => {
 	}
 };
 
+/**
+ * Custom hook for fetching and managing calendar events with filtering support
+ * @param distance - Distance filter value ("all", "500", "150", "50")
+ * @param selectedEventTypes - Array of selected event type filters
+ * @param selectedCommittees - Array of selected committee slugs for filtering events
+ * @returns Calendar events data with loading states and filtering
+ */
 export function useCalendarEvents(distance: string = "150", selectedEventTypes: string[] = [], selectedCommittees: string[] = []): CalendarEventsData {
   const { coords: userCoords, status, request } = useUserLocation();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -53,6 +60,8 @@ export function useCalendarEvents(distance: string = "150", selectedEventTypes: 
       const lng = userCoords?.lng ?? DEFAULT_LNG;
       const radius = getRadiusFromDistance(distance);
 
+      // Fetch events with location, distance, and committee filtering
+      // Only include committees parameter if committees are selected to avoid empty array filtering
       const rawEvents = await api.browse({
         lat,
         lng,
@@ -78,7 +87,7 @@ export function useCalendarEvents(distance: string = "150", selectedEventTypes: 
     } finally {
       setLoading(false);
     }
-  }, [userCoords, distance, selectedCommittees]); // Updated dependency to include selectedCommittees
+  }, [userCoords, distance, selectedCommittees]); // Include selectedCommittees to refetch when committee filters change
 
   useEffect(() => {
     fetchEvents();

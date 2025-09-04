@@ -96,6 +96,8 @@ const { selectedEventTypes } = useFilterContext();
 ### Filter Controls
 - **Distance Filter**: Pill-style buttons for distance selection
 - **Event Type Filter**: Consistent with map view filtering
+- **Committee Filter**: Multi-select dropdown for filtering events by specific committees
+- **Universal Committee Filtering**: Committee selections now apply to calendar events in real-time
 - **Real-time Updates**: Immediate filter application
 - **State Persistence**: Selections maintained across navigation
 
@@ -209,6 +211,7 @@ const DISTANCE_OPTIONS = [
   - `lat`: Latitude coordinate
   - `lng`: Longitude coordinate
   - `radius`: Distance radius in meters (optional)
+  - `committees`: Array of committee slugs for filtering (optional)
   - `limit`: Maximum events to return
 
 ## 🐛 Error Handling

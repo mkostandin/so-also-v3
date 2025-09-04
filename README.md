@@ -60,6 +60,7 @@ This application has been extended beyond the base template with a comprehensive
 - **Event Type Filter**: Horizontal scrollable pill-style buttons for filtering by event categories
 - **Committee Filter**: Multi-select dropdown for filtering events by specific committees (ALL CAPS display)
 - **Distance Filter**: Configurable radius-based filtering for calendar view
+- **Universal Filtering**: Committee filtering now works consistently across Map, List, and Calendar views
 - **Real-time Updates**: Filters apply immediately with smooth UI transitions
 - **Persistent State**: Filter selections maintained across view changes using localStorage
 - **Space Efficient**: Single-line horizontal layout reduces vertical space usage

@@ -228,7 +228,7 @@ export default function MapView() {
 			<div className="flex-1 min-h-0 relative z-0">
 				<MapboxMap
 					selectedEventTypes={selectedEventTypes}
-					selectedCommittees={selectedCommittees}
+					selectedCommittees={selectedCommittees} // Pass committee filter to map for real-time filtering
 					className="h-full w-full"
 					onReady={handleMapReady}
 					onError={handleMapError}
