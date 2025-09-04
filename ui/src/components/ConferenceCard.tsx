@@ -64,7 +64,7 @@ export default function ConferenceCard({ conf }: { conf: Conference }) {
 
 				{(conf.startsAtUtc || conf.endsAtUtc) && (
 					<div className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-						🗓️ {formatDateRange(conf.startsAtUtc, conf.endsAtUtc)}
+						      🗓️ {(conf.startsAtUtc && conf.endsAtUtc) ? formatDateRange(conf.startsAtUtc, conf.endsAtUtc) : 'Date TBD'}
 					</div>
 				)}
 

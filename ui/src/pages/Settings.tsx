@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { User } from 'lucide-react';
+import DebugSettings from '@/components/DebugSettings';
 
 export function Settings() {
   const { user } = useAuth();
@@ -28,6 +29,11 @@ export function Settings() {
             Manage your account settings and preferences.
           </p>
         </div>
+
+        <Separator />
+
+        {/* Debug Settings */}
+        <DebugSettings />
 
         <Separator />
 

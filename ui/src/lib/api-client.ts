@@ -52,6 +52,8 @@ export type ConferenceSession = {
 	speaker?: string | null;
 };
 
+import { debugSettings } from '@/lib/debug-settings';
+
 const baseUrl = import.meta.env.VITE_API_URL || '';
 
 function buildUrl(path: string): string {
@@ -64,7 +66,14 @@ function buildUrl(path: string): string {
 }
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
-	const url = buildUrl(path);
+	let url = buildUrl(path);
+
+	// Add includeTestData parameter if debug mode is enabled and it's a GET request
+	if (debugSettings.isDebugModeEnabled() && (!init || init.method === 'GET' || !init.method)) {
+		const separator = url.includes('?') ? '&' : '?';
+		url += `${separator}includeTestData=true`;
+	}
+
 	const res = await fetch(url, { ...init, headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) } });
 
 	if (!res.ok) {
@@ -75,25 +84,48 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
 	return res.json();
 }
 
+export type Committee = {
+	id: string;
+	name: string; // ALL CAPS normalized name
+	slug: string;
+	lastSeen: string;
+};
+
 export const api = {
-	browse: (params: { committee?: string; range?: string | number; lat?: number; lng?: number; radius?: number }) => {
+	getCommittees: () => http<Committee[]>(`/committees`),
+	browse: (params: { committees?: string[]; committee?: string; range?: string | number; lat?: number; lng?: number; radius?: number }) => {
 		const usp = new URLSearchParams();
-		if (params.committee) usp.set('committee', params.committee);
+		// Support both single committee (backward compatibility) and multiple committees
+		if (params.committees && params.committees.length > 0) {
+			params.committees.forEach(committee => usp.append('committee', committee));
+		} else if (params.committee) {
+			usp.set('committee', params.committee);
+		}
 		if (params.range) usp.set('range', String(params.range));
 		if (params.lat !== undefined) usp.set('lat', String(params.lat));
 		if (params.lng !== undefined) usp.set('lng', String(params.lng));
 		if (params.radius !== undefined) usp.set('radius', String(params.radius));
 		return http<EventItem[]>(`/browse?${usp.toString()}`);
 	},
-	events: (params: { committee?: string; range?: string | number }) => {
+	events: (params: { committees?: string[]; committee?: string; range?: string | number }) => {
 		const usp = new URLSearchParams();
-		if (params.committee) usp.set('committee', params.committee);
+		// Support both single committee (backward compatibility) and multiple committees
+		if (params.committees && params.committees.length > 0) {
+			params.committees.forEach(committee => usp.append('committee', committee));
+		} else if (params.committee) {
+			usp.set('committee', params.committee);
+		}
 		if (params.range) usp.set('range', String(params.range));
 		return http<EventItem[]>(`/events?${usp.toString()}`);
 	},
-	occurrences: (params: { committee?: string; range?: string | number }) => {
+	occurrences: (params: { committees?: string[]; committee?: string; range?: string | number }) => {
 		const usp = new URLSearchParams();
-		if (params.committee) usp.set('committee', params.committee);
+		// Support both single committee (backward compatibility) and multiple committees
+		if (params.committees && params.committees.length > 0) {
+			params.committees.forEach(committee => usp.append('committee', committee));
+		} else if (params.committee) {
+			usp.set('committee', params.committee);
+		}
 		if (params.range) usp.set('range', String(params.range));
 		return http<EventItem[]>(`/occurrences?${usp.toString()}`);
 	},

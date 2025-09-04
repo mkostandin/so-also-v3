@@ -65,10 +65,10 @@ export default function CommitteeNotificationsToggle({
 			<div className="flex items-center gap-3">
 				<div className="flex-1">
 					<h3 className="font-medium text-gray-900 dark:text-white">
-						Get {committeeName} Notifications
+						Get {committeeName.toUpperCase()} Notifications
 					</h3>
 					<p className="text-sm text-gray-600 dark:text-gray-400">
-						Receive notifications for {committeeName} events and updates
+						Receive notifications for {committeeName.toUpperCase()} events and updates
 					</p>
 				</div>
 			</div>
@@ -140,7 +140,7 @@ export default function CommitteeNotificationsToggle({
 				<Switch
 					checked={isEnabled}
 					onCheckedChange={handleToggle}
-					aria-label={`Toggle notifications for ${committeeName}`}
+					aria-label={`Toggle notifications for ${committeeName.toUpperCase()}`}
 				/>
 			</div>
 		</div>

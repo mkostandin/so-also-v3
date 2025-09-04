@@ -7,6 +7,7 @@ import { api } from '@/lib/api-client';
 import ImageUpload from '@/components/ImageUpload';
 import SeriesForm, { SeriesConfig } from '@/components/SeriesForm';
 import { useToastHook } from '@/hooks/use-toast';
+import CommitteeInput from '@/components/CommitteeInput';
 
 // Form validation schemas
 const eventTypes = ['Event', 'Committee Meeting', 'Conference', 'YPAA Meeting', 'Other'] as const;
@@ -256,17 +257,13 @@ export default function SubmitEvent() {
           </div>
 
           {/* Committee */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Committee
-            </label>
-            <input
-              {...register('committee')}
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
-              placeholder="Enter committee name"
-            />
-          </div>
+          <CommitteeInput
+            value={watch('committee') || ''}
+            onChange={(value, normalizedValue) => {
+              setValue('committee', normalizedValue || value);
+            }}
+            placeholder="Enter committee name"
+          />
 
           {/* Description */}
           <div>

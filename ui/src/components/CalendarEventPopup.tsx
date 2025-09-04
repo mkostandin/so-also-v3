@@ -79,7 +79,7 @@ export default function CalendarEventPopup({ events, date, isOpen, onClose, onEv
               const aTime = a.startsAtUtc ? new Date(a.startsAtUtc).getTime() : Infinity;
               const bTime = b.startsAtUtc ? new Date(b.startsAtUtc).getTime() : Infinity;
               if (aTime !== bTime) return aTime - bTime;
-              return (a.distanceMiles || 0) - (b.distanceMiles || 0);
+              return (a.distanceMeters || 0) - (b.distanceMeters || 0);
             })
             .map((event) => (
               <div
@@ -103,7 +103,7 @@ export default function CalendarEventPopup({ events, date, isOpen, onClose, onEv
                 <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400 mb-2">
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    <span>{formatTime(event.startsAtUtc)}</span>
+                    <span>{event.startsAtUtc ? formatTime(event.startsAtUtc) : ''}</span>
                   </div>
 
                   {event.distanceMeters !== undefined && (

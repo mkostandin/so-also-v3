@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import EventTypeFilter from '@/components/EventTypeFilter';
+import CommitteeFilter from '@/components/CommitteeFilter';
 import DistanceFilter from '@/components/DistanceFilter';
 import { useFilterContext } from './MapIndex';
 
@@ -29,7 +30,7 @@ export default function CalendarView() {
 	const [popupDate, setPopupDate] = useState<Date | null>(null);
 	const [popupEvents, setPopupEvents] = useState<CalendarEvent[]>([]);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
-	const { selectedEventTypes, setSelectedEventTypes, selectedDistance, setSelectedDistance } = useFilterContext();
+	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees, selectedDistance, setSelectedDistance } = useFilterContext();
 
 	const year = cursor.getFullYear();
 	const month = cursor.getMonth();
@@ -99,6 +100,12 @@ export default function CalendarView() {
 						onTypesChange={setSelectedEventTypes}
 					/>
 
+					{/* Committee Filter - Keep it visible during loading */}
+					<CommitteeFilter
+						selectedCommittees={selectedCommittees}
+						onCommitteesChange={setSelectedCommittees}
+					/>
+
 					{/* Distance Filter - Keep it visible during loading */}
 					<DistanceFilter
 						selectedDistance={selectedDistance}
@@ -121,6 +128,12 @@ export default function CalendarView() {
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
 					onTypesChange={setSelectedEventTypes}
+				/>
+
+				{/* Committee Filter */}
+				<CommitteeFilter
+					selectedCommittees={selectedCommittees}
+					onCommitteesChange={setSelectedCommittees}
 				/>
 
 				{/* Distance Filter */}

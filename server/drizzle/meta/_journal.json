@@ -15,6 +15,13 @@
       "when": 1756492042743,
       "tag": "0001_jazzy_spyke",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1757015591474,
+      "tag": "0002_warm_nocturne",
+      "breakpoints": true
     }
   ]
 }

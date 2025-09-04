@@ -1,4 +1,4 @@
-import { pgSchema, text, timestamp, uuid, numeric, pgEnum, index } from 'drizzle-orm/pg-core';
+import { pgSchema, text, timestamp, uuid, numeric, pgEnum, index, boolean } from 'drizzle-orm/pg-core';
 import { series } from './series';
 
 export const appSchema = pgSchema('app');
@@ -24,6 +24,7 @@ export const occurrences = appSchema.table('occurrences', {
 	longitude: numeric('longitude'),
 	status: statusEnum('status').notNull().default('pending'),
 	notify_topic: text('notify_topic'),
+	test_data: boolean('test_data').notNull().default(false),
 });
 
 export const occurrencesIdx = index('occurrences_status_ends_idx').on(occurrences.status, occurrences.ends_at_utc);

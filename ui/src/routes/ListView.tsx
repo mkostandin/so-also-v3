@@ -6,6 +6,7 @@ import { haversineMeters, metersToMiles } from '@/lib/location-utils';
 import { formatDateShort, formatTime } from '@/lib/session-utils';
 import LocationPermissionBanner from '@/components/LocationPermissionBanner';
 import EventTypeFilter from '@/components/EventTypeFilter';
+import CommitteeFilter from '@/components/CommitteeFilter';
 import { useFilterContext } from './MapIndex';
 
 export default function ListView() {
@@ -13,7 +14,7 @@ export default function ListView() {
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const { coords, status, request } = useUserLocation();
 	const navigate = useNavigate();
-	const { selectedEventTypes, setSelectedEventTypes, events, eventsLoading, eventsError } = useFilterContext();
+	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees, events, eventsLoading, eventsError } = useFilterContext();
 
 
 
@@ -109,6 +110,10 @@ export default function ListView() {
 						selectedTypes={selectedEventTypes}
 						onTypesChange={setSelectedEventTypes}
 					/>
+					<CommitteeFilter
+						selectedCommittees={selectedCommittees}
+						onCommitteesChange={setSelectedCommittees}
+					/>
 					<div className="text-center py-12">
 						<div className="text-gray-500 mb-4">
 							<svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,6 +135,10 @@ export default function ListView() {
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
 					onTypesChange={setSelectedEventTypes}
+				/>
+				<CommitteeFilter
+					selectedCommittees={selectedCommittees}
+					onCommitteesChange={setSelectedCommittees}
 				/>
 				{!coords && status === 'prompt' && <LocationPermissionBanner />}
 

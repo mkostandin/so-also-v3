@@ -7,8 +7,10 @@ import { getDatabase, testDatabaseConnection } from './lib/db';
 import { setEnvContext, clearEnvContext, getDatabaseUrl, getEnv, isDevelopment, getR2PublicUrlBase } from './lib/env';
 import * as schema from './schema';
 import { z } from 'zod';
-import { and, desc, eq, gte, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, sql, inArray } from 'drizzle-orm';
 import { haversineMeters } from './lib/location';
+import { geolocationService } from './lib/geolocation';
+import { CommitteeValidator } from './lib/committee-validation';
 
 type Env = {
   RUNTIME?: string;
@@ -141,7 +143,15 @@ const createEventSchema = z.discriminatedUnion('eventMode', [
     eventMode: z.literal('single'),
     name: z.string().min(2),
     eventType: z.enum(['Event','Committee Meeting','Conference','YPAA Meeting','Other']),
-    committee: z.string().optional(),
+    committee: z.string().optional().transform((val) => {
+      if (!val) return val;
+      // Validate and normalize committee name
+      const validation = CommitteeValidator.validateCommitteeName(val);
+      if (!validation.isValid) {
+        throw new Error(validation.error || 'Invalid committee name');
+      }
+      return validation.normalizedName;
+    }),
     committeeSlug: z.string().optional(),
     description: z.string().optional(),
     address: z.string().optional(),
@@ -165,7 +175,15 @@ const createEventSchema = z.discriminatedUnion('eventMode', [
     eventMode: z.literal('ypaa-weekly'),
     name: z.string().min(2),
     eventType: z.literal('YPAA Meeting'),
-    committee: z.string().optional(),
+    committee: z.string().optional().transform((val) => {
+      if (!val) return val;
+      // Validate and normalize committee name
+      const validation = CommitteeValidator.validateCommitteeName(val);
+      if (!validation.isValid) {
+        throw new Error(validation.error || 'Invalid committee name');
+      }
+      return validation.normalizedName;
+    }),
     committeeSlug: z.string().optional(),
     description: z.string().optional(),
     address: z.string().optional(),
@@ -190,7 +208,15 @@ const createEventSchema = z.discriminatedUnion('eventMode', [
     eventMode: z.literal('committee-monthly'),
     name: z.string().min(2),
     eventType: z.literal('Committee Meeting'),
-    committee: z.string().optional(),
+    committee: z.string().optional().transform((val) => {
+      if (!val) return val;
+      // Validate and normalize committee name
+      const validation = CommitteeValidator.validateCommitteeName(val);
+      if (!validation.isValid) {
+        throw new Error(validation.error || 'Invalid committee name');
+      }
+      return validation.normalizedName;
+    }),
     committeeSlug: z.string().optional(),
     description: z.string().optional(),
     address: z.string().optional(),
@@ -216,7 +242,15 @@ const createEventSchema = z.discriminatedUnion('eventMode', [
     eventMode: z.literal('conference'),
     name: z.string().min(2),
     eventType: z.literal('Conference'),
-    committee: z.string().optional(),
+    committee: z.string().optional().transform((val) => {
+      if (!val) return val;
+      // Validate and normalize committee name
+      const validation = CommitteeValidator.validateCommitteeName(val);
+      if (!validation.isValid) {
+        throw new Error(validation.error || 'Invalid committee name');
+      }
+      return validation.normalizedName;
+    }),
     committeeSlug: z.string().optional(),
     description: z.string().optional(),
     address: z.string().optional(),
@@ -289,13 +323,29 @@ api.get('/db-test', async (c) => {
 // Public GET: events
 api.get('/events', async (c) => {
   const db = await getDatabase(getDatabaseUrl());
-  const committee = c.req.query('committee') || undefined;
+  const committeeSlugs = c.req.queries('committee') || [];
   const rangeDays = parseInt(c.req.query('range') || '90');
   const now = new Date();
   const until = new Date(now.getTime() + rangeDays * 86400000);
-  const where = committee
-    ? and(eq(schema.events.status, 'approved'), gte(schema.events.ends_at_utc, now), gte(schema.events.starts_at_utc, new Date(now.getTime() - 90 * 86400000)), eq(schema.events.committee_slug, committee))
-    : and(eq(schema.events.status, 'approved'), gte(schema.events.ends_at_utc, now));
+
+  // Check if test data should be included
+  const includeTestData = c.req.query('includeTestData') === 'true';
+
+  let where = and(
+    eq(schema.events.status, 'approved'),
+    gte(schema.events.ends_at_utc, now)
+  );
+
+  // Only filter out test data if not explicitly including it
+  if (!includeTestData) {
+    where = and(where, eq(schema.events.test_data, false));
+  }
+
+  // Add committee filtering if specified (support multiple committees)
+  if (committeeSlugs.length > 0) {
+    where = and(where, inArray(schema.events.committee_slug, committeeSlugs));
+  }
+
   const rows = await db.select().from(schema.events).where(where).limit(500);
   return c.json(toCamel(rows));
 });
@@ -303,11 +353,27 @@ api.get('/events', async (c) => {
 // Public GET: occurrences
 api.get('/occurrences', async (c) => {
   const db = await getDatabase(getDatabaseUrl());
-  const committee = c.req.query('committee') || undefined;
+  const committeeSlugs = c.req.queries('committee') || [];
   const now = new Date();
-  const where = committee
-    ? and(eq(schema.occurrences.status, 'approved'), gte(schema.occurrences.ends_at_utc, now), eq(schema.occurrences.committee_slug, committee))
-    : and(eq(schema.occurrences.status, 'approved'), gte(schema.occurrences.ends_at_utc, now));
+
+  // Check if test data should be included
+  const includeTestData = c.req.query('includeTestData') === 'true';
+
+  let where = and(
+    eq(schema.occurrences.status, 'approved'),
+    gte(schema.occurrences.ends_at_utc, now)
+  );
+
+  // Only filter out test data if not explicitly including it
+  if (!includeTestData) {
+    where = and(where, eq(schema.occurrences.test_data, false));
+  }
+
+  // Add committee filtering if specified (support multiple committees)
+  if (committeeSlugs.length > 0) {
+    where = and(where, inArray(schema.occurrences.committee_slug, committeeSlugs));
+  }
+
   const rows = await db.select().from(schema.occurrences).where(where).limit(500);
   return c.json(toCamel(rows));
 });
@@ -315,19 +381,38 @@ api.get('/occurrences', async (c) => {
 // Public GET: browse merged
 api.get('/browse', async (c) => {
   const db = await getDatabase(getDatabaseUrl());
-  const committee = c.req.query('committee') || undefined;
+  const committeeSlugs = c.req.queries('committee') || [];
   const rangeDays = parseInt(c.req.query('range') || '90');
   const lat = c.req.query('lat');
   const lng = c.req.query('lng');
   const radius = c.req.query('radius');
   const now = new Date();
   const until = new Date(now.getTime() + rangeDays * 86400000);
-  const eventsWhere = committee
-    ? and(eq(schema.events.status, 'approved'), gte(schema.events.ends_at_utc, now), eq(schema.events.committee_slug, committee))
-    : and(eq(schema.events.status, 'approved'), gte(schema.events.ends_at_utc, now));
-  const occWhere = committee
-    ? and(eq(schema.occurrences.status, 'approved'), gte(schema.occurrences.ends_at_utc, now), eq(schema.occurrences.committee_slug, committee))
-    : and(eq(schema.occurrences.status, 'approved'), gte(schema.occurrences.ends_at_utc, now));
+
+  // Check if test data should be included
+  const includeTestData = c.req.query('includeTestData') === 'true';
+
+  // Build base where conditions
+  let eventsWhere = and(
+    eq(schema.events.status, 'approved'),
+    gte(schema.events.ends_at_utc, now)
+  );
+  let occWhere = and(
+    eq(schema.occurrences.status, 'approved'),
+    gte(schema.occurrences.ends_at_utc, now)
+  );
+
+  // Only filter out test data if not explicitly including it
+  if (!includeTestData) {
+    eventsWhere = and(eventsWhere, eq(schema.events.test_data, false));
+    occWhere = and(occWhere, eq(schema.occurrences.test_data, false));
+  }
+
+  // Add committee filtering if specified (support multiple committees)
+  if (committeeSlugs.length > 0) {
+    eventsWhere = and(eventsWhere, inArray(schema.events.committee_slug, committeeSlugs));
+    occWhere = and(occWhere, inArray(schema.occurrences.committee_slug, committeeSlugs));
+  }
   const [evRows, ocRows] = await Promise.all([
     db.select().from(schema.events).where(eventsWhere).limit(1000),
     db.select().from(schema.occurrences).where(occWhere).limit(1000),
@@ -413,6 +498,40 @@ api.post('/events', async (c) => {
       const startsAtUtc = new Date(date.getFullYear(), date.getMonth(), date.getDate(), startHour, startMinute);
       const endsAtUtc = new Date(date.getFullYear(), date.getMonth(), date.getDate(), endHour, endMinute);
 
+      // Handle geolocation if coordinates not provided
+      let latitude = v.latitude;
+      let longitude = v.longitude;
+
+      if ((!latitude || !longitude) && (v.address || v.city || v.stateProv)) {
+        try {
+          console.log('Geocoding address for single event:', v.name);
+          const geocodeResult = await geolocationService.geocodeAddress(
+            v.address,
+            v.city,
+            v.stateProv,
+            v.postal,
+            v.country
+          );
+
+          if (geocodeResult) {
+            latitude = geocodeResult.latitude;
+            longitude = geocodeResult.longitude;
+            console.log(`Geocoded coordinates: ${latitude}, ${longitude} (provider: ${geocodeResult.provider})`);
+          } else {
+            // Use regional fallback
+            const fallback = geolocationService.getRegionalFallback(v.stateProv);
+            latitude = fallback.latitude;
+            longitude = fallback.longitude;
+            console.log(`Using regional fallback coordinates: ${latitude}, ${longitude}`);
+          }
+        } catch (error) {
+          console.error('Geocoding failed, using fallback coordinates:', error);
+          const fallback = geolocationService.getRegionalFallback(v.stateProv);
+          latitude = fallback.latitude;
+          longitude = fallback.longitude;
+        }
+      }
+
       const [row] = await db.insert(schema.events).values({
         name: v.name,
         event_type: v.eventType,
@@ -424,8 +543,8 @@ api.post('/events', async (c) => {
         state_prov: v.stateProv,
         country: v.country,
         postal: v.postal,
-        latitude: v.latitude as any,
-        longitude: v.longitude as any,
+        latitude: latitude as any,
+        longitude: longitude as any,
         flyer_url: v.flyerUrl,
         website_url: v.websiteUrl,
         contact_email: v.contactEmail,
@@ -452,6 +571,40 @@ api.post('/events', async (c) => {
 
         const [startHour, startMinute] = v.startTime.split(':').map(Number);
         const [endHour, endMinute] = v.endTime.split(':').map(Number);
+
+        // Handle geolocation if coordinates not provided
+        let latitude = v.latitude;
+        let longitude = v.longitude;
+
+        if ((!latitude || !longitude) && (v.address || v.city || v.stateProv)) {
+          try {
+            console.log('Geocoding address for YPAA weekly series:', v.name);
+            const geocodeResult = await geolocationService.geocodeAddress(
+              v.address,
+              v.city,
+              v.stateProv,
+              v.postal,
+              v.country
+            );
+
+            if (geocodeResult) {
+              latitude = geocodeResult.latitude;
+              longitude = geocodeResult.longitude;
+              console.log(`Geocoded coordinates: ${latitude}, ${longitude} (provider: ${geocodeResult.provider})`);
+            } else {
+              // Use regional fallback
+              const fallback = geolocationService.getRegionalFallback(v.stateProv);
+              latitude = fallback.latitude;
+              longitude = fallback.longitude;
+              console.log(`Using regional fallback coordinates: ${latitude}, ${longitude}`);
+            }
+          } catch (error) {
+            console.error('Geocoding failed, using fallback coordinates:', error);
+            const fallback = geolocationService.getRegionalFallback(v.stateProv);
+            latitude = fallback.latitude;
+            longitude = fallback.longitude;
+          }
+        }
 
         // Use advanced series config if provided, otherwise use basic config
         const seriesConfig = (v as any).seriesConfig;
@@ -481,8 +634,8 @@ api.post('/events', async (c) => {
           state_prov: v.stateProv,
           country: v.country,
           postal: v.postal,
-          latitude: v.latitude as any,
-          longitude: v.longitude as any,
+          latitude: latitude as any,
+          longitude: longitude as any,
           status: 'pending',
         }).returning();
 
@@ -520,6 +673,40 @@ api.post('/events', async (c) => {
       const [startHour, startMinute] = v.startTime.split(':').map(Number);
       const [endHour, endMinute] = v.endTime.split(':').map(Number);
 
+      // Handle geolocation if coordinates not provided
+      let latitude = v.latitude;
+      let longitude = v.longitude;
+
+      if ((!latitude || !longitude) && (v.address || v.city || v.stateProv)) {
+        try {
+          console.log('Geocoding address for committee monthly series:', v.name);
+          const geocodeResult = await geolocationService.geocodeAddress(
+            v.address,
+            v.city,
+            v.stateProv,
+            v.postal,
+            v.country
+          );
+
+          if (geocodeResult) {
+            latitude = geocodeResult.latitude;
+            longitude = geocodeResult.longitude;
+            console.log(`Geocoded coordinates: ${latitude}, ${longitude} (provider: ${geocodeResult.provider})`);
+          } else {
+            // Use regional fallback
+            const fallback = geolocationService.getRegionalFallback(v.stateProv);
+            latitude = fallback.latitude;
+            longitude = fallback.longitude;
+            console.log(`Using regional fallback coordinates: ${latitude}, ${longitude}`);
+          }
+        } catch (error) {
+          console.error('Geocoding failed, using fallback coordinates:', error);
+          const fallback = geolocationService.getRegionalFallback(v.stateProv);
+          latitude = fallback.latitude;
+          longitude = fallback.longitude;
+        }
+      }
+
       // Use advanced series config if provided, otherwise use basic config
       const seriesConfig = (v as any).seriesConfig;
       const rruleData = seriesConfig ? {
@@ -550,8 +737,8 @@ api.post('/events', async (c) => {
         state_prov: v.stateProv,
         country: v.country,
         postal: v.postal,
-        latitude: v.latitude as any,
-        longitude: v.longitude as any,
+        latitude: latitude as any,
+        longitude: longitude as any,
         status: 'pending',
       }).returning();
 
@@ -576,6 +763,40 @@ api.post('/events', async (c) => {
       const startsAtUtc = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), startHour, startMinute);
       const endsAtUtc = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), endHour, endMinute);
 
+      // Handle geolocation if coordinates not provided
+      let latitude = v.latitude;
+      let longitude = v.longitude;
+
+      if ((!latitude || !longitude) && (v.address || v.city || v.stateProv)) {
+        try {
+          console.log('Geocoding address for conference:', v.name);
+          const geocodeResult = await geolocationService.geocodeAddress(
+            v.address,
+            v.city,
+            v.stateProv,
+            v.postal,
+            v.country
+          );
+
+          if (geocodeResult) {
+            latitude = geocodeResult.latitude;
+            longitude = geocodeResult.longitude;
+            console.log(`Geocoded coordinates: ${latitude}, ${longitude} (provider: ${geocodeResult.provider})`);
+          } else {
+            // Use regional fallback
+            const fallback = geolocationService.getRegionalFallback(v.stateProv);
+            latitude = fallback.latitude;
+            longitude = fallback.longitude;
+            console.log(`Using regional fallback coordinates: ${latitude}, ${longitude}`);
+          }
+        } catch (error) {
+          console.error('Geocoding failed, using fallback coordinates:', error);
+          const fallback = geolocationService.getRegionalFallback(v.stateProv);
+          latitude = fallback.latitude;
+          longitude = fallback.longitude;
+        }
+      }
+
       const [row] = await db.insert(schema.events).values({
         name: v.name,
         event_type: v.eventType,
@@ -587,8 +808,8 @@ api.post('/events', async (c) => {
         state_prov: v.stateProv,
         country: v.country,
         postal: v.postal,
-        latitude: v.latitude as any,
-        longitude: v.longitude as any,
+        latitude: latitude as any,
+        longitude: longitude as any,
         flyer_url: v.flyerUrl,
         website_url: v.websiteUrl,
         contact_email: v.contactEmail,
@@ -700,6 +921,143 @@ api.post('/dev/run-materializer', async (c) => {
   const { materializeRollingWindow } = await import('./jobs/materializeSeries');
   const res = await materializeRollingWindow(monthsAhead);
   return c.json({ ok: true, ...res });
+});
+
+// Committee-related endpoints
+
+// GET /api/v1/committees - Retrieve all available committees for dropdown options
+api.get('/committees', async (c) => {
+  try {
+    const db = await getDatabase(getDatabaseUrl());
+
+    // Check if test data should be included
+    const includeTestData = c.req.query('includeTestData') === 'true';
+
+    let committeeWhere = undefined;
+
+    // Only filter out test data if not explicitly including it
+    if (!includeTestData) {
+      committeeWhere = eq(schema.committees.test_data, false);
+    }
+
+    // Get all committees sorted alphabetically by name
+    const committees = await db
+      .select({
+        id: schema.committees.id,
+        name: schema.committees.name,
+        slug: schema.committees.slug,
+        lastSeen: schema.committees.last_seen,
+      })
+      .from(schema.committees)
+      .where(committeeWhere)
+      .orderBy(schema.committees.name);
+
+    return c.json(toCamel(committees));
+  } catch (error) {
+    console.error('Error fetching committees:', error);
+    return c.json({ error: 'Failed to fetch committees' }, 500);
+  }
+});
+
+// POST /api/v1/committees/sync - Sync committees collection with new entries from events
+api.post('/committees/sync', async (c) => {
+  try {
+    const db = await getDatabase(getDatabaseUrl());
+
+    // Get unique committee/committee_slug combinations from events
+    const eventCommittees = await db
+      .select({
+        committee: schema.events.committee,
+        committeeSlug: schema.events.committee_slug,
+      })
+      .from(schema.events)
+      .where(and(
+        eq(schema.events.test_data, false),
+        sql`${schema.events.committee} IS NOT NULL`,
+        sql`${schema.events.committee_slug} IS NOT NULL`
+      ));
+
+    const committeesToSync = new Map<string, { name: string; slug: string }>();
+
+    // Process and normalize committee data
+    for (const event of eventCommittees) {
+      if (event.committee && event.committeeSlug) {
+        // Remove leading "THE" from BID committees for deduplication
+        let normalizedName = event.committee.replace(/^THE\s+/i, '');
+
+        // Validate against strict patterns
+        const isValidRegional = /^[A-Z]+YPAA$/.test(normalizedName);
+        const isValidAdvisory = /^[A-Z]+YPAA ADVISORY$/.test(normalizedName);
+        const isValidBid = /^[A-Z\s]+BID FOR Y?PAA$/.test(normalizedName);
+
+        if (!isValidRegional && !isValidAdvisory && !isValidBid) {
+          // Skip invalid committee names (like "NECYPAA EXECUTIVE", "THE NEW HAMPSHIRE CONFERENCE OF YOUNG PEOPLE IN AA")
+          continue;
+        }
+
+        // Normalize to ALL CAPS
+        normalizedName = normalizedName.toUpperCase();
+
+        committeesToSync.set(event.committeeSlug, {
+          name: normalizedName,
+          slug: event.committeeSlug,
+        });
+      }
+    }
+
+    const results = {
+      processed: 0,
+      inserted: 0,
+      updated: 0,
+      skipped: 0,
+    };
+
+    // Sync committees to database
+    for (const [slug, committeeData] of committeesToSync) {
+      results.processed++;
+
+      // Check if committee already exists
+      const existing = await db
+        .select()
+        .from(schema.committees)
+        .where(eq(schema.committees.slug, slug))
+        .limit(1);
+
+      if (existing.length === 0) {
+        // Insert new committee
+        await db.insert(schema.committees).values({
+          name: committeeData.name,
+          slug: committeeData.slug,
+          test_data: false,
+          last_seen: new Date(),
+        });
+        results.inserted++;
+      } else {
+        // Update last_seen timestamp
+        await db
+          .update(schema.committees)
+          .set({ last_seen: new Date() })
+          .where(eq(schema.committees.slug, slug));
+        results.updated++;
+      }
+    }
+
+    // Get total count of committees after sync
+    const totalCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(schema.committees)
+      .where(eq(schema.committees.test_data, false));
+
+    return c.json({
+      success: true,
+      results,
+      totalCommittees: totalCount[0].count,
+    });
+
+  } catch (error) {
+    console.error('Error syncing committees:', error);
+    return c.json({ error: 'Failed to sync committees' }, 500);
+  }
 });
 
 // Protected routes - require authentication

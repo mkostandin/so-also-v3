@@ -19,7 +19,7 @@ export default function EventTags({ eventType, committee }: EventTagsProps) {
       )}
       {committee && (
         <span className="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm px-4 py-2 rounded-full font-medium">
-          {committee}
+          {committee.toUpperCase()}
         </span>
       )}
     </div>

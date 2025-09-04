@@ -7,13 +7,17 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 
 /**
  * Context type for sharing filter state and events data across map, list, and calendar views
- * Includes event type filters, distance filters, scroll position persistence, and shared events
+ * Includes event type filters, committee filters, distance filters, scroll position persistence, and shared events
  */
 interface FilterContextType {
 	/** Currently selected event type filters */
 	selectedEventTypes: string[];
 	/** Function to update selected event types, supports both direct array and function updates */
 	setSelectedEventTypes: (types: string[] | ((prev: string[]) => string[])) => void;
+	/** Currently selected committee filters (slugs) */
+	selectedCommittees: string[];
+	/** Function to update selected committees */
+	setSelectedCommittees: (committees: string[] | ((prev: string[]) => string[])) => void;
 	/** Currently selected distance filter for calendar view */
 	selectedDistance: string;
 	/** Function to update distance filter */
@@ -74,6 +78,7 @@ export default function MapIndex() {
 	const [selectedEventTypes, setSelectedEventTypesState] = useState<string[]>(() =>
 		EVENT_TYPES.map(displayName => EVENT_TYPE_MAPPING[displayName] || displayName)
 	);
+	const [selectedCommittees, setSelectedCommitteesState] = useState<string[]>([]);
 	const [selectedDistance, setSelectedDistanceState] = useState<string>("150");
 	const [filterScrollPosition, setFilterScrollPositionState] = useState<number>(0);
 
@@ -81,6 +86,34 @@ export default function MapIndex() {
 	const [events, setEvents] = useState<EventItem[]>([]);
 	const [eventsLoading, setEventsLoading] = useState(true);
 	const [eventsError, setEventsError] = useState<string | null>(null);
+
+	// Local storage persistence for committee selections
+	useEffect(() => {
+		try {
+			const savedCommittees = localStorage.getItem('selected-committees');
+			if (savedCommittees) {
+				const parsed = JSON.parse(savedCommittees);
+				if (Array.isArray(parsed)) {
+					setSelectedCommitteesState(parsed);
+				}
+			}
+		} catch (error) {
+			console.warn('Failed to load committee selections from localStorage:', error);
+		}
+	}, []);
+
+	// Save committee selections to localStorage when they change
+	useEffect(() => {
+		try {
+			if (selectedCommittees.length === 0) {
+				localStorage.removeItem('selected-committees');
+			} else {
+				localStorage.setItem('selected-committees', JSON.stringify(selectedCommittees));
+			}
+		} catch (error) {
+			console.warn('Failed to save committee selections to localStorage:', error);
+		}
+	}, [selectedCommittees]);
 
 	// Location hook for location-based API calls
 	const { coords, status } = useUserLocation();
@@ -95,6 +128,19 @@ export default function MapIndex() {
 				return types(prev);  // Functional update for complex state changes
 			}
 			return types;  // Direct assignment for simple updates
+		});
+	}, []);
+
+	/**
+	 * Callback to update selected committees
+	 * Supports both direct array assignment and functional updates
+	 */
+	const setSelectedCommittees = useCallback((committees: string[] | ((prev: string[]) => string[])) => {
+		setSelectedCommitteesState(prev => {
+			if (typeof committees === 'function') {
+				return committees(prev);  // Functional update for complex state changes
+			}
+			return committees;  // Direct assignment for simple updates
 		});
 	}, []);
 
@@ -129,6 +175,11 @@ export default function MapIndex() {
 					};
 				}
 
+				// Add committee filtering if committees are selected
+				if (selectedCommittees.length > 0) {
+					apiParams.committees = selectedCommittees;
+				}
+
 				const data = await api.browse(apiParams);
 				if (mounted) {
 					setEvents(data || []);
@@ -151,7 +202,7 @@ export default function MapIndex() {
 		return () => {
 			mounted = false;
 		};
-	}, [coords]); // Re-fetch when coordinates change
+	}, [coords, selectedCommittees]); // Re-fetch when coordinates or committee selection changes
 
 	/**
 	 * Maps current pathname to tab identifier
@@ -181,6 +232,8 @@ export default function MapIndex() {
 		<FilterContext.Provider value={{
 			selectedEventTypes,
 			setSelectedEventTypes,
+			selectedCommittees,
+			setSelectedCommittees,
 			selectedDistance,
 			setSelectedDistance,
 			filterScrollPosition,

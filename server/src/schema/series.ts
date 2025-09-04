@@ -1,4 +1,4 @@
-import { pgSchema, text, timestamp, uuid, integer, jsonb, pgEnum, numeric } from 'drizzle-orm/pg-core';
+import { pgSchema, text, timestamp, uuid, integer, jsonb, pgEnum, numeric, boolean } from 'drizzle-orm/pg-core';
 
 export const appSchema = pgSchema('app');
 
@@ -34,6 +34,7 @@ export const series = appSchema.table('series', {
 	longitude: numeric('longitude'),
 	status: statusEnum('status').notNull().default('pending'),
 	notify_topic: text('notify_topic'),
+	test_data: boolean('test_data').notNull().default(false),
 	created_at: timestamp('created_at').defaultNow().notNull(),
 	updated_at: timestamp('updated_at').defaultNow().notNull(),
 });

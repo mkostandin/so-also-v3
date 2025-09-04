@@ -1,62 +1,46 @@
 import { getDatabase } from '../lib/db';
 import { getDatabaseUrl } from '../lib/env';
-import { eq, or, and, like } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import * as schema from '../schema';
 
 async function clearTestData() {
-  console.log('🧹 Starting test data cleanup...');
+  console.log('🧹 Starting complete data cleanup...');
 
   const db = await getDatabase(getDatabaseUrl());
 
-  // Delete test events (events with status='approved' that contain common test keywords)
-  const testEventNames = [
-    'NECYPAA Committee Meeting',
-    'NECYPAA 35',
-    'MSCYPAA 26',
-    'NECYPAA Fall Festival',
-    'RYAA Spring Dance',
-    'CSCYPAA Committee Meeting',
-    'Maine YPAA Workshop',
-    'Vermont YPAA Dance',
-    'Rhode Island YPAA Meeting'
-  ];
+  try {
+    // Clear all data in reverse dependency order
+    console.log('🗑️  Deleting all flags...');
+    await db.delete(schema.flags);
 
-  let eventsDeleted = 0;
+    console.log('🗑️  Deleting all ratelimits...');
+    await db.delete(schema.ratelimits);
 
-  for (const eventName of testEventNames) {
-    try {
-      const result = await db.delete(schema.events)
-        .where(and(
-          eq(schema.events.status, 'approved'),
-          eq(schema.events.name, eventName)
-        ));
+    console.log('🗑️  Deleting all occurrences...');
+    await db.delete(schema.occurrences);
 
-      if (result.rowCount && result.rowCount > 0) {
-        eventsDeleted += result.rowCount;
-        console.log(`✅ Deleted: ${eventName}`);
-      }
-    } catch (error) {
-      console.error(`❌ Failed to delete ${eventName}:`, error);
-    }
+    console.log('🗑️  Deleting all conferences...');
+    await db.delete(schema.conferences);
+
+    console.log('🗑️  Deleting all events...');
+    await db.delete(schema.events);
+
+    console.log('🗑️  Deleting all series...');
+    await db.delete(schema.series);
+
+    console.log('🗑️  Deleting all users...');
+    await db.delete(schema.users);
+
+    console.log('🗑️  Deleting all committees...');
+    await db.delete(schema.committees);
+
+    console.log('\n✅ Complete data cleanup finished!');
+    console.log('📊 All tables have been cleared and are ready for fresh seeding.');
+
+  } catch (error) {
+    console.error('❌ Data cleanup failed:', error);
+    process.exit(1);
   }
-
-  console.log(`\n🎉 Cleanup complete!`);
-  console.log(`📊 Events deleted: ${eventsDeleted}`);
-
-  if (eventsDeleted === 0) {
-    console.log('\nℹ️  No test events found to delete.');
-    console.log('   This might mean:');
-    console.log('   - Test data was never seeded');
-    console.log('   - Events were already deleted');
-    console.log('   - Events have a different status');
-  }
-
-  console.log('\n📋 Other cleanup options:');
-  console.log('• Clear all events: DELETE FROM events WHERE status = \'approved\'');
-  console.log('• Clear all conferences: DELETE FROM conferences WHERE status = \'approved\'');
-  console.log('• Clear all occurrences: DELETE FROM occurrences WHERE status = \'approved\'');
-  console.log('• Clear all flags: DELETE FROM flags');
-  console.log('• Clear all ratelimits: DELETE FROM ratelimits');
 
   process.exit(0);
 }

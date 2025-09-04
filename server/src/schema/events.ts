@@ -1,4 +1,4 @@
-import { pgSchema, text, timestamp, uuid, numeric, pgEnum, index, jsonb } from 'drizzle-orm/pg-core';
+import { pgSchema, text, timestamp, uuid, numeric, pgEnum, index, jsonb, boolean } from 'drizzle-orm/pg-core';
 
 export const appSchema = pgSchema('app');
 
@@ -25,6 +25,7 @@ export const events = appSchema.table('events', {
 	contact_phone: text('contact_phone'),
 	image_urls: jsonb('image_urls').$type<string[]>().default([]),
 	status: statusEnum('status').notNull().default('pending'),
+	test_data: boolean('test_data').default(false).notNull(),
 	starts_at_utc: timestamp('starts_at_utc', { withTimezone: true }),
 	ends_at_utc: timestamp('ends_at_utc', { withTimezone: true }),
 	created_at: timestamp('created_at').defaultNow().notNull(),

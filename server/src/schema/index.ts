@@ -6,3 +6,4 @@ export * from './conferences';
 export * from './conferenceSessions';
 export * from './flags';
 export * from './ratelimits';
+export * from './committees';

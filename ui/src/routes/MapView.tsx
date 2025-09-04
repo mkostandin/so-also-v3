@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import MapboxMap from '@/components/MapboxMap';
 import EventTypeFilter from '@/components/EventTypeFilter';
+import CommitteeFilter from '@/components/CommitteeFilter';
 import { useMobileDebug } from '@/hooks/useMobileDebug';
 import { useFilterContext } from './MapIndex';
 import { isRecoverableError, getErrorMessage } from '@/lib/mapbox';
@@ -55,7 +56,7 @@ const getTimeoutDuration = (isMobile: boolean) => {
 
 
 export default function MapView() {
-	const { selectedEventTypes, setSelectedEventTypes } = useFilterContext();
+	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees } = useFilterContext();
 	const [mapLoadTimeout, setMapLoadTimeout] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
 	const [isRetrying, setIsRetrying] = useState(false);
@@ -218,6 +219,10 @@ export default function MapView() {
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
 					onTypesChange={setSelectedEventTypes}
+				/>
+				<CommitteeFilter
+					selectedCommittees={selectedCommittees}
+					onCommitteesChange={setSelectedCommittees}
 				/>
 			</div>
 			<div className="flex-1 min-h-0 relative z-0">
