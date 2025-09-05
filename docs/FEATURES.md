@@ -74,11 +74,13 @@ This application is a comprehensive event management system built on top of the 
 ### Committee Filtering
 - **Multi-Select Dropdown**: Clean, accessible dropdown for committee selection
 - **ALL CAPS Display**: Consistent uppercase formatting for all committee names
+- **Smart Caching**: Committee data cached locally for 5 minutes to prevent reloading on view switches
 - **Smart Validation**: Real-time validation with user guidance during event submission
 - **Event Count Display**: Shows number of upcoming events per committee in parentheses
 - **Local Storage Persistence**: Committee selections saved across browser sessions
 - **Alphabetical Sorting**: Committees sorted alphabetically by normalized name
 - **Cross-View Integration**: Works seamlessly across map, list, and calendar views
+- **Graceful Fallback**: Falls back to cached data if API fails, with sample data as final fallback
 
 ### Distance Filtering (Calendar View)
 - **Flexible Options**: Four distance ranges plus "All Events"

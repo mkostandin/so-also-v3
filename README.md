@@ -59,6 +59,7 @@ This application has been extended beyond the base template with a comprehensive
 ### 🔍 **Advanced Filtering & Search**
 - **Event Type Filter**: Horizontal scrollable pill-style buttons for filtering by event categories
 - **Committee Filter**: Multi-select dropdown for filtering events by specific committees (ALL CAPS display)
+- **Smart Caching**: Committee filter data cached locally for 5 minutes to prevent reloading on view switches
 - **Distance Filter**: Configurable radius-based filtering for calendar view
 - **Universal Filtering**: Committee filtering now works consistently across Map, List, and Calendar views
 - **Real-time Updates**: Filters apply immediately with smooth UI transitions

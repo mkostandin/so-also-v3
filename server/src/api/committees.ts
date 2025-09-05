@@ -11,7 +11,7 @@ type Env = {
 const committeeRoutes = new Hono<{ Bindings: Env }>();
 
 // Utility function to convert snake_case to camelCase (duplicated from main API)
-const toCamel = (obj: any) => {
+const toCamel = (obj: any): any => {
   if (!obj || typeof obj !== 'object') return obj;
 
   // Handle Date objects by converting to ISO string

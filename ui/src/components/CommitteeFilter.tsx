@@ -37,6 +37,49 @@ interface CommitteeFilterProps {
  * @param props Component props
  * @returns React component for filtering events by committee
  */
+// Cache configuration constants
+const CACHE_KEY_COMMITTEES = 'cached-committees';
+const CACHE_DURATION_MINUTES = 5;
+
+/**
+ * Clears the cached committee data from localStorage
+ * Useful for forcing fresh data or troubleshooting
+ */
+export const clearCommitteeCache = (): boolean => {
+  try {
+    localStorage.removeItem(CACHE_KEY_COMMITTEES);
+    return true;
+  } catch (error) {
+    console.warn('Failed to clear committee cache:', error);
+    return false;
+  }
+};
+
+/**
+ * Gets cache information for debugging/monitoring
+ */
+export const getCommitteeCacheInfo = () => {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY_COMMITTEES);
+    if (!cached) return null;
+
+    const { data, timestamp } = JSON.parse(cached);
+    const cacheAge = Date.now() - timestamp;
+    const isExpired = cacheAge >= CACHE_DURATION_MINUTES * 60 * 1000;
+
+    return {
+      hasCache: true,
+      cacheAge: Math.round(cacheAge / 1000), // seconds
+      isExpired,
+      itemCount: data?.length || 0,
+      lastUpdated: new Date(timestamp).toISOString()
+    };
+  } catch (error) {
+    console.warn('Failed to read committee cache info:', error);
+    return { hasCache: false, error: true };
+  }
+};
+
 export default function CommitteeFilter({ selectedCommittees, onCommitteesChange }: CommitteeFilterProps) {
   // State for committees data with localStorage persistence
   const [committees, setCommittees] = useState<Committee[]>([]);
@@ -53,11 +96,11 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
   const fetchCommittees = useCallback(async () => {
     try {
       // Check if we have cached data that's less than 5 minutes old
-      const cached = localStorage.getItem('cached-committees');
+      const cached = localStorage.getItem(CACHE_KEY_COMMITTEES);
       if (cached) {
         const { data, timestamp } = JSON.parse(cached);
         const cacheAge = Date.now() - timestamp;
-        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+        const CACHE_DURATION = CACHE_DURATION_MINUTES * 60 * 1000; // 5 minutes
 
         if (cacheAge < CACHE_DURATION) {
           setCommittees(data);
@@ -73,7 +116,7 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
       setCommittees(data || []);
 
       // Cache the data
-      localStorage.setItem('cached-committees', JSON.stringify({
+      localStorage.setItem(CACHE_KEY_COMMITTEES, JSON.stringify({
         data: data || [],
         timestamp: Date.now()
       }));
@@ -83,7 +126,7 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
       setError('Failed to load committees');
 
       // Try to use cached data as fallback
-      const cached = localStorage.getItem('cached-committees');
+      const cached = localStorage.getItem(CACHE_KEY_COMMITTEES);
       if (cached) {
         try {
           const { data } = JSON.parse(cached);
@@ -101,6 +144,15 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
       setLoading(false);
     }
   }, []);
+
+  /**
+   * Clears cache and refetches committees from API
+   * Useful for manual refresh or forcing fresh data
+   */
+  const refreshCommittees = useCallback(async () => {
+    clearCommitteeCache(); // Clear cache first
+    await fetchCommittees(); // Then refetch
+  }, [fetchCommittees]);
 
   // Fetch committees on component mount (only if not cached)
   useEffect(() => {
