@@ -1,4 +1,4 @@
-import { useState, createContext, useContext, useCallback, useEffect } from 'react';
+import { useState, createContext, useContext, useCallback, useEffect, useMemo } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EVENT_TYPES } from '@/components/EventTypeFilter';
@@ -166,8 +166,8 @@ export default function MapIndex() {
 		return 'map';  // Default to map view
 	};
 
-	// Determine current active tab based on current route
-	const current = routeToTab(location.pathname);
+	// Determine current active tab based on current route (memoized to prevent unnecessary re-renders)
+	const current = useMemo(() => routeToTab(location.pathname), [location.pathname]);
 
 	// Fetch events once and share across all views
 	useEffect(() => {

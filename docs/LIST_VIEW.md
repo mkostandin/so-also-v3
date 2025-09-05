@@ -32,6 +32,7 @@ The List View provides a scrollable, paginated list interface for browsing event
 
 #### Main Components
 - **`ListView.tsx`**: Main list view component with pagination and filtering
+- **`EventListSkeleton.tsx`**: Skeleton loading component with animated placeholders
 - **`EventTypeFilter.tsx`**: Event type filtering component
 - **`LocationPermissionBanner.tsx`**: Location permission prompt component
 
@@ -39,6 +40,7 @@ The List View provides a scrollable, paginated list interface for browsing event
 ```
 ui/src/routes/ListView.tsx              # Main list view component (full-height layout)
 ui/src/routes/MapIndex.tsx              # Parent layout component (height management)
+ui/src/components/EventListSkeleton.tsx # Skeleton loading component
 ui/src/components/EventTypeFilter.tsx   # Event type filtering
 ui/src/components/LocationPermissionBanner.tsx # Location permission UI
 ui/src/hooks/useUserLocation.ts         # Location services
@@ -166,10 +168,61 @@ sortedEvents = [...filtered].sort((a, b) => {
 - **Graceful Degradation**: Works perfectly without location data
 
 ### Loading States
-- **Initial Loading**: Simple "Loading…" message during data fetch
-- **Load More Button**: Animated loading spinner during pagination
+- **Skeleton Loading**: Animated placeholder components with event structure during data fetch
+- **Load More Button**: Skeleton button state during pagination loading
 - **Empty States**: Helpful messages for no events or filtered results
 - **Error Handling**: Graceful error recovery with retry options
+- **Flash Prevention**: Multi-layer solution preventing content flashes during view/filter changes
+
+### Skeleton Loading Implementation
+
+#### EventListSkeleton Component
+The `EventListSkeleton` component provides animated placeholder boxes that match the actual event item structure, creating a smooth loading experience:
+
+```tsx
+// Skeleton structure matching real event layout
+<div className="p-3 border-b animate-pulse">
+  <div className="flex items-center justify-between">
+    <div className="flex-1 space-y-2">
+      {/* Event title skeleton */}
+      <Skeleton className="h-4 w-3/4" />
+      {/* Event address skeleton */}
+      <Skeleton className="h-3 w-1/2" />
+      {/* Event description skeleton */}
+      <Skeleton className="h-3 w-2/3" />
+      {/* Event date/time skeleton */}
+      <Skeleton className="h-3 w-1/3" />
+    </div>
+    <div className="flex flex-col items-end gap-1 ml-4">
+      {/* Distance badge skeleton */}
+      <Skeleton className="h-5 w-12" />
+      {/* Event type badge skeleton */}
+      <Skeleton className="h-5 w-16" />
+    </div>
+  </div>
+</div>
+```
+
+#### Skeleton State Management
+```tsx
+// In ListView.tsx - manages skeleton visibility
+const [showSkeleton, setShowSkeleton] = useState(true);
+
+// Show skeleton during loading or filtering operations
+{eventsLoading || isRefiltering ? (
+  <EventListSkeleton />
+) : displayedEvents.length === 0 ? (
+  <EmptyState />
+) : (
+  <EventList />
+)}
+```
+
+#### Flash Prevention Strategy
+- **Multi-layer approach**: Context data clearing, enhanced refiltering state, and proper timing
+- **Race condition prevention**: Single useEffect prevents conflicting fetch operations
+- **RequestAnimationFrame timing**: Ensures state updates happen after render cycle
+- **Location fallback handling**: Manages coordinate changes and permission state transitions
 
 ## 📱 Responsive Design
 
