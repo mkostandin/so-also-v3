@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import CalendarGrid from '@/components/CalendarGrid';
 import CalendarEventPopup from '@/components/CalendarEventPopup';
 import LocationPermissionOverlay from '@/components/LocationPermissionOverlay';
 import { useCalendarEvents, CalendarEvent } from '@/hooks/useCalendarEvents';
+import { useUserLocation } from '@/hooks/useUserLocation';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -31,12 +32,29 @@ export default function CalendarView() {
 	const [popupEvents, setPopupEvents] = useState<CalendarEvent[]>([]);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees, selectedDistance, setSelectedDistance } = useFilterContext();
+	const { coords: userCoords, status, request } = useUserLocation();
 
 	const year = cursor.getFullYear();
 	const month = cursor.getMonth();
 
+	// Debug: Log coordinates in CalendarView
+	console.log('[CalendarView Debug] Coordinates:', userCoords, 'Status:', status);
+
+	// Auto-request location if permission is granted but we don't have coordinates
+	useEffect(() => {
+		if (status === 'granted' && !userCoords) {
+			console.log('[CalendarView Debug] Permission granted but no coordinates, requesting location...');
+			request();
+		}
+	}, [status, userCoords, request]);
+
 	// Fetch calendar events with distance, event type, and committee filtering
-	const { eventsByDate, loading, error, refetch } = useCalendarEvents(selectedDistance, selectedEventTypes, selectedCommittees);
+	const { eventsByDate, loading, error, refetch, showSkeleton } = useCalendarEvents(
+		selectedDistance,
+		selectedEventTypes,
+		selectedCommittees,
+		userCoords
+	);
 
 	/**
 	 * Generate user-friendly text for displaying event count based on selected distance
@@ -91,7 +109,7 @@ export default function CalendarView() {
 		setIsPopupOpen(false);
 	}, []);
 
-	if (loading) {
+	if (showSkeleton) {
 		return (
 			<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl">
 				<div className="space-y-2">
@@ -113,9 +131,12 @@ export default function CalendarView() {
 						onDistanceChange={setSelectedDistance}
 					/>
 
-					<Skeleton className="h-8 w-64" />
-					<div className="grid grid-cols-1 gap-6">
-						<Skeleton className="h-96 w-full" />
+					{/* Month Navigation Skeleton */}
+					<Skeleton className="h-16 w-full rounded-lg mx-2" />
+
+					{/* Calendar Grid Skeleton */}
+					<div className="grid grid-cols-1 gap-6 px-2">
+						<Skeleton className="h-96 w-full rounded-lg p-4" />
 					</div>
 				</div>
 			</div>

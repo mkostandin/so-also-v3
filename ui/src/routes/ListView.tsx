@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, EventItem } from '@/lib/api-client';
 import { useUserLocation } from '@/hooks/useUserLocation';
@@ -7,11 +7,13 @@ import { formatDateShort, formatTime } from '@/lib/session-utils';
 import LocationPermissionBanner from '@/components/LocationPermissionBanner';
 import EventTypeFilter from '@/components/EventTypeFilter';
 import CommitteeFilter from '@/components/CommitteeFilter';
+import EventListSkeleton from '@/components/EventListSkeleton';
 import { useFilterContext } from './MapIndex';
 
 export default function ListView() {
 	const [page, setPage] = useState(1);
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const [showSkeleton, setShowSkeleton] = useState(true);
 	const { coords, status, request } = useUserLocation();
 	const navigate = useNavigate();
 	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees, events, eventsLoading, eventsError } = useFilterContext();
@@ -35,9 +37,9 @@ export default function ListView() {
 		}
 	}, [coords, status, request]);
 
+
 	// Calculate displayed events based on pagination and location
 	const { displayedEvents, totalEvents, hasMoreEvents } = useMemo(() => {
-
 		// First filter by event types (only if we have specific types selected)
 		let filtered = events;
 
@@ -92,6 +94,17 @@ export default function ListView() {
 		};
 	}, [events, selectedEventTypes, coords, page]);
 
+	// Simple skeleton management
+	useEffect(() => {
+		if (eventsLoading) {
+			setShowSkeleton(true);
+		} else {
+			// Hide skeleton when loading is complete, regardless of event count
+			const timer = setTimeout(() => setShowSkeleton(false), 100);
+			return () => clearTimeout(timer);
+		}
+	}, [eventsLoading]);
+
 	const handleLoadMore = () => {
 		setIsLoadingMore(true);
 		// Simulate loading delay for better UX
@@ -141,22 +154,11 @@ export default function ListView() {
 					onCommitteesChange={setSelectedCommittees}
 				/>
 				{!coords && status === 'prompt' && <LocationPermissionBanner />}
-
-				<div className="flex items-center justify-between px-4">
-					<h3 className="text-lg font-semibold">
-						{coords ? 'Events by Distance' : 'Upcoming Events'}
-						{displayedEvents.length > 0 && (
-							<span className="text-sm font-normal text-gray-500 ml-2">
-								({displayedEvents.length}{hasMoreEvents ? ` of ${totalEvents}` : ''})
-							</span>
-						)}
-					</h3>
-				</div>
 			</div>
 
 			<div className="flex-1 min-h-0 overflow-y-auto">
-				{eventsLoading ? (
-					<div className="h-full rounded border p-3 text-sm flex items-center justify-center">Loading…</div>
+				{showSkeleton ? (
+					<EventListSkeleton />
 				) : displayedEvents.length === 0 ? (
 					<div className="h-full rounded border p-3 text-sm text-gray-500 flex items-center justify-center">
 						{events.length === 0
@@ -210,23 +212,18 @@ export default function ListView() {
 
 						{hasMoreEvents && (
 							<div className="flex justify-center mt-6">
-								<button
-									onClick={handleLoadMore}
-									disabled={isLoadingMore}
-									className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-								>
-									{isLoadingMore ? (
-										<span className="flex items-center gap-2">
-											<svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-												<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-												<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-											</svg>
-											Loading...
-										</span>
-									) : (
-										`Load More Events (${totalEvents - displayedEvents.length} remaining)`
-									)}
-								</button>
+								{isLoadingMore ? (
+									<div className="px-6 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse">
+										<div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-48"></div>
+									</div>
+								) : (
+									<button
+										onClick={handleLoadMore}
+										className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+									>
+										Load More Events ({totalEvents - displayedEvents.length} remaining)
+									</button>
+								)}
 							</div>
 						)}
 					</>

@@ -155,6 +155,20 @@ export default function MapIndex() {
 		setFilterScrollPositionState(position);
 	}, []);
 
+	/**
+	 * Maps current pathname to tab identifier
+	 * @param pathname Current route pathname
+	 * @returns Tab identifier ('map', 'list', or 'calendar')
+	 */
+	const routeToTab = (pathname: string) => {
+		if (pathname.startsWith(`${base}/calendar`)) return 'calendar';
+		if (pathname.startsWith(`${base}/list`)) return 'list';
+		return 'map';  // Default to map view
+	};
+
+	// Determine current active tab based on current route
+	const current = routeToTab(location.pathname);
+
 	// Fetch events once and share across all views
 	useEffect(() => {
 		let mounted = true;
@@ -203,21 +217,8 @@ export default function MapIndex() {
 		return () => {
 			mounted = false;
 		};
-	}, [coords, selectedCommittees]); // Re-fetch when coordinates or committee selection changes
+	}, [coords, selectedCommittees, current]); // Re-fetch when coordinates, committees, OR view changes
 
-	/**
-	 * Maps current pathname to tab identifier
-	 * @param pathname Current route pathname
-	 * @returns Tab identifier ('map', 'list', or 'calendar')
-	 */
-	const routeToTab = (pathname: string) => {
-		if (pathname.startsWith(`${base}/calendar`)) return 'calendar';
-		if (pathname.startsWith(`${base}/list`)) return 'list';
-		return 'map';  // Default to map view
-	};
-
-	// Determine current active tab based on current route
-	const current = routeToTab(location.pathname);
 
 	/**
 	 * Handles tab navigation changes

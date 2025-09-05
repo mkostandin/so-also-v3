@@ -11,10 +11,12 @@ export function useUserLocation() {
 
 		// Check permission state and update status
 		getPermissionState().then((permissionState) => {
+			console.log('[Location Debug] Permission state:', permissionState);
 			if (mounted) {
 				setStatus(permissionState);
 			}
-		}).catch(() => {
+		}).catch((error) => {
+			console.log('[Location Debug] Permission check failed:', error);
 			// If permission check fails, assume prompt state
 			if (mounted) {
 				setStatus('prompt');
@@ -28,10 +30,13 @@ export function useUserLocation() {
 
 	const request = useCallback(async () => {
 		try {
+			console.log('[Location Debug] Requesting user location...');
 			const pos = await getCurrentPosition({ enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
+			console.log('[Location Debug] Location obtained:', pos.coords.latitude, pos.coords.longitude);
 			setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
 			setStatus('granted');
 		} catch (e: any) {
+			console.error('[Location Debug] Location error:', e?.message || 'Unknown error');
 			setError(e?.message || 'Location error');
 			setStatus('denied');
 		}
