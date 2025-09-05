@@ -214,8 +214,8 @@ export default function MapView() {
 	}
 
 	return (
-		<div className="flex flex-col h-full" data-loaded="true">
-			<div className="mx-auto max-w-3xl w-full">
+		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0" data-loaded="true">
+			<div className="flex-shrink-0 space-y-2">
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
 					onTypesChange={setSelectedEventTypes}

@@ -155,7 +155,8 @@ export default function EventTypeFilter({ selectedTypes, onTypesChange }: EventT
 
   return (
     // Container with background and border for visual separation
-    <div className="bg-white dark:bg-gray-900 border-b relative">
+    // mb-0 added to eliminate gap between EventTypeFilter and CommitteeFilter for consistent spacing
+    <div className="bg-white dark:bg-gray-900 border-b relative mb-0">
       {/* Horizontal scrollable container for filter buttons */}
       <div
         ref={scrollContainerRef}
