@@ -28,9 +28,9 @@ export default function EventPopupManager({ map, selectedEvent, onLearnMore }: E
 
     // Create new popup with React component
     const newPopup = new mapboxgl.Popup({
-      closeButton: true,
+      closeButton: false, // No close button - dismiss via tap outside or drag
       closeOnClick: true,
-      className: 'event-popup enhanced-close-button',
+      className: 'event-popup',
       maxWidth: '320px'
     })
       .setLngLat(coordinates)

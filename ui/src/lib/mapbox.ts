@@ -39,13 +39,21 @@ export const getMapboxStyles = () => `
   }
 `;
 
-// Default map configuration
+/**
+ * Default map configuration for popup redesign
+ * Disables all default Mapbox controls except geolocate for cleaner interface
+ */
 export const getDefaultMapConfig = () => ({
   style: 'mapbox://styles/mapbox/streets-v12',
   center: [-74.5, 40] as [number, number], // Default to NYC area
   zoom: 9,
   pitch: 0,
   bearing: 0,
+  // Popup redesign: Remove default controls for cleaner interface
+  compass: false,    // Remove compass control
+  fullscreen: false, // Remove fullscreen control
+  scale: false,      // Remove scale control
+  // Note: zoom control disabled, geolocate added separately in useMapboxMap hook
 });
 
 // Container cleanup utilities

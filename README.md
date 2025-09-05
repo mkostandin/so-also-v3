@@ -41,6 +41,7 @@ This application has been extended beyond the base template with a comprehensive
 ### 🗺️ **Interactive Map View**
 - **Mapbox GL Integration**: Full-featured map with custom markers and clustering
 - **Event Visualization**: Display events as interactive markers with custom styling
+- **Enhanced Popups**: Redesigned marker popups with improved visual hierarchy, date/time formatting ("Sep 7 at 6:00pm"), and simplified dismissal (tap outside or drag to close)
 - **User Location**: Real-time geolocation with accuracy indicators
 - **Event Filtering**: Filter events by type (Event, Committee Meeting, Conference, etc.)
 - **Responsive Design**: Optimized for both desktop and mobile devices

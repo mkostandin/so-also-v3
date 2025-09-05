@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { EventItem } from '@/lib/api-client';
 import { metersToMiles } from '@/lib/location-utils';
 import { Button } from '@/components/ui/button';
@@ -7,36 +7,26 @@ import { Badge } from '@/components/ui/badge';
 interface EventPreviewPopupProps {
   event: EventItem;
   onLearnMore: () => void;
-  onClose?: () => void;
   isLoading?: boolean;
   error?: string | null;
 }
 
-export default function EventPreviewPopup({ event, onLearnMore, onClose, isLoading = false, error = null }: EventPreviewPopupProps) {
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
+/**
+ * EventPreviewPopup - Redesigned map marker popup component
+ *
+ * Features:
+ * - Enhanced visual hierarchy with larger titles (text-lg) and smaller descriptions (text-xs)
+ * - Structured content layout: Title → Event Tag → Date/Time → Description → Learn More
+ * - Smart text truncation (2 lines for title, 3 lines for description)
+ * - Improved date formatting ("Sep 7 at 6:00pm")
+ * - No close button - dismiss via tap outside or map drag
+ */
+export default function EventPreviewPopup({ event, onLearnMore, isLoading = false, error = null }: EventPreviewPopupProps) {
 
-  useEffect(() => {
-    const button = closeButtonRef.current;
-    if (button && onClose) {
-      const handleClose = (e: Event) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Direct DOM close button clicked');
-        // Call onClose synchronously
-        onClose();
-      };
-
-      // Add event listeners with capture phase to ensure they fire first
-      button.addEventListener('click', handleClose, true);
-      button.addEventListener('touchend', handleClose, true);
-
-      return () => {
-        button.removeEventListener('click', handleClose, true);
-        button.removeEventListener('touchend', handleClose, true);
-      };
-    }
-  }, [onClose]);
-
+  /**
+   * Format date and time in the redesigned format
+   * Returns "Sep 7 at 6:00pm" format for better readability
+   */
   const formatDateTime = (dateString?: string | null) => {
     if (!dateString) return null;
     const date = new Date(dateString);
@@ -81,8 +71,9 @@ export default function EventPreviewPopup({ event, onLearnMore, onClose, isLoadi
 
   return (
     <div className="p-4 max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg relative">
-      {/* No header close button (dismiss via outside tap/drag/Esc) */}
-      {/* Event Image */}
+      {/* Popup dismissal: No close button - users tap outside map or drag to pan */}
+
+      {/* Event Image - Optional hero image at top of popup */}
       {event.imageUrls && event.imageUrls.length > 0 && (
         <div className="mb-3">
           <img
@@ -97,12 +88,12 @@ export default function EventPreviewPopup({ event, onLearnMore, onClose, isLoadi
         </div>
       )}
 
-      {/* Event Title */}
+      {/* Event Title - Enhanced visual hierarchy with larger text and truncation */}
       <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2 leading-tight line-clamp-2 relative z-10">
         {event.name}
       </h3>
 
-      {/* Event Type Badge */}
+      {/* Event Type Badge - Secondary visual element in hierarchy */}
       {event.eventType && (
         <div className="mb-2">
           <Badge variant="secondary" className="text-xs">
@@ -111,7 +102,7 @@ export default function EventPreviewPopup({ event, onLearnMore, onClose, isLoadi
         </div>
       )}
 
-      {/* Date and Time */}
+      {/* Date and Time - Redesigned format with calendar icon */}
       {dateTime && (
         <div className="mb-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,7 +112,7 @@ export default function EventPreviewPopup({ event, onLearnMore, onClose, isLoadi
         </div>
       )}
 
-      {/* Event Description */}
+      {/* Event Description - Compact text with truncation for better layout */}
       {event.description && (
         <p className="text-xs text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
           {event.description}
@@ -139,7 +130,7 @@ export default function EventPreviewPopup({ event, onLearnMore, onClose, isLoadi
         </div>
       )}
 
-      {/* Footer actions */}
+      {/* Footer actions - Single full-width button for clean UX */}
       <div className="mt-3 flex items-center justify-between gap-3">
         <Button
           onClick={onLearnMore}

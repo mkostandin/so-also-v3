@@ -294,23 +294,23 @@ export default function MapboxMap({
     const popupContainer = document.createElement('div');
     popupContainer.id = 'event-popup-container';
 
-    // Create popup and center it on the map
+    // Create popup with redesigned dismissal UX - no close button, tap outside or drag to close
     const popup = new mapboxgl.Popup({
-      closeButton: false, // Disable Mapbox's built-in X
+      closeButton: false, // No close button for cleaner interface
       closeOnClick: true, // Tap outside map closes popup
-      className: 'event-popup enhanced-close-button',
+      className: 'event-popup',
       maxWidth: '320px'
     })
       .setLngLat(coordinates)
       .setDOMContent(popupContainer)
       .addTo(map);
 
-    // Center the popup on the map with smooth animation
+    // Auto-center map on marker when popup opens (popup redesign requirement)
     setTimeout(() => {
       if (popup.isOpen() && map) {
         map.easeTo({
           center: coordinates,
-          duration: 300,
+          duration: 300, // Smooth 300ms animation
           easing: (t) => t * (2 - t)
         });
       }
@@ -348,7 +348,7 @@ export default function MapboxMap({
       `;
     }
 
-    // Close on drag start (panning the map)
+    // Close popup on map drag - redesigned dismissal UX (no close button)
     const handleDragStart = () => {
       if (popup && popup.isOpen()) popup.remove();
     };

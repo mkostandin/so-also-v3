@@ -25,9 +25,22 @@ The Map View is a core feature of the application that provides an interactive M
   - Expands to individual markers when zoomed in
 
 - **Interactive Markers**: Click any marker to view event details
-  - Popup with event information
-  - Links to full event details
+  - Redesigned popup with enhanced visual hierarchy
+  - Larger event titles with truncated text (2-line limit)
+  - Compact descriptions with truncation (3-line limit)
+  - Improved date/time formatting ("Sep 7 at 6:00pm")
+  - Simplified dismissal (tap outside map or drag to close)
   - Smooth animations and transitions
+  - No close button for cleaner interface
+
+### Popup Redesign Features
+- **Visual Hierarchy**: Event title prominently displayed with `text-lg`, description in `text-xs`
+- **Content Layout**: Structured order - Title → Event Type Badge → Date/Time → Description → Learn More
+- **Text Truncation**: Smart truncation with ellipsis for long titles (2 lines) and descriptions (3 lines)
+- **Date Formatting**: Abbreviated month format ("Sep 7 at 6:00pm") with 12-hour time
+- **Dismissal UX**: No close button - dismiss by tapping outside map or dragging to pan
+- **Map Centering**: Automatic smooth centering (300ms easeTo) when popup opens
+- **Responsive Design**: Optimized for mobile with touch-friendly interactions
 
 ### User Location Integration
 - **Real-time Location**: User's current location displayed on map
@@ -98,9 +111,8 @@ const marker = new mapboxgl.Marker({
 ## 🎛️ User Interface
 
 ### Map Controls
-- **Zoom Controls**: Standard zoom in/out buttons
-- **Compass**: North orientation indicator
-- **Geolocation**: Center on user location button
+- **Geolocation**: Center on user location button (only control shown)
+- **Simplified Interface**: Default zoom, compass, and fullscreen controls removed for cleaner design
 - **Attribution**: Mapbox attribution with clean styling
 
 ### Filter Integration
