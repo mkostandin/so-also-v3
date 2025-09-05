@@ -9,7 +9,7 @@ The Map View is a core feature of the application that provides an interactive M
 ### Mapbox GL Integration
 - **Full-Featured Map**: Powered by Mapbox GL JS with smooth zooming, panning, and interaction
 - **Custom Styling**: Branded map design with appropriate controls and attribution
-- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices with consistent max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
 - **Performance Optimized**: Efficient rendering with proper memory management
 
 ### Event Visualization

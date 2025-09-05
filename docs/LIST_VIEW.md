@@ -12,7 +12,7 @@ The List View provides a scrollable, paginated list interface for browsing event
 - **Distance Indicators**: Shows distance badges when user location is available
 - **Event Type Badges**: Color-coded event type indicators
 - **Full-Height Layout**: Utilizes complete viewport height for maximum content visibility
-- **Responsive Layout**: Optimized for desktop, tablet, and mobile devices with improved width handling
+- **Responsive Layout**: Optimized for desktop, tablet, and mobile devices with consistent max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
 
 ### Smart Sorting & Filtering
 - **Location-Aware Sorting**: Sorts by distance when user location available, otherwise by chronological order

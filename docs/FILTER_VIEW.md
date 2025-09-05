@@ -185,22 +185,25 @@ const handleScroll = () => {
 ## 🔗 Integration Points
 
 ### Map View Integration
-- **Container Layout**: Filter positioned above map with consistent max-width
+- **Container Layout**: Filter positioned above map with responsive max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
 - **State Synchronization**: Real-time updates to map markers based on filter selections
-- **Responsive Behavior**: Adapts to map container resizing
+- **Responsive Behavior**: Adapts to map container resizing with consistent breakpoints
 - **Loading States**: Filter remains visible during map loading
+- **Spacing Consistency**: Uses `space-y-2` for uniform spacing between filters
 
 ### List View Integration
-- **Header Position**: Filter positioned at top of list container
+- **Header Position**: Filter positioned at top of list container with responsive max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
 - **Pagination Sync**: Filter state maintained during pagination
 - **Location Context**: Works seamlessly with location-based sorting
 - **Empty States**: Appropriate messaging when no events match filters
+- **Spacing Consistency**: Uses `space-y-2` for uniform spacing between filters
 
 ### Calendar View Integration
-- **Dual Filters**: Coexists with distance filter in calendar view
+- **Dual Filters**: Coexists with distance filter in calendar view with responsive max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
 - **Date Integration**: Filter state preserved across date navigation
 - **Event Loading**: Real-time updates to calendar events
-- **Layout Harmony**: Consistent spacing with calendar grid
+- **Layout Harmony**: Consistent spacing with calendar grid and uniform filter spacing (`space-y-2`)
+- **Responsive Behavior**: Smooth window resizing without layout jumps
 
 ## 🛠️ Configuration & Customization
 
@@ -451,10 +454,11 @@ GET /api/v1/occurrences?committee=necypaa&committee=mscypaa
 ```
 
 #### View Integration
-- **Map View**: Committee filter positioned below event type filter
-- **List View**: Consistent positioning across all views
-- **Calendar View**: Maintains responsive design and spacing
+- **Map View**: Committee filter positioned below event type filter with responsive max-width
+- **List View**: Consistent positioning and spacing across all views using `space-y-2`
+- **Calendar View**: Maintains responsive design and uniform spacing without layout jumps
 - **Cross-View Persistence**: Filter state maintained when switching views
+- **Layout Consistency**: All views use identical responsive breakpoints and spacing
 
 ### 🛡️ Validation & Error Handling
 
