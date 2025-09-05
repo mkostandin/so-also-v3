@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import { eq, and, sql, gte } from 'drizzle-orm';
 import * as schema from '../schema';
-import { getDatabase, getDatabaseUrl } from '../lib/db';
+import { getDatabase } from '../lib/db';
+import { getDatabaseUrl } from '../lib/env';
 
 type Env = {
   [key: string]: any;

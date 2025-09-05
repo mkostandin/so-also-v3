@@ -5,6 +5,7 @@ import { EVENT_TYPES } from '@/components/EventTypeFilter';
 import { api, EventItem } from '@/lib/api-client';
 import { useUserLocation } from '@/hooks/useUserLocation';
 
+
 /**
  * Context type for sharing filter state and events data across map, list, and calendar views
  * Includes event type filters, committee filters, distance filters, scroll position persistence, and shared events

@@ -38,7 +38,7 @@ interface CommitteeFilterProps {
  * @returns React component for filtering events by committee
  */
 export default function CommitteeFilter({ selectedCommittees, onCommitteesChange }: CommitteeFilterProps) {
-  // State for committees data
+  // State for committees data with localStorage persistence
   const [committees, setCommittees] = useState<Committee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,35 +47,62 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
   // Reference to dropdown container
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-
   /**
-   * Fetches committees from API with optional event counts
+   * Fetches committees from API with localStorage caching
    */
   const fetchCommittees = useCallback(async () => {
     try {
+      // Check if we have cached data that's less than 5 minutes old
+      const cached = localStorage.getItem('cached-committees');
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        const cacheAge = Date.now() - timestamp;
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+        if (cacheAge < CACHE_DURATION) {
+          setCommittees(data);
+          setLoading(false);
+          setError(null);
+          return;
+        }
+      }
+
       setLoading(true);
       setError(null);
       const data = await api.getCommittees(true); // Include event counts
       setCommittees(data || []);
+
+      // Cache the data
+      localStorage.setItem('cached-committees', JSON.stringify({
+        data: data || [],
+        timestamp: Date.now()
+      }));
+
     } catch (err) {
       console.error('Failed to fetch committees:', err);
       setError('Failed to load committees');
 
-      // Provide sample data for development when API fails
-      setCommittees([
-        { id: '1', name: 'NECYPAA', slug: 'necypaa', lastSeen: new Date().toISOString(), eventCount: 15 },
-        { id: '2', name: 'MSCYPAA', slug: 'mscypaa', lastSeen: new Date().toISOString(), eventCount: 12 },
-        { id: '3', name: 'RISCYPAA', slug: 'riscypaa', lastSeen: new Date().toISOString(), eventCount: 8 },
-        { id: '4', name: 'NHSCYPAA', slug: 'nhscypaa', lastSeen: new Date().toISOString(), eventCount: 6 },
-        { id: '5', name: 'NECYPAA ADVISORY', slug: 'necypaa-advisory', lastSeen: new Date().toISOString(), eventCount: 3 },
-        { id: '6', name: 'RHODE ISLAND BID FOR NECYPAA', slug: 'rhode-island-bid-for-necypaa', lastSeen: new Date().toISOString(), eventCount: 2 },
-      ]);
+      // Try to use cached data as fallback
+      const cached = localStorage.getItem('cached-committees');
+      if (cached) {
+        try {
+          const { data } = JSON.parse(cached);
+          setCommittees(data);
+        } catch {
+          // If cached data is corrupted, show sample data
+          setCommittees([
+            { id: '1', name: 'NECYPAA', slug: 'necypaa', lastSeen: new Date().toISOString(), eventCount: 15 },
+            { id: '2', name: 'MSCYPAA', slug: 'mscypaa', lastSeen: new Date().toISOString(), eventCount: 12 },
+            { id: '3', name: 'RISCYPAA', slug: 'riscypaa', lastSeen: new Date().toISOString(), eventCount: 8 },
+          ]);
+        }
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fetch committees on component mount
+  // Fetch committees on component mount (only if not cached)
   useEffect(() => {
     fetchCommittees();
   }, [fetchCommittees]);
