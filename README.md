@@ -67,6 +67,7 @@ This application has been extended beyond the base template with a comprehensive
 - **Persistent State**: Filter selections maintained across view changes using localStorage
 - **Space Efficient**: Single-line horizontal layout reduces vertical space usage
 - **Layout Consistency**: All views use identical responsive breakpoints and spacing for seamless experience
+- **ListView Committee Tags**: Committee information displayed as truncated badges in the right flex area with lighter blue styling for visual differentiation
 
 ### 📍 **Location Services**
 - **Geolocation Integration**: Automatic user location detection with permission handling

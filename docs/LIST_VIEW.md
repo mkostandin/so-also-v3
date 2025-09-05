@@ -2,15 +2,16 @@
 
 ## Overview
 
-The List View provides a scrollable, paginated list interface for browsing events in chronological or distance-based order. It offers a clean, text-focused alternative to the map and calendar views, optimized for users who prefer reading through event details systematically.
+The List View provides a scrollable, paginated list interface for browsing events in chronological or distance-based order. It offers a clean, text-focused alternative to the map and calendar views, optimized for users who prefer reading through event details systematically. The view includes committee tags for organizational context and enhanced distance badges with location icons for improved visual hierarchy.
 
 ## 📋 Core Features
 
 ### Event List Display
 - **Scrollable List**: Clean, card-based event listing with hover effects
-- **Event Details**: Comprehensive event information including name, description, address, date/time
-- **Distance Indicators**: Shows distance badges when user location is available
+- **Event Details**: Comprehensive event information including name, description, date/time
+- **Distance Indicators**: Enhanced distance badges with location icons when user location is available
 - **Event Type Badges**: Color-coded event type indicators
+- **Committee Tags**: Truncated committee name badges with lighter blue styling for visual differentiation
 - **Full-Height Layout**: Utilizes complete viewport height for maximum content visibility
 - **Responsive Layout**: Optimized for desktop, tablet, and mobile devices with consistent max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
 
@@ -248,11 +249,11 @@ const [showSkeleton, setShowSkeleton] = useState(true);
 
 ### Event Information Display
 - **Event Name**: Prominent display with clear typography
-- **Address**: Location information when available
 - **Description**: Truncated description with line clamping
 - **Date & Time**: Formatted date and time display
-- **Distance**: Distance badge when location available
+- **Distance**: Enhanced distance badge with location icon when available
 - **Event Type**: Color-coded event type badge
+- **Committee**: Truncated committee name badge with lighter blue styling for visual differentiation
 
 ### Navigation & Interaction
 - **Click to Navigate**: Entire event card is clickable for navigation
@@ -275,6 +276,14 @@ const [showSkeleton, setShowSkeleton] = useState(true);
 - **Miles Formatting**: User-friendly distance display
 - **Conditional Display**: Only shows when location is available
 - **Performance Optimized**: Efficient distance calculations
+- **Enhanced Visual Design**: Location pin icon for improved visual clarity
+
+### Committee Tag Display
+- **Truncated Text**: Committee names longer than 15 characters are truncated with ellipsis
+- **Lighter Blue Styling**: 50% opacity blue background for subtle visual differentiation from event type badges
+- **Responsive Layout**: Positioned below distance and event type badges in the right flex container
+- **Conditional Rendering**: Only displays when committee data is available
+- **Overflow Protection**: `max-w-[120px]` and `truncate` classes prevent layout issues
 
 ## 🔧 Configuration & Customization
 

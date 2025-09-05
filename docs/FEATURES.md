@@ -55,8 +55,9 @@ This application is a comprehensive event management system built on top of the 
 - **Progressive Loading**: Load more functionality for handling large event sets
 - **Location-Based API**: Uses user coordinates for better event relevance when available
 - **Enhanced Coverage**: 200-mile radius ensures users always see events (up from 50 miles)
-- **Event Cards**: Rich event information including name, description, address, and date/time
-- **Distance Badges**: Shows distance from user location when available
+- **Event Cards**: Rich event information including name, description, and date/time
+- **Distance Badges**: Enhanced distance badges with location icons for improved visual clarity
+- **Committee Tags**: Truncated committee name badges with lighter blue styling for organizational context
 - **Event Type Filtering**: Consistent filtering across all three views
 
 ## 🔍 Filtering System

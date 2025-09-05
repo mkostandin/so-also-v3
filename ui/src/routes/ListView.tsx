@@ -177,16 +177,12 @@ export default function ListView() {
 									<div className="flex items-center justify-between">
 										<div className="flex-1">
 											<div className="font-medium">{event.name}</div>
-											{event.address && (
-												<div className="text-xs text-gray-500 mt-1">
-													{event.address}
-												</div>
-											)}
 											{event.description && (
 												<div className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
 													{event.description}
 												</div>
 											)}
+											{/* Address line removed to reduce vertical space per event item */}
 											{event.startsAtUtc && (
 												<div className="text-xs text-gray-500 mt-1">
 													{formatDateShort(event.startsAtUtc)} • {formatTime(event.startsAtUtc)}
@@ -194,14 +190,27 @@ export default function ListView() {
 											)}
 										</div>
 										<div className="flex flex-col items-end gap-1">
+											{/* Enhanced distance badge with location icon for visual clarity */}
 											{coords && event.distanceMeters !== undefined && isFinite(event.distanceMeters) && (
-												<div className="text-xs text-gray-600 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+												<div className="text-xs text-gray-600 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded flex items-center gap-1">
+													{/* Location pin icon uses currentColor for dark mode support */}
+													<svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+													</svg>
 													{metersToMiles(event.distanceMeters).toFixed(1)} mi
 												</div>
 											)}
 											{event.eventType && (
 												<div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
 													{event.eventType}
+												</div>
+											)}
+											{/* Committee tag with truncation and lighter blue styling for visual differentiation */}
+											{event.committee && (
+												<div className="text-xs bg-blue-100/50 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded truncate max-w-[120px]">
+													{/* Truncate committee names longer than 15 characters with ellipsis */}
+													{event.committee.length > 15 ? `${event.committee.substring(0, 15)}...` : event.committee}
 												</div>
 											)}
 										</div>
