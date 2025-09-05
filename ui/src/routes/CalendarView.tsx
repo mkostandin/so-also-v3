@@ -37,13 +37,10 @@ export default function CalendarView() {
 	const year = cursor.getFullYear();
 	const month = cursor.getMonth();
 
-	// Debug: Log coordinates in CalendarView
-	console.log('[CalendarView Debug] Coordinates:', userCoords, 'Status:', status);
 
 	// Auto-request location if permission is granted but we don't have coordinates
 	useEffect(() => {
 		if (status === 'granted' && !userCoords) {
-			console.log('[CalendarView Debug] Permission granted but no coordinates, requesting location...');
 			request();
 		}
 	}, [status, userCoords, request]);
