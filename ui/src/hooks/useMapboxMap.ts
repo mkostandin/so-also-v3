@@ -58,10 +58,7 @@ export const useMapboxMap = ({ container, onMapLoad, onMapError, onProgress }: U
           ...getDefaultMapConfig(),
         });
 
-        // Add navigation controls
-        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-        // Add geolocation control
+        // Add geolocation control (only control to keep)
         map.addControl(
           new mapboxgl.GeolocateControl({
             positionOptions: {

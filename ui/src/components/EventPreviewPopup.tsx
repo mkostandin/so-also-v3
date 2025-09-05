@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { EventItem } from '@/lib/api-client';
 import { metersToMiles } from '@/lib/location-utils';
 import { Button } from '@/components/ui/button';
@@ -7,18 +7,47 @@ import { Badge } from '@/components/ui/badge';
 interface EventPreviewPopupProps {
   event: EventItem;
   onLearnMore: () => void;
+  onClose?: () => void;
   isLoading?: boolean;
   error?: string | null;
 }
 
-export default function EventPreviewPopup({ event, onLearnMore, isLoading = false, error = null }: EventPreviewPopupProps) {
+export default function EventPreviewPopup({ event, onLearnMore, onClose, isLoading = false, error = null }: EventPreviewPopupProps) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const button = closeButtonRef.current;
+    if (button && onClose) {
+      const handleClose = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Direct DOM close button clicked');
+        // Call onClose synchronously
+        onClose();
+      };
+
+      // Add event listeners with capture phase to ensure they fire first
+      button.addEventListener('click', handleClose, true);
+      button.addEventListener('touchend', handleClose, true);
+
+      return () => {
+        button.removeEventListener('click', handleClose, true);
+        button.removeEventListener('touchend', handleClose, true);
+      };
+    }
+  }, [onClose]);
+
   const formatDateTime = (dateString?: string | null) => {
     if (!dateString) return null;
     const date = new Date(dateString);
-    return {
-      date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const day = date.getDate();
+    const time = date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+    return `${month} ${day} at ${time}`;
   };
 
   const dateTime = formatDateTime(event.startsAtUtc);
@@ -51,7 +80,8 @@ export default function EventPreviewPopup({ event, onLearnMore, isLoading = fals
   }
 
   return (
-    <div className="p-4 max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <div className="p-4 max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg relative">
+      {/* No header close button (dismiss via outside tap/drag/Esc) */}
       {/* Event Image */}
       {event.imageUrls && event.imageUrls.length > 0 && (
         <div className="mb-3">
@@ -68,7 +98,7 @@ export default function EventPreviewPopup({ event, onLearnMore, isLoading = fals
       )}
 
       {/* Event Title */}
-      <h3 className="font-semibold text-gray-900 dark:text-white text-base mb-2 leading-tight">
+      <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-2 leading-tight line-clamp-2 relative z-10">
         {event.name}
       </h3>
 
@@ -81,29 +111,21 @@ export default function EventPreviewPopup({ event, onLearnMore, isLoading = fals
         </div>
       )}
 
-      {/* Event Description */}
-      {event.description && (
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-          {event.description}
-        </p>
-      )}
-
       {/* Date and Time */}
       {dateTime && (
-        <div className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-          <div className="flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>{dateTime.date}</span>
-          </div>
-          <div className="flex items-center gap-1 mt-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{dateTime.time}</span>
-          </div>
+        <div className="mb-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>{dateTime}</span>
         </div>
+      )}
+
+      {/* Event Description */}
+      {event.description && (
+        <p className="text-xs text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+          {event.description}
+        </p>
       )}
 
       {/* Distance */}
@@ -117,14 +139,16 @@ export default function EventPreviewPopup({ event, onLearnMore, isLoading = fals
         </div>
       )}
 
-      {/* Learn More Button */}
-      <Button
-        onClick={onLearnMore}
-        size="sm"
-        className="w-full text-sm"
-      >
-        Learn More
-      </Button>
+      {/* Footer actions */}
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <Button
+          onClick={onLearnMore}
+          size="sm"
+          className="w-full text-sm"
+        >
+          Learn More
+        </Button>
+      </div>
     </div>
   );
 }

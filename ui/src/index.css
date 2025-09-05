@@ -280,3 +280,58 @@ button {
     @apply bg-background text-foreground;
   }
 }
+
+/* Enhanced close button for mapbox popups */
+.enhanced-close-button .mapboxgl-popup-close-button {
+  font-size: 24px !important;
+  width: 56px !important; /* Even bigger for easier tapping */
+  height: 56px !important; /* Even bigger for easier tapping */
+  padding: 14px !important; /* Increased padding for larger tap area */
+  border-radius: 50% !important;
+  background-color: transparent !important; /* Fully transparent background */
+  color: #374151 !important; /* Darker text for better contrast */
+  border: none !important; /* Remove border */
+  outline: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: none !important; /* Remove transition to prevent movement */
+  position: absolute !important;
+  top: 4px !important; /* Adjusted for larger button */
+  right: -6px !important; /* Pull it back into position */
+  z-index: 10000 !important; /* Much higher z-index */
+  /* Add touch-friendly area */
+  min-width: 56px !important;
+  min-height: 56px !important;
+  /* Fix positioning to prevent movement */
+  transform: none !important;
+  will-change: auto !important;
+  /* Ensure it's above all content */
+  pointer-events: auto !important;
+  cursor: pointer !important; /* Ensure cursor shows pointer on hover */
+  /* Improve touch responsiveness */
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: manipulation !important;
+}
+
+.enhanced-close-button .mapboxgl-popup-close-button:hover {
+  background-color: rgba(255, 255, 255, 0.3) !important; /* Subtle background on hover */
+  color: #111827 !important; /* Even darker on hover */
+  /* Remove transform to prevent movement issues */
+  transform: none !important;
+}
+
+.enhanced-close-button .mapboxgl-popup-close-button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.dark .enhanced-close-button .mapboxgl-popup-close-button {
+  background-color: transparent !important;
+  color: #d1d5db !important;
+}
+
+.dark .enhanced-close-button .mapboxgl-popup-close-button:hover {
+  background-color: rgba(31, 41, 55, 0.3) !important; /* Subtle background on hover */
+  color: #f9fafb !important;
+}

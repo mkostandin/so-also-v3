@@ -30,7 +30,7 @@ export default function EventPopupManager({ map, selectedEvent, onLearnMore }: E
     const newPopup = new mapboxgl.Popup({
       closeButton: true,
       closeOnClick: true,
-      className: 'event-popup',
+      className: 'event-popup enhanced-close-button',
       maxWidth: '320px'
     })
       .setLngLat(coordinates)

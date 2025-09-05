@@ -7,6 +7,7 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 import { api, type EventItem } from '@/lib/api-client';
 import MapLayers from './MapLayers';
 import MapControls from './MapControls';
+import EventPreviewPopup from './EventPreviewPopup';
 
 /**
  * Props for the MapboxMap component
@@ -131,6 +132,7 @@ export default function MapboxMap({
             name: event.name,
             description: event.description,
             eventType: event.eventType,
+            startsAtUtc: event.startsAtUtc,
           },
           geometry: {
             type: 'Point' as const,
@@ -224,6 +226,7 @@ export default function MapboxMap({
           name: event.name,
           description: event.description,
           eventType: event.eventType,
+          startsAtUtc: event.startsAtUtc,
         },
         geometry: {
           type: 'Point' as const,
@@ -291,33 +294,42 @@ export default function MapboxMap({
     const popupContainer = document.createElement('div');
     popupContainer.id = 'event-popup-container';
 
+    // Create popup and center it on the map
     const popup = new mapboxgl.Popup({
-      closeButton: true,
-      closeOnClick: true,
-      className: 'event-popup',
+      closeButton: false, // Disable Mapbox's built-in X
+      closeOnClick: true, // Tap outside map closes popup
+      className: 'event-popup enhanced-close-button',
       maxWidth: '320px'
     })
       .setLngLat(coordinates)
       .setDOMContent(popupContainer)
       .addTo(map);
 
-    // Render React component into popup
+    // Center the popup on the map with smooth animation
+    setTimeout(() => {
+      if (popup.isOpen() && map) {
+        map.easeTo({
+          center: coordinates,
+          duration: 300,
+          easing: (t) => t * (2 - t)
+        });
+      }
+    }, 100);
+
+    // Render EventPreviewPopup component into popup
     try {
       const root = createRoot(popupContainer);
 
-      // Simple popup content for now
       root.render(
-        React.createElement('div', { className: 'p-4' },
-          React.createElement('h3', { className: 'font-semibold mb-2' }, event.name),
-          React.createElement('p', { className: 'text-sm mb-3' }, event.description || ''),
-          React.createElement('button', {
-            className: 'w-full bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded',
-            onClick: () => {
-              popup.remove();
-              handleLearnMore(event);
-            }
-          }, 'Learn More')
-        )
+        <EventPreviewPopup
+          event={event}
+          onLearnMore={() => {
+            popup.remove();
+            handleLearnMore(event);
+          }}
+          isLoading={false}
+          error={null}
+        />
       );
 
       // Store root for cleanup
@@ -336,12 +348,19 @@ export default function MapboxMap({
       `;
     }
 
+    // Close on drag start (panning the map)
+    const handleDragStart = () => {
+      if (popup && popup.isOpen()) popup.remove();
+    };
+    map.on('dragstart', handleDragStart);
+
     // Cleanup on popup close
     popup.on('close', () => {
       const typedPopup = popup as { _reactRoot?: ReturnType<typeof createRoot> };
       if (typedPopup._reactRoot) {
         typedPopup._reactRoot.unmount();
       }
+      map.off('dragstart', handleDragStart);
     });
   }, [map, handleLearnMore]);
 
