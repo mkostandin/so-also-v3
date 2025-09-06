@@ -12,7 +12,7 @@ export const EVENT_TYPES = ['Events', 'Committee Meetings', 'Conferences', 'YPAA
  * Mapping from display names to actual data values for filtering
  * Display names are plural for user experience, but data uses singular forms
  */
-const EVENT_TYPE_MAPPING: Record<string, string> = {
+export const EVENT_TYPE_MAPPING: Record<string, string> = {
 	'Events': 'Event',
 	'Committee Meetings': 'Committee Meeting',
 	'Conferences': 'Conference',

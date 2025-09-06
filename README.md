@@ -84,6 +84,7 @@ This application has been extended beyond the base template with a comprehensive
 - **Accessibility**: Proper ARIA labels and keyboard navigation support
 - **Mobile Touch Optimization**: Enhanced touch targets (44px minimum), instant response times, and optimized touch event handling
 - **List Layout Optimization**: Full-height event list with improved mobile width handling and proper spacing
+ - **Mobile Scrolling & Sticky Headers**: Single scroll owner architecture with sticky tabs and filters; dropdown lists use viewport-relative height and touch-optimized scrolling; pull-to-refresh disabled to prevent accidental page drags
 
 ### 📋 **Enhanced Event Details Page**
 - **Comprehensive Layout**: Event title, tags, images, share/directions buttons, and structured content sections

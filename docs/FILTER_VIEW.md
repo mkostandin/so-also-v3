@@ -88,6 +88,11 @@ This ensures:
 
 ### Scroll Behavior Implementation
 
+#### Sticky Placement Across Views
+- Filters are rendered within each view under a shared sticky tabs header.
+- Each view uses `sticky top-0 z-40 bg-white dark:bg-gray-900 border-b` for filter containers, matching Map and Calendar.
+- The main content scroller is owned by `MapIndex` to avoid nested scrolling on mobile.
+
 #### Position Restoration Logic
 ```typescript
 // Instant scroll position restoration without animation

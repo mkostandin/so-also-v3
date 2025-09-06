@@ -67,17 +67,19 @@ const [isLoadingMore, setIsLoadingMore] = useState(false);
 
 ### Layout & Responsive Design
 
-#### Full-Height Layout Implementation
-```typescript
-// Main container uses flexbox for full height utilization
+#### Full-Height Layout & Sticky Filters
+```tsx
+// ListView renders under MapIndex, which is the single scroll owner.
+// Filters are sticky under the tabs; content does not define its own scroller.
 <div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0">
-  {/* Fixed header section */}
-  <div className="flex-shrink-0 space-y-2">
-    {/* Header content with proper spacing */}
+  {/* Sticky filters (match Map/Calendar) */}
+  <div className="sticky top-0 z-40 bg-white dark:bg-gray-900 space-y-2 border-b">
+    <EventTypeFilter ... />
+    <CommitteeFilter ... />
   </div>
 
-  {/* Scrollable content area uses remaining height */}
-  <div className="flex-1 min-h-0 overflow-y-auto">
+  {/* Content relies on parent scroller (MapIndex) */}
+  <div className="flex-1 min-h-0">
     {/* Event list content */}
   </div>
 </div>

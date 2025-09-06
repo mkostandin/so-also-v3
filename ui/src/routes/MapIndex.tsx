@@ -2,7 +2,7 @@ import { useState, createContext, useContext, useCallback, useEffect, useMemo } 
 import { useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { EVENT_TYPES } from '@/components/EventTypeFilter';
+import { EVENT_TYPES, EVENT_TYPE_MAPPING } from '@/components/EventTypeFilter';
 import { api, EventItem } from '@/lib/api-client';
 import { useUserLocation } from '@/hooks/useUserLocation';
 
@@ -67,14 +67,7 @@ export default function MapIndex() {
 	const navigate = useNavigate();
 	const base = '/app/map';
 
-	// Move expensive mapping outside component to prevent recalculation on every render
-	const EVENT_TYPE_MAPPING: Record<string, string> = {
-		'Events': 'Event',
-		'Committee Meetings': 'Committee Meeting',
-		'Conferences': 'Conference',
-		'YPAA Meetings': 'YPAA Meeting',
-		'Other': 'Other'
-	};
+    // Mapping imported from EventTypeFilter to keep a single source of truth
 
 	// Filter state management with default values
 	// Initialize with data values (singular) instead of display names (plural)
@@ -261,8 +254,8 @@ export default function MapIndex() {
 						</Tabs>
 					</div>
 				</div>
-				{/* Main content area: single scroll owner for all views */}
-				<div ref={contentRef} className="flex-1 min-h-0 relative z-0 overflow-y-auto pb-16 scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto">
+				{/* Main content area: single scroll owner for all views. pb-24 ensures bottom actions (e.g., Load More) clear the bottom tabs. */}
+				<div ref={contentRef} className="flex-1 min-h-0 relative z-0 overflow-y-auto pb-24 scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto">
 					<Outlet />  {/* Render current route component (MapView, ListView, or CalendarView) */}
 				</div>
 			</div>

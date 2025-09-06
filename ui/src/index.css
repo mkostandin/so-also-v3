@@ -18,11 +18,11 @@
   appearance: none;
 }
 
-/* Global touch optimizations for better mobile performance */
-/* Prevents unwanted touch behaviors across all elements */
-/* - Disables callouts and text selection globally */
-/* - Improves overall touch interaction consistency */
-* {
+/* Touch/selection rules for interactive controls (avoid global selection disable) */
+button,
+[role="button"],
+.mobile-touch-button,
+[data-radix-tabs-trigger] {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
