@@ -59,7 +59,7 @@ export default function CalendarGrid({
 			))}
 			{cells.map((d, idx) => {
 				const events = d ? getEventsForDate(d) : [];
-				const isSelected = isSelectedDate(d);
+				const isSelected = d ? isSelectedDate(d) : false;
 				const hasEvents = events.length > 0;
 
 				return (
@@ -85,15 +85,14 @@ export default function CalendarGrid({
 						}}
 					>
 						{d && (
-							<div className="flex items-center justify-between text-xs">
+							<div className="flex items-center justify-between text-xs h-5">
 								<span className={`font-medium ${isSelected ? 'text-blue-600 dark:text-blue-400' : ''}`}>
 									{d}
 								</span>
 								{hasEvents && (
 									<CalendarEventIndicator
 										count={events.length}
-										onClick={(e) => {
-											e.stopPropagation();
+										onClick={() => {
 											const date = new Date(year, month, d);
 											onDateClick?.(date, events);
 										}}
