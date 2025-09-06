@@ -38,8 +38,11 @@ This application is a comprehensive event management system built on top of the 
 - **Today Highlighting**: Current date clearly highlighted
 
 ### Event Display
-- **Day View Popups**: Click any date to see events in a detailed popup
+- **Enhanced Day View Popups**: Click any date to see events in a redesigned popup with direct navigation
 - **Event Details**: Comprehensive event information including time, location, and description
+- **Direct Navigation**: Click anywhere on event cards to navigate directly to event details
+- **Custom Two-Column Layout**: Event details on left, tags on right for optimal space utilization
+- **Committee Information**: Display committee names with truncation and blue color scheme
 - **Event Count**: Clear display of total events shown ("Showing nearest 200 events")
 - **Responsive Layout**: Optimized for different screen sizes
 

@@ -53,25 +53,6 @@ export default function CalendarView() {
 		userCoords
 	);
 
-	/**
-	 * Generate user-friendly text for displaying event count based on selected distance
-	 * @param distance - The selected distance filter value
-	 * @returns Localized display text for event count
-	 */
-	const getEventCountDisplayText = (distance: string): string => {
-		switch (distance) {
-			case "all":
-				return "Showing all events";
-			case "500":
-				return "Showing events within 500 miles";
-			case "150":
-				return "Showing events within 150 miles";
-			case "50":
-				return "Showing events within 50 miles";
-			default:
-				return "Showing events within 150 miles";
-		}
-	};
 
 	/**
 	 * Handle user clicking on a calendar date to show event details popup
@@ -99,12 +80,6 @@ export default function CalendarView() {
 
 
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const handleEventClick = useCallback((_event: CalendarEvent) => {
-		// Event navigation is handled by Link component in CalendarEventPopup
-		// Parameter is available for future analytics or additional functionality
-		setIsPopupOpen(false);
-	}, []);
 
 	if (showSkeleton) {
 		return (
@@ -129,11 +104,11 @@ export default function CalendarView() {
 					/>
 
 					{/* Month Navigation Skeleton */}
-					<Skeleton className="h-16 w-full rounded-lg mx-2" />
+					<Skeleton className="h-16 w-full rounded-lg p-4" />
 
 					{/* Calendar Grid Skeleton */}
-					<div className="grid grid-cols-1 gap-6 px-2">
-						<Skeleton className="h-96 w-full rounded-lg p-4" />
+					<div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+						<Skeleton className="h-96 w-full rounded-lg" />
 					</div>
 				</div>
 			</div>
@@ -205,21 +180,15 @@ export default function CalendarView() {
 					</div>
 				</div>
 
-				{/* Event Count Display */}
-				<div className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
-					{getEventCountDisplayText(selectedDistance)}
-				</div>
-
 				{/* Location Permission Overlay */}
 				<LocationPermissionOverlay />
 
-				{/* Event Popup */}
+				{/* Enhanced Event Popup - Direct navigation, custom two-column layout */}
 				<CalendarEventPopup
 					events={popupEvents}
 					date={popupDate || new Date()}
 					isOpen={isPopupOpen}
 					onClose={handlePopupClose}
-					onEventClick={handleEventClick}
 				/>
 			</div>
 		</div>

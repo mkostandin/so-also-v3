@@ -13,16 +13,16 @@ The Calendar View provides an interactive calendar interface for discovering and
 - **Responsive Design**: Optimized for all screen sizes and devices
 
 ### Event Display
-- **Day View Popups**: Click any date to view events in a detailed overlay
+- **Enhanced Day View Popups**: Click any date to view events in a redesigned overlay with direct navigation
 - **Event Details**: Comprehensive event information including:
   - Event title and description
   - Date and time information
-  - Location details
-  - Event type and category
-  - Organizer information
+  - Location details with distance
+  - Event type and committee tags
+  - Custom two-column layout
 
-- **Event Count Display**: Clear indication of total events shown
-- **Smart Layout**: Events organized by time within each day
+- **Direct Navigation**: Click anywhere on event cards to navigate directly to event details
+- **Smart Layout**: Events organized by time within each day with improved visual hierarchy
 
 ### Navigation & Interaction
 - **Arrow Navigation**: Intuitive Previous/Next month buttons using Lucide icons
@@ -135,16 +135,19 @@ const { selectedEventTypes } = useFilterContext();
 ## 🔍 Event Discovery
 
 ### Day View Interaction
-- **Click to Expand**: Click any date to open event popup
+- **Click to Expand**: Click any date to open enhanced event popup
+- **Direct Event Navigation**: Click anywhere on event cards for instant navigation to details
 - **Popup Positioning**: Smart positioning to stay within viewport
 - **Z-Index Management**: Proper layering above calendar grid
 - **Close Options**: Multiple ways to close popup (click outside, close button)
 
 ### Event Details Display
 - **Time Sorting**: Events displayed in chronological order
-- **Event Cards**: Clean card layout for each event
-- **Action Buttons**: Links to full event details or registration
-- **Location Info**: Address and distance information
+- **Enhanced Event Cards**: Redesigned cards with custom two-column layout
+- **Direct Navigation**: Full clickability across entire event cards
+- **Tag Display**: Event type and committee tags with blue color scheme
+- **Location Info**: Address and distance information with map pin icons
+- **Committee Information**: Truncated committee names with ellipsis for long names
 
 ### Search & Filter Integration
 - **Cross-Filtering**: Filters work seamlessly with map view
