@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { useCallback, useRef, useEffect, useState } from 'react';
 import { api } from '@/lib/api-client';
+import { CACHE_KEY_COMMITTEES, CACHE_DURATION_MINUTES } from '@/lib/committee-cache';
 
 /**
  * Committee interface for dropdown options
@@ -37,48 +38,7 @@ interface CommitteeFilterProps {
  * @param props Component props
  * @returns React component for filtering events by committee
  */
-// Cache configuration constants
-const CACHE_KEY_COMMITTEES = 'cached-committees';
-const CACHE_DURATION_MINUTES = 5;
-
-/**
- * Clears the cached committee data from localStorage
- * Useful for forcing fresh data or troubleshooting
- */
-export const clearCommitteeCache = (): boolean => {
-  try {
-    localStorage.removeItem(CACHE_KEY_COMMITTEES);
-    return true;
-  } catch (error) {
-    console.warn('Failed to clear committee cache:', error);
-    return false;
-  }
-};
-
-/**
- * Gets cache information for debugging/monitoring
- */
-export const getCommitteeCacheInfo = () => {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY_COMMITTEES);
-    if (!cached) return null;
-
-    const { data, timestamp } = JSON.parse(cached);
-    const cacheAge = Date.now() - timestamp;
-    const isExpired = cacheAge >= CACHE_DURATION_MINUTES * 60 * 1000;
-
-    return {
-      hasCache: true,
-      cacheAge: Math.round(cacheAge / 1000), // seconds
-      isExpired,
-      itemCount: data?.length || 0,
-      lastUpdated: new Date(timestamp).toISOString()
-    };
-  } catch (error) {
-    console.warn('Failed to read committee cache info:', error);
-    return { hasCache: false, error: true };
-  }
-};
+// Cache configuration moved to '@/lib/committee-cache'
 
 export default function CommitteeFilter({ selectedCommittees, onCommitteesChange }: CommitteeFilterProps) {
   // State for committees data with localStorage persistence
@@ -145,14 +105,7 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
     }
   }, []);
 
-  /**
-   * Clears cache and refetches committees from API
-   * Useful for manual refresh or forcing fresh data
-   */
-  const refreshCommittees = useCallback(async () => {
-    clearCommitteeCache(); // Clear cache first
-    await fetchCommittees(); // Then refetch
-  }, [fetchCommittees]);
+  // Manual refresh function removed (unused)
 
   // Fetch committees on component mount (only if not cached)
   useEffect(() => {
@@ -283,7 +236,7 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
               className={cn(
                 "absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800",
                 "border border-gray-300 dark:border-gray-600 rounded-md shadow-lg",
-                "max-h-60 overflow-y-auto z-50"
+                "max-h-[60vh] overflow-y-auto scroll-touch scroll-pan-y select-auto z-50"
               )}
               role="listbox"
               aria-label="Committee options"

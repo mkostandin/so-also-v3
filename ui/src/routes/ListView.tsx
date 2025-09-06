@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api, EventItem } from '@/lib/api-client';
+import { EventItem } from '@/lib/api-client';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { haversineMeters, metersToMiles } from '@/lib/location-utils';
 import { formatDateShort, formatTime } from '@/lib/session-utils';
@@ -16,7 +16,7 @@ export default function ListView() {
 	const [showSkeleton, setShowSkeleton] = useState(true);
 	const { coords, status, request } = useUserLocation();
 	const navigate = useNavigate();
-	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees, events, eventsLoading, eventsError } = useFilterContext();
+	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees, events, eventsLoading } = useFilterContext();
 
 
 
@@ -144,7 +144,7 @@ export default function ListView() {
 
 	return (
 		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0">
-			<div className="flex-shrink-0 space-y-2">
+			<div className="sticky top-0 z-40 bg-white dark:bg-gray-900 space-y-2 border-b">
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
 					onTypesChange={setSelectedEventTypes}

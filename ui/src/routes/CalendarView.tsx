@@ -119,7 +119,7 @@ export default function CalendarView() {
 
 	return (
 		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl">
-			<div className="space-y-2">
+			<div className="sticky top-0 z-40 bg-white dark:bg-gray-900 space-y-2 border-b">
 				{/* Event Type Filter */}
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}

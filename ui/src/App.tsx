@@ -26,6 +26,10 @@ function AppContent() {
       <Route path="/" element={<Landing />} />
       <Route path="/embed" element={<EmbedView />} />
 
+      {/* Fallbacks for legacy/accidental uppercase or short URLs */}
+      <Route path="/app/LIST" element={<Navigate to="/app/map/list" replace />} />
+      <Route path="/app/list" element={<Navigate to="/app/map/list" replace />} />
+
       <Route path="/app" element={<BottomTabsWrapper />}>
         <Route index element={<Navigate to="map" replace />} />
 
@@ -49,7 +53,7 @@ function AppContent() {
 function BottomTabsWrapper() {
   return (
     <div className="h-screen flex flex-col">
-      <div className="flex-1 overflow-y-auto pb-16">
+      <div className="flex-1 min-h-0 overflow-hidden">
         <Outlet />
       </div>
       <div className="flex-shrink-0">

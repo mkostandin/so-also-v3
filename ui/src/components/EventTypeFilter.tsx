@@ -160,7 +160,7 @@ export default function EventTypeFilter({ selectedTypes, onTypesChange }: EventT
       {/* Horizontal scrollable container for filter buttons */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide scroll-smooth horizontal-filter-scroll"
+        className="flex gap-2 px-4 py-2 overflow-x-auto scrollbar-hide scroll-smooth horizontal-filter-scroll scroll-pan-x"
         role="group"
         aria-label="Event type filters"
         tabIndex={-1}

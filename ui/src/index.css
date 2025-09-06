@@ -177,12 +177,56 @@ button {
 /* Smooth theme transitions - only on specific elements that need it */
 html {
   transition: background-color 0.2s ease;
+  overscroll-behavior-y: none; /* Disable pull-to-refresh on Chrome/Edge */
 }
 
 body {
-  min-height: 100vh;
+  height: 100%;
   overflow-x: hidden;
+  overscroll-behavior-y: none; /* Extra guard */
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+/* Utilities for reliable mobile scrolling */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* Force pan-y on all descendants of a scroll container to avoid child overrides */
+.scroll-pan-y,
+.scroll-pan-y * {
+  touch-action: pan-y !important;
+}
+
+/* Allow horizontal panning for specific horizontal scrollers */
+.scroll-pan-x,
+.scroll-pan-x * {
+  touch-action: pan-x !important;
+}
+
+/* Prevent layout shift when vertical scrollbar appears/disappears */
+.scrollbar-stable {
+  scrollbar-gutter: stable both-edges;
+}
+
+/* Prevent pull-to-refresh/overscroll chaining on main content */
+.overscroll-contain {
+  overscroll-behavior: contain;
+}
+
+/* Fully disable browser pull-to-refresh and overscroll chaining */
+.overscroll-none {
+  overscroll-behavior: none;
+}
+
+.select-auto {
+  -webkit-user-select: auto;
+  user-select: auto;
 }
 
 button {

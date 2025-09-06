@@ -1,4 +1,5 @@
 import { useState, createContext, useContext, useCallback, useEffect, useMemo } from 'react';
+import { useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EVENT_TYPES } from '@/components/EventTypeFilter';
@@ -60,6 +61,7 @@ export const useFilterContext = () => {
  * Handles routing between map, list, and calendar views
  */
 export default function MapIndex() {
+	const contentRef = useRef<HTMLDivElement | null>(null);
 	// React Router hooks for navigation and location management
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -247,7 +249,7 @@ export default function MapIndex() {
 			{/* Main layout container with full height */}
 			<div className="flex flex-col h-full">
 				{/* Sticky navigation header with backdrop blur effect */}
-				<div className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60 touch-pan-y">
+				<div data-id="map-tabs" className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60 touch-pan-y">
 					<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl p-2">
 						{/* Tab navigation for switching between map, list, and calendar views */}
 						<Tabs value={current} onValueChange={onValueChange}>
@@ -259,8 +261,8 @@ export default function MapIndex() {
 						</Tabs>
 					</div>
 				</div>
-				{/* Main content area that takes remaining height and enables full-height child layouts */}
-				<div className="flex-1 min-h-0 relative z-0">
+				{/* Main content area: single scroll owner for all views */}
+				<div ref={contentRef} className="flex-1 min-h-0 relative z-0 overflow-y-auto pb-16 scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto">
 					<Outlet />  {/* Render current route component (MapView, ListView, or CalendarView) */}
 				</div>
 			</div>
