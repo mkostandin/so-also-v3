@@ -67,6 +67,8 @@ export default function MapIndex() {
 	const navigate = useNavigate();
 	const base = '/app/map';
 
+
+
     // Mapping imported from EventTypeFilter to keep a single source of truth
 
 	// Filter state management with default values

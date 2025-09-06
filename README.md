@@ -90,6 +90,7 @@ This application has been extended beyond the base template with a comprehensive
 - **Comprehensive Layout**: Event title, tags, images, share/directions buttons, and structured content sections
 - **Committee Notifications**: Toggle notifications for specific committees with localStorage persistence and streamlined UI
 - **PWA Integration**: Built-in Progressive Web App installation prompts and detection
+- **Mobile-First Scrolling**: Dedicated scroll container architecture with smooth mobile scrolling, touch-optimized interactions, and proper viewport handling
 - **Mobile Optimization**: Touch-optimized tooltips, 3-dot menu, and responsive design
 - **Contact Integration**: Committee website links and email contact with graceful no-email handling
 - **Performance Optimized**: Reduced API data transfer by 96% through efficient range queries

@@ -39,7 +39,14 @@ function AppContent() {
           <Route path="calendar" element={<CalendarView />} />
         </Route>
 
-        <Route path="e/:id" element={<EventDetail />} />
+        {/* EventDetail Scroll Container */}
+        {/* Dedicated scroll container for EventDetail route to ensure smooth mobile scrolling */}
+        {/* This provides its own scroll context separate from MapIndex's scroll container */}
+        <Route path="e/:id" element={
+          <div className="h-screen overflow-y-auto scroll-touch scroll-pan-y scrollbar-stable overscroll-none">
+            <EventDetail />
+          </div>
+        } />
         <Route path="submit" element={<SubmitEvent />} />
         <Route path="submit-conference" element={<SubmitConference />} />
         <Route path="conferences" element={<Conferences />} />

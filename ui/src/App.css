@@ -1,6 +1,9 @@
+/* Root Container Constraints */
+/* Changed from height: 100vh to min-height: 100vh to allow EventDetail content */
+/* to expand beyond viewport height when scrolling is needed on mobile devices */
 #root {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .logo {

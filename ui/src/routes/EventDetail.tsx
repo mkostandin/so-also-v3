@@ -43,6 +43,8 @@ export default function EventDetail() {
 	// Detect touch device synchronously to avoid timing issues
 	const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
+
+
 	// Callback to close the 3-dot menu, memoized to prevent unnecessary re-renders
 	const closeMenu = useCallback(() => {
 		setIsMenuOpen(false);
@@ -90,13 +92,16 @@ export default function EventDetail() {
 
 		fetchEvent();
 
-		// Optimized mobile event listeners - only add when menu is actually open
-		// This prevents unnecessary event listeners when menu is closed for better performance
+	}, [id]);
+
+
+	// Optimized mobile event listeners - only add when menu is actually open
+	// This prevents unnecessary event listeners when menu is closed for better performance
+	useEffect(() => {
 		if (isTouchDevice && isMenuOpen) {
 			let lastTouchTime = 0;
 			const TOUCH_DEBOUNCE = 200; // Prevent rapid successive touches
 
-			const handleScroll = () => closeMenu();
 			const handleClickOutside = (e: MouseEvent | TouchEvent) => {
 				const now = Date.now();
 				if (now - lastTouchTime < TOUCH_DEBOUNCE) return;
@@ -110,12 +115,10 @@ export default function EventDetail() {
 			};
 
 			// Use passive listeners for better performance and bubbling phase to avoid conflicts
-			window.addEventListener('scroll', handleScroll, { passive: true });
 			document.addEventListener('click', handleClickOutside, false);
 			document.addEventListener('touchend', handleClickOutside, { passive: true });
 
 			return () => {
-				window.removeEventListener('scroll', handleScroll);
 				document.removeEventListener('click', handleClickOutside, false);
 				document.removeEventListener('touchend', handleClickOutside, false);
 			};
@@ -144,7 +147,9 @@ export default function EventDetail() {
 				setCopied(true);
 				setTimeout(() => setCopied(false), 2000);
 			}
-		} catch {}
+		} catch {
+			// Silently handle share/copy failures (user can try alternative method)
+		}
 	};
 
 	const handleDirections = () => {
@@ -161,7 +166,7 @@ export default function EventDetail() {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4">
+			<div className="bg-gray-50 dark:bg-gray-900 py-4">
 				<div className="max-w-2xl mx-auto px-4 sm:px-0">
 					<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
 						{/* Back button and title at the top of the card */}
@@ -176,11 +181,6 @@ export default function EventDetail() {
 									className="mobile-touch-button event-header-back-btn bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] flex items-center justify-center relative z-[60]"
 									title="Go back to So Also main list"
 									aria-label="Go back to So Also main list"
-									style={{
-										WebkitTouchCallout: 'none',
-										WebkitUserSelect: 'none',
-										WebkitTapHighlightColor: 'transparent'
-									}}
 								>
 									← Back to So Also
 								</button>
@@ -205,7 +205,7 @@ export default function EventDetail() {
 
 	if (error || !event) {
 		return (
-			<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4">
+			<div className="bg-gray-50 dark:bg-gray-900 py-4">
 				<div className="max-w-2xl mx-auto px-4 sm:px-0">
 					<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
 						{/* Back button and title at the top of the card */}
@@ -220,11 +220,6 @@ export default function EventDetail() {
 									className="mobile-touch-button event-header-back-btn bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] flex items-center justify-center relative z-[60]"
 									title="Go back to So Also main list"
 									aria-label="Go back to So Also main list"
-									style={{
-										WebkitTouchCallout: 'none',
-										WebkitUserSelect: 'none',
-										WebkitTapHighlightColor: 'transparent'
-									}}
 								>
 									← Back to So Also
 								</button>
@@ -244,9 +239,10 @@ export default function EventDetail() {
 		);
 	}
 
+
 	return (
-		<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-4">
-			<div className="max-w-2xl mx-auto px-4 sm:px-0">
+		<div className="bg-gray-50 dark:bg-gray-900 py-4">
+			<div className="max-w-2xl mx-auto px-4 sm:px-0 pb-8">
 				<div className="bg-white dark:bg-gray-900 rounded-lg border p-6 space-y-6 relative">
 					{/* Header section: Back button, title, and event tags above separator for improved visual hierarchy */}
 					<div className="space-y-4 pb-6 border-b border-gray-100 dark:border-gray-700">
@@ -261,11 +257,6 @@ export default function EventDetail() {
 								className="mobile-touch-button event-header-back-btn bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-700 active:bg-gray-800 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:active:bg-gray-800 touch-manipulation select-none min-h-[44px] flex items-center justify-center relative z-[60]"
 								title="Go back to So Also main list"
 								aria-label="Go back to So Also main list"
-								style={{
-									WebkitTouchCallout: 'none',
-									WebkitUserSelect: 'none',
-									WebkitTapHighlightColor: 'transparent'
-								}}
 							>
 								← Back to So Also
 							</button>
@@ -277,7 +268,7 @@ export default function EventDetail() {
 						</div>
 
 						{/* Event Tags - positioned above separator for better visual hierarchy */}
-						<EventTags eventType={event.eventType} committee={event.committee} />
+						<EventTags eventType={event.eventType} committee={event.committee || undefined} />
 					</div>
 
 					{/* 3-dot menu button - positioned absolutely in top-right corner */}

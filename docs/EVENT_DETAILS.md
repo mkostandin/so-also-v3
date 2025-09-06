@@ -64,6 +64,49 @@ ui/src/components/PWAInstallButton.tsx  # PWA installation component
 ui/src/components/MobileTooltip.tsx     # Mobile tooltip implementation
 ```
 
+### Scroll Container Architecture
+
+#### Mobile Scrolling Implementation
+The Event Details page implements a dedicated scroll container architecture to ensure smooth mobile scrolling and proper viewport handling:
+
+**Route-Level Scroll Container**
+```tsx
+// App.tsx - Dedicated scroll container for EventDetail route
+<Route path="e/:id" element={
+  <div className="h-screen overflow-y-auto scroll-touch scroll-pan-y scrollbar-stable overscroll-none">
+    <EventDetail />
+  </div>
+} />
+```
+
+**Root Container Constraints**
+```css
+/* App.css - Root container height management */
+#root {
+  width: 100%;
+  min-height: 100vh;  /* Changed from height: 100vh to allow expansion */
+}
+```
+
+**Key Features:**
+- **Dedicated Scroll Context**: EventDetail has its own scroll container separate from MapIndex
+- **Viewport-Aware Sizing**: `h-screen` provides full viewport height for scrolling
+- **Touch-Optimized Scrolling**: `scroll-touch` and `scroll-pan-y` enable smooth touch scrolling
+- **Momentum Scrolling**: `scrollbar-stable` ensures consistent scroll behavior across platforms
+- **Overscroll Prevention**: `overscroll-none` prevents bounce effects on iOS
+- **Flexible Root Container**: `min-height: 100vh` allows content to expand beyond viewport when needed
+
+**Layout Cleanup:**
+- Removed flex constraints (`flex-1 min-h-0`) since EventDetail is no longer a flex child
+- Allows natural height flow for content expansion beyond viewport height
+- Ensures EventDetail can grow dynamically based on content length
+
+#### Cross-Platform Compatibility
+- **iOS Safari**: Optimized with `scroll-touch` and `overscroll-none` for native feel
+- **Android Chrome**: Smooth scrolling with hardware acceleration
+- **Desktop Browsers**: Maintains standard scroll behavior with touch support
+- **Tablet Devices**: Responsive behavior across different orientations
+
 ### Data Flow and API Integration
 
 #### Event Data Fetching
