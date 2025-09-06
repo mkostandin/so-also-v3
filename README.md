@@ -86,7 +86,7 @@ This application has been extended beyond the base template with a comprehensive
 
 ### 📋 **Enhanced Event Details Page**
 - **Comprehensive Layout**: Event title, tags, images, share/directions buttons, and structured content sections
-- **Committee Notifications**: Toggle notifications for specific committees with localStorage persistence
+- **Committee Notifications**: Toggle notifications for specific committees with localStorage persistence and streamlined UI
 - **PWA Integration**: Built-in Progressive Web App installation prompts and detection
 - **Mobile Optimization**: Touch-optimized tooltips, 3-dot menu, and responsive design
 - **Contact Integration**: Committee website links and email contact with graceful no-email handling

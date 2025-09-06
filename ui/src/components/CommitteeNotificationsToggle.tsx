@@ -67,9 +67,6 @@ export default function CommitteeNotificationsToggle({
 					<h3 className="font-medium text-gray-900 dark:text-white">
 						Get {committeeName.toUpperCase()} Notifications
 					</h3>
-					<p className="text-sm text-gray-600 dark:text-gray-400">
-						Receive notifications for {committeeName.toUpperCase()} events and updates
-					</p>
 				</div>
 			</div>
 
@@ -82,7 +79,7 @@ export default function CommitteeNotificationsToggle({
 								<MobileTooltip
 									content={
 										<div className="space-y-2">
-											<p>On the day of the event you will get notification of the event and conference.</p>
+											<p>On the day of committee events, you will receive notifications.</p>
 											<p>
 												Must install app -{' '}
 												<button
@@ -116,7 +113,7 @@ export default function CommitteeNotificationsToggle({
 									</TooltipTrigger>
 									<TooltipContent side="top" className="max-w-xs">
 										<div className="space-y-2">
-											<p>On the day of the event you will get notification of the event and conference.</p>
+											<p>On the day of committee events, you will receive notifications.</p>
 											<p>
 												Must install app -{' '}
 												<button

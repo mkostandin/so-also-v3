@@ -14,9 +14,9 @@ The Event Details Page is a comprehensive feature that provides users with a ric
 - **Structured Content**: Unified sections for description, date, location, and contact information with consistent typography and smart address parsing
 
 ### Committee Notifications System
-- **Toggle Controls**: Enable/disable notifications for specific committees
+- **Toggle Controls**: Enable/disable notifications for specific committees with streamlined UI
 - **Local Storage Persistence**: User preferences maintained across sessions
-- **Info Tooltips**: Educational content about notification functionality
+- **Info Tooltips**: Clear messaging about receiving notifications on event days
 - **Committee-Specific**: Tailored notifications per committee affiliation
 
 ### Progressive Web App Integration
@@ -179,7 +179,7 @@ The Event Details page uses an integrated card design where the back button and 
 - **Persistence**: Settings saved to localStorage
 
 #### Notification Content
-- **Event Reminders**: Notifications on the day of events
+- **Event Reminders**: Notifications on the day of committee events
 - **Committee Updates**: Updates from subscribed committees
 - **Installation Required**: Clear messaging about PWA installation
 - **Graceful Fallbacks**: Handles cases where notifications unavailable
