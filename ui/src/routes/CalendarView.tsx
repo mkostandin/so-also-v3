@@ -104,11 +104,13 @@ export default function CalendarView() {
 					/>
 
 					{/* Month Navigation Skeleton */}
-					<Skeleton className="h-16 w-full rounded-lg p-4" />
+					<div className="bg-white dark:bg-gray-900 rounded-lg mx-3">
+						<Skeleton className="h-16 w-full p-4" />
+					</div>
 
 					{/* Calendar Grid Skeleton */}
-					<div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
-						<Skeleton className="h-96 w-full rounded-lg" />
+					<div className="bg-white dark:bg-gray-900 rounded-lg mx-3">
+						<Skeleton className="h-72 w-full rounded-lg p-4" />
 					</div>
 				</div>
 			</div>
@@ -147,7 +149,7 @@ export default function CalendarView() {
 				)}
 
 				{/* Month Navigation */}
-				<div className="flex items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-lg border">
+				<div className="flex items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-lg border mx-3">
 					<Button
 						variant="outline"
 						onClick={() => setCursor(new Date(year, month - 1, 1))}
@@ -168,7 +170,7 @@ export default function CalendarView() {
 				{/* Main Content */}
 				<div className="grid grid-cols-1 gap-6">
 					{/* Calendar Grid */}
-					<div className="bg-white dark:bg-gray-900 p-4 rounded-lg border">
+					<div className="bg-white dark:bg-gray-900 p-4 rounded-lg border mx-3">
 						<CalendarGrid
 							year={year}
 							month={month}
