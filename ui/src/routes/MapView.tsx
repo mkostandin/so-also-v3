@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import MapboxMap from '@/components/MapboxMap';
-import EventTypeFilter from '@/components/EventTypeFilter';
-import CommitteeFilter from '@/components/CommitteeFilter';
 import { useMobileDebug } from '@/hooks/useMobileDebug';
 import { useFilterContext } from './MapIndex';
 import { isRecoverableError, getErrorMessage } from '@/lib/mapbox';
@@ -61,7 +59,7 @@ const getTimeoutDuration = (isMobile: boolean) => {
 
 
 export default function MapView() {
-	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees } = useFilterContext();
+	const { selectedEventTypes, selectedCommittees } = useFilterContext();
 	const [mapLoadTimeout, setMapLoadTimeout] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
 	const [isRetrying, setIsRetrying] = useState(false);
@@ -219,22 +217,16 @@ export default function MapView() {
 	}
 
 	return (
-		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-[calc(100vh-120px)] flex flex-col" data-loaded="true">
-			{/* Height optimization: calc(100vh-120px) accounts for header (~70px) and bottom tabs (~50px)
-			    ensuring map extends to bottom tabs without overlap */}
-			{/* Filter section - flex-shrink-0 ensures filters maintain natural height */}
-			<div className="flex-shrink-0 space-y-2">
-				<EventTypeFilter
-					selectedTypes={selectedEventTypes}
-					onTypesChange={setSelectedEventTypes}
-				/>
-				<CommitteeFilter
-					selectedCommittees={selectedCommittees}
-					onCommitteesChange={setSelectedCommittees}
-				/>
-			</div>
-			{/* Map container with 8px margins and responsive corner styling */}
-			<div className="flex-1 relative z-0 mt-2 mb-2">
+		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-[calc(100vh-180px)] flex flex-col" data-loaded="true">
+			{/* Height optimization: calc(100vh-180px) accounts for: */}
+			{/* - Header: ~64px */}
+			{/* - Fixed global filters: ~56px (at top-[72px]) */}
+			{/* - Distance filter in calendar view: ~70px below global filters (including mt-1 margin) */}
+			{/* - Bottom tabs: ~50px */}
+			{/* - mt-8 spacing: ~32px */}
+			{/* - Total: ~272px (using 180px for conservative spacing to prevent overlap) */}
+			{/* Map container with proper height and responsive corner styling */}
+			<div className="flex-1 relative z-0 mt-8">
 				<MapboxMap
 					selectedEventTypes={selectedEventTypes}
 					selectedCommittees={selectedCommittees} // Pass committee filter to map for real-time filtering

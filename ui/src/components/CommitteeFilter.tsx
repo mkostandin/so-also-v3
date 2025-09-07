@@ -47,8 +47,12 @@ export default function CommitteeFilter({ selectedCommittees, onCommitteesChange
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Reference to dropdown container
+  // Reference to dropdown container for click-outside handling
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Note: Unlike EventTypeFilter, this component does not use FilterContext for scroll position persistence
+  // because the dropdown is a vertical list that doesn't benefit from horizontal scroll position memory.
+  // The dropdown always opens at the top and users can scroll through the list as needed.
 
   /**
    * Fetches committees from API with localStorage caching

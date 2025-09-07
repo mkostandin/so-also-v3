@@ -5,6 +5,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EVENT_TYPES, EVENT_TYPE_MAPPING } from '@/components/EventTypeFilter';
 import { api, EventItem } from '@/lib/api-client';
 import { useUserLocation } from '@/hooks/useUserLocation';
+import EventTypeFilter from '@/components/EventTypeFilter';
+import CommitteeFilter from '@/components/CommitteeFilter';
 
 
 /**
@@ -257,8 +259,33 @@ export default function MapIndex() {
 						</Tabs>
 					</div>
 				</div>
-				{/* Main content area: single scroll owner for all views. pb-24 ensures bottom actions (e.g., Load More) clear the bottom tabs. */}
-				<div ref={contentRef} className="flex-1 relative z-0 overflow-y-auto pb-24 scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto">
+
+				{/* Fixed filter container positioned 8px below the header for consistent visibility across all views */}
+				{/* top-[72px] = header height (~64px) + 8px spacing for visual separation */}
+				{/* z-40 ensures filters appear above content (z-0) but below header (z-50) */}
+				{/* backdrop-blur provides visual depth while maintaining readability */}
+				<div className="fixed top-[72px] left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur">
+					<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl px-2 py-0">
+						{/* space-y-2 provides consistent 8px spacing between event type and committee filters */}
+						<div className="space-y-2">
+							{/* EventTypeFilter: Horizontal scrollable pill-style buttons for event type selection */}
+							<EventTypeFilter
+								selectedTypes={selectedEventTypes}
+								onTypesChange={setSelectedEventTypes}
+							/>
+							{/* CommitteeFilter: Multi-select dropdown for committee-based filtering */}
+							<CommitteeFilter
+								selectedCommittees={selectedCommittees}
+								onCommitteesChange={setSelectedCommittees}
+							/>
+						</div>
+					</div>
+				</div>
+
+				{/* Main content area: single scroll owner for all views */}
+				{/* pt-[80px] provides top padding to prevent overlap with fixed filters at top-[72px] */}
+				{/* pb-24 ensures bottom actions (e.g., Load More) clear the bottom tabs */}
+				<div ref={contentRef} className="flex-1 relative z-0 overflow-y-auto pb-24 scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto pt-[80px]">
 					<Outlet />  {/* Render current route component (MapView, ListView, or CalendarView) */}
 				</div>
 			</div>

@@ -66,6 +66,7 @@ This application is a comprehensive event management system built on top of the 
 ## 🔍 Filtering System
 
 ### Event Type Filtering
+- **Fixed Position Layout**: Filters remain fixed at the top of all views (8px below header) instead of scrolling away
 - **Horizontal Scrollable Interface**: Single-line pill-style filter buttons with horizontal scrolling
 - **Space Efficient Design**: Reduces vertical space usage by 40-60% compared to multi-row layouts
 - **Multiple Selection**: Select multiple event types simultaneously
@@ -76,6 +77,7 @@ This application is a comprehensive event management system built on top of the 
 - **Cross-View Consistency**: Filters work identically across map, calendar, and list views
 
 ### Committee Filtering
+- **Fixed Position Layout**: Committee filter positioned below event type filters in fixed header area
 - **Multi-Select Dropdown**: Clean, accessible dropdown for committee selection
 - **ALL CAPS Display**: Consistent uppercase formatting for all committee names
 - **Smart Caching**: Committee data cached locally for 5 minutes to prevent reloading on view switches

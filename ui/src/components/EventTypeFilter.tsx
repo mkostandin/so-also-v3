@@ -48,6 +48,8 @@ export default function EventTypeFilter({ selectedTypes, onTypesChange }: EventT
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Access filter context for scroll position persistence
+  // Unlike CommitteeFilter (vertical dropdown), this horizontal filter benefits from remembering
+  // scroll position across view changes to maintain user context
   const { filterScrollPosition, setFilterScrollPosition } = useFilterContext();
 
   /**

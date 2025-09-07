@@ -5,8 +5,6 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 import { haversineMeters, metersToMiles } from '@/lib/location-utils';
 import { formatDateShort, formatTime } from '@/lib/session-utils';
 import LocationPermissionBanner from '@/components/LocationPermissionBanner';
-import EventTypeFilter from '@/components/EventTypeFilter';
-import CommitteeFilter from '@/components/CommitteeFilter';
 import EventListSkeleton from '@/components/EventListSkeleton';
 import { useFilterContext } from './MapIndex';
 
@@ -16,7 +14,7 @@ export default function ListView() {
 	const [showSkeleton, setShowSkeleton] = useState(true);
 	const { coords, status, request } = useUserLocation();
 	const navigate = useNavigate();
-	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees, events, eventsLoading } = useFilterContext();
+	const { selectedEventTypes, events, eventsLoading } = useFilterContext();
 
 
 
@@ -115,18 +113,11 @@ export default function ListView() {
 	};
 
 	// Show location permission banner if no coordinates and permission was denied
+	// Note: Filters are now global and always visible, so we don't need to include them here
 	if (!coords && status === 'denied') {
 		return (
 			<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl">
-				<div className="space-y-2">
-					<EventTypeFilter
-						selectedTypes={selectedEventTypes}
-						onTypesChange={setSelectedEventTypes}
-					/>
-					<CommitteeFilter
-						selectedCommittees={selectedCommittees}
-						onCommitteesChange={setSelectedCommittees}
-					/>
+				<div className="space-y-2 pt-[80px]">
 					<div className="text-center py-12">
 						<div className="text-gray-500 mb-4">
 							<svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,17 +135,14 @@ export default function ListView() {
 
 	return (
 		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0">
-			<div className="sticky top-0 z-40 bg-white dark:bg-gray-900 space-y-2 border-b">
-				<EventTypeFilter
-					selectedTypes={selectedEventTypes}
-					onTypesChange={setSelectedEventTypes}
-				/>
-				<CommitteeFilter
-					selectedCommittees={selectedCommittees}
-					onCommitteesChange={setSelectedCommittees}
-				/>
-				{!coords && status === 'prompt' && <LocationPermissionBanner />}
-			</div>
+			{/* Location permission banner - repositioned below global fixed filters */}
+			{/* top-[80px] = fixed filters position (top-[72px]) + filter height (~8px) for proper spacing */}
+			{/* Sticky positioning ensures banner stays visible while scrolling but below global filters */}
+			{!coords && status === 'prompt' && (
+				<div className="sticky top-[80px] z-30 bg-white dark:bg-gray-900 border-b">
+					<LocationPermissionBanner />
+				</div>
+			)}
 
 			<div className="flex-1 min-h-0">
 				{showSkeleton ? (

@@ -2,11 +2,12 @@
 
 ## Overview
 
-The Filter View represents the enhanced event type filtering system that provides a horizontal scrollable interface for selecting event categories across the application's three main views (Map, List, and Calendar). This feature optimizes space usage while maintaining full functionality and accessibility.
+The Filter View represents the enhanced event type filtering system that provides a horizontal scrollable interface for selecting event categories across the application's three main views (Map, List, and Calendar). Filters are positioned fixed at the top of all views (8px below the header) instead of scrolling away, optimizing space usage while maintaining full functionality and accessibility.
 
 ## 🎯 Core Features
 
-### Horizontal Scrollable Design
+### Fixed Position Design
+- **Global Fixed Positioning**: Filters remain fixed at `top-[72px]` (8px below header) across all views
 - **Single-Line Layout**: Compact horizontal arrangement of filter buttons
 - **Space Efficiency**: Reduces vertical space consumption by 40-60%
 - **Smooth Scrolling**: Touch-friendly scrolling on mobile devices
@@ -88,10 +89,10 @@ This ensures:
 
 ### Scroll Behavior Implementation
 
-#### Sticky Placement Across Views
-- Filters are rendered within each view under a shared sticky tabs header.
-- Each view uses `sticky top-0 z-40 bg-white dark:bg-gray-900 border-b` for filter containers, matching Map and Calendar.
-- The main content scroller is owned by `MapIndex` to avoid nested scrolling on mobile.
+#### Fixed Placement Across Views
+- Filters are rendered globally in `MapIndex.tsx` with fixed positioning at `top-[72px]` (8px below header).
+- Uses `fixed top-[72px] left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur` for consistent positioning.
+- The main content scroller is owned by `MapIndex` with `pt-[80px]` to prevent overlap with fixed filters.
 
 #### Position Restoration Logic
 ```typescript
@@ -190,21 +191,24 @@ const handleScroll = () => {
 ## 🔗 Integration Points
 
 ### Map View Integration
-- **Container Layout**: Filter positioned above map with responsive max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
+- **Global Filter Layout**: Filters are now positioned globally in `MapIndex.tsx` with fixed positioning
+- **Height Adjustment**: Map container uses `calc(100vh-180px)` to account for fixed filters and header
 - **State Synchronization**: Real-time updates to map markers based on filter selections
 - **Responsive Behavior**: Adapts to map container resizing with consistent breakpoints
 - **Loading States**: Filter remains visible during map loading
 - **Spacing Consistency**: Uses `space-y-2` for uniform spacing between filters
 
 ### List View Integration
-- **Header Position**: Filter positioned at top of list container with responsive max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
+- **Global Filter Layout**: Filters are now positioned globally in `MapIndex.tsx` with fixed positioning
+- **Banner Repositioning**: Location permission banner repositioned to `top-[80px]` to account for fixed filters
 - **Pagination Sync**: Filter state maintained during pagination
 - **Location Context**: Works seamlessly with location-based sorting
 - **Empty States**: Appropriate messaging when no events match filters
 - **Spacing Consistency**: Uses `space-y-2` for uniform spacing between filters
 
 ### Calendar View Integration
-- **Dual Filters**: Coexists with distance filter in calendar view with responsive max-width (`max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl`)
+- **Global Filter Layout**: Filters are now positioned globally in `MapIndex.tsx` with fixed positioning
+- **Distance Filter Positioning**: Distance filter positioned at `top-[138px]` with `mt-1` for visual separation below global filters
 - **Date Integration**: Filter state preserved across date navigation
 - **Event Loading**: Real-time updates to calendar events
 - **Layout Harmony**: Consistent spacing with calendar grid and uniform filter spacing (`space-y-2`)

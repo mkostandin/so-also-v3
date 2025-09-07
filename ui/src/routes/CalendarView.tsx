@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import EventTypeFilter from '@/components/EventTypeFilter';
-import CommitteeFilter from '@/components/CommitteeFilter';
 import DistanceFilter from '@/components/DistanceFilter';
 import { useFilterContext } from './MapIndex';
 
@@ -31,7 +29,7 @@ export default function CalendarView() {
 	const [popupDate, setPopupDate] = useState<Date | null>(null);
 	const [popupEvents, setPopupEvents] = useState<CalendarEvent[]>([]);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
-	const { selectedEventTypes, setSelectedEventTypes, selectedCommittees, setSelectedCommittees, selectedDistance, setSelectedDistance } = useFilterContext();
+	const { selectedEventTypes, selectedCommittees, selectedDistance, setSelectedDistance } = useFilterContext();
 	const { coords: userCoords, status, request } = useUserLocation();
 
 	const year = cursor.getFullYear();
@@ -83,54 +81,26 @@ export default function CalendarView() {
 
 	if (showSkeleton) {
 		return (
-			<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl">
-				<div className="space-y-2">
-					{/* Event Type Filter - Keep it visible during loading */}
-					<EventTypeFilter
-						selectedTypes={selectedEventTypes}
-						onTypesChange={setSelectedEventTypes}
-					/>
+			<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl pt-16 space-y-6">
+				{/* Distance Filter Skeleton - reduced width by ~16px */}
+				<Skeleton className="h-12 w-2/3 rounded-lg mx-6" />
 
-					{/* Committee Filter - Keep it visible during loading */}
-					<CommitteeFilter
-						selectedCommittees={selectedCommittees}
-						onCommitteesChange={setSelectedCommittees}
-					/>
+				{/* Month Navigation Skeleton - reduced width by ~4px */}
+				<Skeleton className="h-12 w-10/12 rounded-lg mx-6" />
 
-					{/* Distance Filter - Keep it visible during loading */}
-					<DistanceFilter
-						selectedDistance={selectedDistance}
-						onDistanceChange={setSelectedDistance}
-					/>
-
-					{/* Month Navigation Skeleton */}
-					<div className="bg-white dark:bg-gray-900 rounded-lg mx-3">
-						<Skeleton className="h-16 w-full p-4" />
-					</div>
-
-					{/* Calendar Grid Skeleton */}
-					<div className="bg-white dark:bg-gray-900 rounded-lg mx-3">
-						<Skeleton className="h-72 w-full rounded-lg p-4" />
-					</div>
-				</div>
+				{/* Calendar Grid Skeleton - reduced width by ~4px */}
+				<Skeleton className="h-64 w-10/12 rounded-lg mx-6" />
 			</div>
 		);
 	}
 
 	return (
-		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl">
-			<div className="sticky top-0 z-40 bg-white dark:bg-gray-900 space-y-2 border-b">
-				{/* Event Type Filter */}
-				<EventTypeFilter
-					selectedTypes={selectedEventTypes}
-					onTypesChange={setSelectedEventTypes}
-				/>
-
-				{/* Committee Filter */}
-				<CommitteeFilter
-					selectedCommittees={selectedCommittees}
-					onCommitteesChange={setSelectedCommittees}
-				/>
+		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl pt-2">
+			{/* Distance Filter - view-specific filter positioned below global fixed filters */}
+			{/* top-[138px] = global filters (top-[72px]) + global filter height (~56px) + spacing (~10px) */}
+			{/* mt-1 provides additional 4px visual separation from global filters */}
+			{/* Sticky positioning keeps distance filter visible while scrolling, but below global filters */}
+			<div className="sticky top-[138px] mt-1 z-30 bg-white dark:bg-gray-900 border-b p-2 space-y-2">
 
 				{/* Distance Filter */}
 				<DistanceFilter

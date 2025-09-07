@@ -60,6 +60,7 @@ This application has been extended beyond the base template with a comprehensive
 - **Event Limits**: Displays nearest 200 events with clear count indicators
 
 ### 🔍 **Advanced Filtering & Search**
+- **Fixed Position Filters**: Event type and committee filters remain fixed at the top of all views (8px below header) instead of scrolling away
 - **Event Type Filter**: Horizontal scrollable pill-style buttons for filtering by event categories
 - **Committee Filter**: Multi-select dropdown for filtering events by specific committees (ALL CAPS display)
 - **Smart Caching**: Committee filter data cached locally for 5 minutes to prevent reloading on view switches
