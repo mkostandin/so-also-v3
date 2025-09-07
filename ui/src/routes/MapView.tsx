@@ -214,7 +214,7 @@ export default function MapView() {
 	}
 
 	return (
-		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0" data-loaded="true">
+		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-[calc(100vh-120px)] flex flex-col" data-loaded="true">
 			<div className="flex-shrink-0 space-y-2">
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
@@ -225,11 +225,11 @@ export default function MapView() {
 					onCommitteesChange={setSelectedCommittees}
 				/>
 			</div>
-			<div className="flex-1 min-h-0 relative z-0">
+			<div className="flex-1 relative z-0 mt-2 mb-2">
 				<MapboxMap
 					selectedEventTypes={selectedEventTypes}
 					selectedCommittees={selectedCommittees} // Pass committee filter to map for real-time filtering
-					className="h-full w-full"
+					className="h-full w-full rounded-none md:rounded-lg"
 					onReady={handleMapReady}
 					onError={handleMapError}
 					onProgress={handleMapProgress}

@@ -384,7 +384,7 @@ export default function MapboxMap({
 
   return (
     <div className={`relative h-full ${className}`}>
-      {/* Loading overlay - positioned outside map container */}
+      {/* Loading overlay - positioned relative to map container */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg z-10 pointer-events-none">
           <div className="text-center">
@@ -397,7 +397,7 @@ export default function MapboxMap({
       {/* Map container - must remain completely empty for Mapbox */}
       <div
         ref={mapContainerRef}
-        className="h-full w-full rounded-lg relative"
+        className="h-full w-full rounded-none md:rounded-lg relative"
         data-map-container="true"
       />
 

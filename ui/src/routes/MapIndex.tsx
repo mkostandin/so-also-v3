@@ -242,7 +242,7 @@ export default function MapIndex() {
 			eventsError
 		}}>
 			{/* Main layout container with full height */}
-			<div className="flex flex-col h-full">
+			<div className="flex flex-col h-screen">
 				{/* Sticky navigation header with backdrop blur effect */}
 				<div data-id="map-tabs" className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60 touch-pan-y">
 					<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl p-2">
@@ -257,7 +257,7 @@ export default function MapIndex() {
 					</div>
 				</div>
 				{/* Main content area: single scroll owner for all views. pb-24 ensures bottom actions (e.g., Load More) clear the bottom tabs. */}
-				<div ref={contentRef} className="flex-1 min-h-0 relative z-0 overflow-y-auto pb-24 scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto">
+				<div ref={contentRef} className="flex-1 relative z-0 overflow-y-auto pb-24 scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto">
 					<Outlet />  {/* Render current route component (MapView, ListView, or CalendarView) */}
 				</div>
 			</div>
