@@ -241,7 +241,8 @@ export default function MapIndex() {
 			eventsLoading,
 			eventsError
 		}}>
-			{/* Main layout container with full height */}
+			{/* Main layout container with full viewport height for optimal space utilization */}
+			{/* h-screen ensures full height utilization enabling precise map height calculations in child components */}
 			<div className="flex flex-col h-screen">
 				{/* Sticky navigation header with backdrop blur effect */}
 				<div data-id="map-tabs" className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur dark:bg-gray-900/60 touch-pan-y">

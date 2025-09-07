@@ -395,6 +395,8 @@ export default function MapboxMap({
       )}
 
       {/* Map container - must remain completely empty for Mapbox */}
+      {/* Responsive corner styling: no rounded corners on mobile for full edge-to-edge display,
+          rounded corners on desktop (md+) for polished appearance */}
       <div
         ref={mapContainerRef}
         className="h-full w-full rounded-none md:rounded-lg relative"

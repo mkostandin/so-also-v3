@@ -135,17 +135,60 @@ const marker = new mapboxgl.Marker({
 - **Full Feature Set**: All controls and features available
 - **Large Map Area**: Maximized map viewport for detailed exploration
 - **Multi-panel Layout**: Filters alongside map for efficient use of space
+- **Polished Corners**: Rounded corners (`rounded-lg`) for refined appearance
 
 ### Mobile Experience
 - **Touch Optimization**: Large touch targets and swipe gestures
 - **Simplified Controls**: Essential controls prioritized
 - **Vertical Layout**: Filters above map, optimized for portrait orientation
 - **Performance Tuning**: Reduced clustering and simplified rendering
+- **Edge-to-Edge Display**: No rounded corners for full-screen utilization
+- **Precise Height**: Map extends to bottom tabs without overlap using `calc(100vh-120px)`
 
 ### Tablet Experience
 - **Hybrid Layout**: Combination of desktop and mobile optimizations
 - **Adaptive Controls**: Context-aware control positioning
 - **Flexible Sizing**: Responsive to different tablet orientations
+
+## 🎨 **Styling & Layout Optimizations**
+
+### Responsive Corner Styling
+The map component uses adaptive corner styling to optimize the user experience across different screen sizes:
+
+```css
+/* Mobile: Edge-to-edge display for maximum space utilization */
+rounded-none
+
+/* Desktop (md+): Polished appearance with rounded corners */
+md:rounded-lg
+```
+
+**Benefits:**
+- **Mobile**: Full-screen utilization without visual gaps
+- **Desktop**: Refined appearance with professional rounded corners
+- **Consistent**: Unified responsive behavior across all breakpoints
+
+### Height Optimization
+Precise viewport calculations ensure the map extends to bottom tabs without overlap:
+
+```css
+/* Accounts for header (~70px) + bottom tabs (~50px) */
+h-[calc(100vh-120px)]
+```
+
+**Layout Structure:**
+1. **MapIndex**: `h-screen` - Full viewport height utilization
+2. **Header**: Natural height (sticky navigation)
+3. **Content area**: `flex-1 pb-24` - Remaining space with bottom padding
+4. **MapView**: `h-[calc(100vh-120px)]` - Precise available height
+5. **Filters**: `flex-shrink-0` - Natural height, non-compressible
+6. **Map container**: `flex-1 mt-2 mb-2` - Remaining space with 8px margins
+7. **MapboxMap**: `h-full w-full` - Fills container with responsive corners
+
+### Spacing & Margins
+- **8px Margins**: Consistent spacing around map container (`mt-2 mb-2`)
+- **Flexible Layout**: Flex-based system with proper space distribution
+- **Responsive**: Margins maintained across all screen sizes
 
 ## 🔍 Event Discovery
 

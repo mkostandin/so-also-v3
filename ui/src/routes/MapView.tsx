@@ -25,10 +25,15 @@ const getTimeoutDuration = (isMobile: boolean) => {
 		return baseTimeout;
 	}
 
+	// Define Network Information API types
+	interface NetworkConnection {
+		effectiveType?: 'slow-2g' | '2g' | '3g' | '4g';
+	}
+
 	// Get connection object with fallbacks
-	const connection = (navigator as any).connection ||
-	                  (navigator as any).mozConnection ||
-	                  (navigator as any).webkitConnection;
+	const connection = (navigator as { connection?: NetworkConnection }).connection ||
+	                  (navigator as { mozConnection?: NetworkConnection }).mozConnection ||
+	                  (navigator as { webkitConnection?: NetworkConnection }).webkitConnection;
 
 	if (!connection || !connection.effectiveType) {
 		// No effectiveType available, use basic online check
@@ -163,7 +168,7 @@ export default function MapView() {
 			}
 			setLoading(false, 'MapView unmounted');
 		};
-	}, [isMobile, logAction, setLoading, setError, retryCount, maxRetries]);
+	}, [isMobile, logAction, setLoading, setError, retryCount, maxRetries, isRetrying]);
 
 	// Simple fallback UI for when map fails to load
 	if (mapLoadTimeout) {
@@ -215,6 +220,9 @@ export default function MapView() {
 
 	return (
 		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-[calc(100vh-120px)] flex flex-col" data-loaded="true">
+			{/* Height optimization: calc(100vh-120px) accounts for header (~70px) and bottom tabs (~50px)
+			    ensuring map extends to bottom tabs without overlap */}
+			{/* Filter section - flex-shrink-0 ensures filters maintain natural height */}
 			<div className="flex-shrink-0 space-y-2">
 				<EventTypeFilter
 					selectedTypes={selectedEventTypes}
@@ -225,6 +233,7 @@ export default function MapView() {
 					onCommitteesChange={setSelectedCommittees}
 				/>
 			</div>
+			{/* Map container with 8px margins and responsive corner styling */}
 			<div className="flex-1 relative z-0 mt-2 mb-2">
 				<MapboxMap
 					selectedEventTypes={selectedEventTypes}

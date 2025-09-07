@@ -44,7 +44,8 @@ This application has been extended beyond the base template with a comprehensive
 - **Enhanced Popups**: Redesigned marker popups with improved visual hierarchy, date/time formatting ("Sep 7 at 6:00pm"), and simplified dismissal (tap outside or drag to close)
 - **User Location**: Real-time geolocation with accuracy indicators
 - **Event Filtering**: Filter events by type (Event, Committee Meeting, Conference, etc.)
-- **Responsive Design**: Optimized for both desktop and mobile devices
+- **Responsive Design**: Optimized for both desktop and mobile devices with adaptive corner styling
+- **Height Optimization**: Precise viewport calculations ensuring map extends to bottom tabs without overlap
 - **Clustering**: Automatic marker grouping at lower zoom levels for performance
 
 ### 📅 **Calendar View**
