@@ -330,22 +330,44 @@ button {
   }
 }
 
-/* Calendar responsive design media queries */
-@media (max-width: 375px) {
+/* Calendar responsive design media queries - Mobile First Approach */
+/* Extreme narrow mobile: 320px - 374px */
+@media (max-width: 374px) {
+  :root {
+    --calendar-margin: 2px;
+    --calendar-cell-min-height: 44px;
+    --calendar-gap: 1px;
+    --calendar-padding: 6px;
+  }
+}
+
+/* Target narrow mobile: 375px - 413px (iPhone SE, iPhone 12/13 mini) */
+@media (min-width: 375px) and (max-width: 413px) {
   :root {
     --calendar-margin: 4px;
-    --calendar-cell-min-height: 40px;
+    --calendar-cell-min-height: 44px;
     --calendar-gap: 2px;
     --calendar-padding: 8px;
   }
 }
 
-@media (max-width: 414px) {
+/* Standard mobile: 414px - 767px */
+@media (min-width: 414px) and (max-width: 767px) {
   :root {
     --calendar-margin: 8px;
     --calendar-cell-min-height: 44px;
     --calendar-gap: 3px;
     --calendar-padding: 12px;
+  }
+}
+
+/* Tablet and larger: 768px+ */
+@media (min-width: 768px) {
+  :root {
+    --calendar-margin: 12px;
+    --calendar-cell-min-height: 48px;
+    --calendar-gap: 4px;
+    --calendar-padding: 16px;
   }
 }
 

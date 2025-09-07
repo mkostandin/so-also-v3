@@ -66,7 +66,7 @@ export default function CalendarGrid({
 					<div
 						key={idx}
 						className={`
-							min-h-[40px] sm:min-h-[48px] rounded border p-0.5 sm:p-1 cursor-pointer transition-colors
+							min-h-[44px] sm:min-h-[48px] rounded border p-0.5 sm:p-1 cursor-pointer transition-colors
 							${d ? 'hover:bg-gray-100 dark:hover:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800'}
 							${isSelected ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''}
 							${hasEvents ? 'border-blue-200 dark:border-blue-800' : ''}
