@@ -265,7 +265,7 @@ export default function MapIndex() {
 				{/* z-40 ensures filters appear above content (z-0) but below header (z-50) */}
 				{/* backdrop-blur provides visual depth while maintaining readability */}
 				<div className="fixed top-[72px] left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur">
-					<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl px-2 py-0">
+					<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl px-0 py-0">
 						{/* space-y-2 provides consistent 8px spacing between event type and committee filters */}
 						<div className="space-y-2">
 							{/* EventTypeFilter: Horizontal scrollable pill-style buttons for event type selection */}
