@@ -32,12 +32,12 @@ export default function CalendarEventPopup({ events, date, isOpen, onClose, onEv
 
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/50" onClick={onClose}>
       <Card
-        className="max-w-md w-full max-h-[80vh] overflow-hidden"
+        className="max-w-md w-full max-h-[85vh] sm:max-h-[80vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-4 border-b">
+        <div className="p-3 sm:p-4 border-b">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-xl">
               Events on {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -54,7 +54,7 @@ export default function CalendarEventPopup({ events, date, isOpen, onClose, onEv
           </div>
         </div>
 
-        <div className="max-h-96 overflow-y-auto p-4 space-y-3">
+        <div className="max-h-96 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3">
           {events
             .sort((a, b) => {
               // Sort by time, then by distance for optimal user experience

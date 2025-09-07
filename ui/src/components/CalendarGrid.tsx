@@ -51,9 +51,9 @@ export default function CalendarGrid({
 	};
 
 	return (
-		<div className="grid grid-cols-7 gap-1">
+		<div className="grid grid-cols-7 gap-0.5 sm:gap-1">
 			{['Su','Mo','Tu','We','Th','Fr','Sa'].map((d) => (
-				<div key={d} className="p-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
+				<div key={d} className="p-0.5 sm:p-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
 					{d}
 				</div>
 			))}
@@ -66,7 +66,7 @@ export default function CalendarGrid({
 					<div
 						key={idx}
 						className={`
-							min-h-[48px] rounded border p-1 cursor-pointer transition-colors
+							min-h-[40px] sm:min-h-[48px] rounded border p-0.5 sm:p-1 cursor-pointer transition-colors
 							${d ? 'hover:bg-gray-100 dark:hover:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800'}
 							${isSelected ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''}
 							${hasEvents ? 'border-blue-200 dark:border-blue-800' : ''}
@@ -85,8 +85,8 @@ export default function CalendarGrid({
 						}}
 					>
 						{d && (
-							<div className="flex items-center justify-between text-xs h-5">
-								<span className={`font-medium ${isSelected ? 'text-blue-600 dark:text-blue-400' : ''}`}>
+							<div className="flex items-center justify-between text-xs h-4 sm:h-5">
+								<span className={`font-medium text-xs sm:text-sm ${isSelected ? 'text-blue-600 dark:text-blue-400' : ''}`}>
 									{d}
 								</span>
 								{hasEvents && (

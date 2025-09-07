@@ -12,7 +12,7 @@ export default function CalendarEventIndicator({ count, maxDisplay = 99, onClick
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors cursor-pointer"
+      className="inline-flex items-center justify-center h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors cursor-pointer touch-manipulation"
       title={`${count} event${count !== 1 ? 's' : ''}`}
     >
       {displayCount}

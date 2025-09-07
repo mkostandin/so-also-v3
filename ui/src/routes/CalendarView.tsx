@@ -100,7 +100,7 @@ export default function CalendarView() {
 			{/* top-[138px] = global filters (top-[72px]) + global filter height (~56px) + spacing (~10px) */}
 			{/* mt-1 provides additional 4px visual separation from global filters */}
 			{/* Sticky positioning keeps distance filter visible while scrolling, but below global filters */}
-			<div className="sticky top-[138px] mt-1 z-30 bg-white dark:bg-gray-900 border-b p-2 space-y-2">
+			<div className="sticky top-[138px] mt-1 z-30 bg-white dark:bg-gray-900 p-1 sm:p-2 space-y-2">
 
 				{/* Distance Filter */}
 				<DistanceFilter
@@ -119,7 +119,7 @@ export default function CalendarView() {
 				)}
 
 				{/* Month Navigation */}
-				<div className="flex items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-lg border mx-3">
+				<div className="flex items-center justify-between bg-white dark:bg-gray-900 p-2 sm:p-4 rounded-lg border mx-1 sm:mx-3">
 					<Button
 						variant="outline"
 						onClick={() => setCursor(new Date(year, month - 1, 1))}
@@ -138,9 +138,9 @@ export default function CalendarView() {
 				</div>
 
 				{/* Main Content */}
-				<div className="grid grid-cols-1 gap-6">
+				<div className="grid grid-cols-1 gap-4 sm:gap-6">
 					{/* Calendar Grid */}
-					<div className="bg-white dark:bg-gray-900 p-4 rounded-lg border mx-3">
+					<div className="bg-white dark:bg-gray-900 p-2 sm:p-4 rounded-lg border mx-1 sm:mx-3">
 						<CalendarGrid
 							year={year}
 							month={month}
