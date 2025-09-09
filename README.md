@@ -85,6 +85,7 @@ This application has been extended beyond the base template with a comprehensive
 - **Smooth Animations**: Polished transitions and visual feedback
 - **Accessibility**: Proper ARIA labels and keyboard navigation support
 - **Mobile Touch Optimization**: Enhanced touch targets (44px minimum), instant response times, and optimized touch event handling
+- **Mobile Layout Fixes**: View-specific container spacing (List: 104px mobile/120px desktop, Map/Calendar: 80px), proper Load More button clearance (44px bottom padding), WebKit viewport fixes, and safe area support for notched devices
 - **List Layout Optimization**: Full-height event list with improved mobile width handling and proper spacing
  - **Mobile Scrolling & Sticky Headers**: Single scroll owner architecture with sticky tabs and filters; dropdown lists use viewport-relative height and touch-optimized scrolling; pull-to-refresh disabled to prevent accidental page drags
 

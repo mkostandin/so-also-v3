@@ -91,6 +91,16 @@ const [isLoadingMore, setIsLoadingMore] = useState(false);
 - **Medium screens**: `md:max-w-3xl` - Standard desktop width
 - **Large screens**: `lg:max-w-4xl` - Wider layout for large displays
 
+#### Mobile-Specific Padding
+```tsx
+// Mobile-specific padding to prevent content cutoff behind fixed filters
+// pt-[16px] provides extra 16px spacing on mobile for better UX
+// sm:pt-0 md:pt-0 removes padding on larger screens (container handles spacing)
+<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0 pt-[16px] sm:pt-0 md:pt-0">
+  {/* List content with mobile-optimized spacing */}
+</div>
+```
+
 #### Title Container Spacing
 ```typescript
 // Proper horizontal padding for visual balance
@@ -236,11 +246,15 @@ const [showSkeleton, setShowSkeleton] = useState(true);
 - **Keyboard Navigation**: Full keyboard accessibility
 
 ### Mobile Experience
-- **Touch Optimization**: Larger touch targets for mobile interaction
-- **Full-Width Layout**: Utilizes complete screen width for better mobile experience
+- **Mobile-Specific Spacing**: 104px top padding (16px extra for mobile UX) prevents content cutoff behind fixed filters
+- **Load More Clearance**: 44px bottom padding ensures Load More button isn't obscured by bottom navigation tabs
+- **Touch Optimization**: 44px minimum touch targets with hardware acceleration for smooth interactions
+- **Full-Width Layout**: `max-w-full` utilizes complete screen width for better mobile experience
+- **WebKit Compatibility**: Safari/iOS-specific viewport fixes using `-webkit-fill-available` and `-webkit-overflow-scrolling: touch`
+- **Safe Area Support**: CSS environment variables handle notched devices (iPhone X+)
 - **Readable Typography**: Appropriate font sizes for mobile screens
 - **Vertical Layout**: Optimized for portrait orientation
-- **Swipe-Friendly**: Smooth scrolling and touch interactions
+- **Swipe-Friendly**: Smooth scrolling and touch interactions with `scroll-touch` and `scroll-pan-y` classes
 
 ### Tablet Experience
 - **Balanced Layout**: Hybrid approach between desktop and mobile

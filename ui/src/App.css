@@ -96,7 +96,8 @@
   transform: scale(1.1);
 }
 
-/* Mobile-specific viewport and scrolling fixes */
+/* Mobile Layout Fixes: WebKit compatibility, safe area support, and touch optimization */
+/* Part of comprehensive mobile layout fixes for proper spacing and scrolling across all views */
 @media (max-width: 640px) {
   /* Ensure proper viewport handling on mobile devices */
   html, body {

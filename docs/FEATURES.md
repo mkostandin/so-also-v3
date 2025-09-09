@@ -133,6 +133,14 @@ This application is a comprehensive event management system built on top of the 
 - **Desktop Enhancement**: Full feature utilization on larger screens
 - **Cross-Device Consistency**: Unified experience across all devices
 
+### Mobile Layout Fixes
+- **View-Specific Spacing**: Dynamic container padding (List: 104px mobile/120px desktop, Map/Calendar: 80px) prevents content cutoff behind fixed filters
+- **Load More Clearance**: 44px bottom padding ensures buttons aren't obscured by bottom navigation tabs
+- **WebKit Compatibility**: Safari/iOS-specific viewport fixes using `-webkit-fill-available` and hardware acceleration
+- **Safe Area Support**: CSS environment variables (`env(safe-area-inset-*)`) for notched devices (iPhone X+)
+- **Touch Target Optimization**: Minimum 44px touch targets with smooth scrolling (`-webkit-overflow-scrolling: touch`)
+- **Hardware Acceleration**: Fixed element performance optimization using `transform: translateZ(0)`
+
 ### Accessibility
 - **Keyboard Navigation**: Full keyboard support for all interactive elements
 - **Screen Reader Support**: Proper ARIA labels and semantic markup

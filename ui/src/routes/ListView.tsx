@@ -135,6 +135,9 @@ export default function ListView() {
 
 	return (
 		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0 pt-[16px] sm:pt-0 md:pt-0">
+			{/* Mobile layout fix: pt-[16px] provides extra spacing on mobile to prevent content cutoff behind fixed filters */}
+			{/* sm:pt-0 md:pt-0 removes padding on larger screens where container (MapIndex) handles spacing */}
+			{/* Container-level spacing in MapIndex: List mobile pt-[104px], List desktop pt-[120px], Map/Calendar pt-[80px] */}
 			{/* Location permission banner - repositioned below global fixed filters */}
 			{/* top-[120px] for all screen sizes to match total container padding */}
 			{/* Sticky positioning ensures banner stays visible while scrolling but below global filters */}
@@ -208,6 +211,8 @@ export default function ListView() {
 							))}
 						</ul>
 
+							{/* Load More button clearance: mb-4 provides spacing on mobile, sm:mb-0 relies on container pb-[44px] */}
+							{/* Container-level pb-[44px] in MapIndex ensures proper clearance from bottom navigation tabs */}
 							{hasMoreEvents && (
 								<div className="flex justify-center mt-6 mb-4 sm:mt-6 sm:mb-0 px-4">
 									{isLoadingMore ? (
