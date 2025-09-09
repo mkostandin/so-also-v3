@@ -264,7 +264,8 @@ export default function MapIndex() {
 				{/* top-[72px] = header height (~64px) + 8px spacing for visual separation */}
 				{/* z-40 ensures filters appear above content (z-0) but below header (z-50) */}
 				{/* backdrop-blur provides visual depth while maintaining readability */}
-				<div className="fixed top-[72px] left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur">
+				{/* Added mobile-specific top positioning to prevent content overlap */}
+				<div className="fixed top-[72px] left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur sm:top-[72px] md:top-[72px]">
 					<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl px-0 py-0">
 						{/* space-y-2 provides consistent 8px spacing between event type and committee filters */}
 						<div className="space-y-2">
@@ -283,9 +284,13 @@ export default function MapIndex() {
 				</div>
 
 				{/* Main content area: single scroll owner for all views */}
-				{/* pt-[80px] provides top padding to prevent overlap with fixed filters at top-[72px] */}
-				{/* pb-24 ensures bottom actions (e.g., Load More) clear the bottom tabs */}
-				<div ref={contentRef} className="flex-1 relative z-0 overflow-y-auto pb-24 scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto pt-[80px]">
+				{/* Map/Calendar: pt-[80px] provides 8px below filters (72px top + 8px gap) */}
+				{/* List Mobile: pt-[104px] maintains extra spacing for list view */}
+				{/* List Desktop: pt-[120px] maintains 8px below filters for consistency */}
+				{/* pb-[44px] ensures bottom actions (e.g., Load More) clear the bottom tabs */}
+				{/* mobile-content-safe-area ensures proper spacing on devices with notches/home indicators */}
+				<div ref={contentRef} className={`flex-1 relative z-0 overflow-y-auto pb-[44px] scroll-touch scroll-pan-y scrollbar-stable overscroll-none select-auto mobile-content-safe-area
+					${current === 'list' ? 'pt-[104px] sm:pt-[120px] md:pt-[120px]' : 'pt-[80px]'}`}>
 					<Outlet />  {/* Render current route component (MapView, ListView, or CalendarView) */}
 				</div>
 			</div>

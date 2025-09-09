@@ -134,34 +134,35 @@ export default function ListView() {
 	}
 
 	return (
-		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0">
+		<div className="mx-auto max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl h-full flex flex-col min-h-0 pt-[16px] sm:pt-0 md:pt-0">
 			{/* Location permission banner - repositioned below global fixed filters */}
-			{/* top-[80px] = fixed filters position (top-[72px]) + filter height (~8px) for proper spacing */}
+			{/* top-[120px] for all screen sizes to match total container padding */}
 			{/* Sticky positioning ensures banner stays visible while scrolling but below global filters */}
 			{!coords && status === 'prompt' && (
-				<div className="sticky top-[80px] z-30 bg-white dark:bg-gray-900 border-b">
+				<div className="sticky top-[120px] z-30 bg-white dark:bg-gray-900 border-b">
 					<LocationPermissionBanner />
 				</div>
 			)}
 
 			<div className="flex-1 min-h-0">
-				{showSkeleton ? (
-					<EventListSkeleton />
-				) : displayedEvents.length === 0 ? (
-					<div className="h-full rounded border p-3 text-sm text-gray-500 flex items-center justify-center">
-						{events.length === 0
-							? "No events available"
-							: "No events match your filters"}
-					</div>
-				) : (
-					<>
-						<ul className="divide-y rounded border bg-white dark:bg-gray-900">
-							{displayedEvents.map((event) => (
-								<li
-									key={event.id}
-									className="p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-									onClick={() => handleEventClick(event)}
-								>
+				<div className="h-full overflow-y-auto">
+					{showSkeleton ? (
+						<EventListSkeleton />
+					) : displayedEvents.length === 0 ? (
+						<div className="h-full rounded border p-3 text-sm text-gray-500 flex items-center justify-center">
+							{events.length === 0
+								? "No events available"
+								: "No events match your filters"}
+						</div>
+					) : (
+						<>
+							<ul className="divide-y rounded border bg-white dark:bg-gray-900">
+								{displayedEvents.map((event) => (
+									<li
+										key={event.id}
+										className="p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+										onClick={() => handleEventClick(event)}
+									>
 									<div className="flex items-center justify-between">
 										<div className="flex-1">
 											<div className="font-medium">{event.name}</div>
@@ -207,24 +208,25 @@ export default function ListView() {
 							))}
 						</ul>
 
-						{hasMoreEvents && (
-							<div className="flex justify-center mt-6">
-								{isLoadingMore ? (
-									<div className="px-6 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse">
-										<div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-48"></div>
-									</div>
-								) : (
-									<button
-										onClick={handleLoadMore}
-										className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-									>
-										Load More Events ({totalEvents - displayedEvents.length} remaining)
-									</button>
-								)}
-							</div>
-						)}
-					</>
-				)}
+							{hasMoreEvents && (
+								<div className="flex justify-center mt-6 mb-4 sm:mt-6 sm:mb-0 px-4">
+									{isLoadingMore ? (
+										<div className="px-6 py-3 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse">
+											<div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-48"></div>
+										</div>
+									) : (
+										<button
+											onClick={handleLoadMore}
+											className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors font-medium"
+										>
+											Load More Events ({totalEvents - displayedEvents.length} remaining)
+										</button>
+									)}
+								</div>
+							)}
+						</>
+					)}
+				</div>
 			</div>
 		</div>
 	);
