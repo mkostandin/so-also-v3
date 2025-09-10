@@ -1,41 +1,29 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ErrorOverlay from '@/components/ErrorOverlay';
-import { useMobileDebug } from '@/hooks/useMobileDebug';
 
 export default function Landing() {
 	const [navigationError, setNavigationError] = useState<string | null>(null);
-	const { logAction, setLoading, setError, isMobile } = useMobileDebug();
 	const navigate = useNavigate();
 
 	const handleAppNavigation = async (e: React.MouseEvent) => {
 		e.preventDefault();
-		logAction('Starting navigation to /app');
 
 		try {
-			setLoading(true, 'Navigating to app...');
-
-			// Add a small delay to show loading state
+			// Add a small delay for better UX
 			await new Promise(resolve => setTimeout(resolve, 500));
 
 			// Try React Router navigation first
 			navigate('/app');
 
-			logAction('Navigation completed successfully');
-			setLoading(false, 'Navigation successful');
-
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Navigation failed';
-			setError(`Navigation Error: ${errorMessage}`);
 			setNavigationError(errorMessage);
-			setLoading(false, 'Navigation failed');
 		}
 	};
 
 	const handleRetry = () => {
 		setNavigationError(null);
-		setError('');
-		logAction('Retrying navigation');
 	};
 
 	return (
@@ -64,12 +52,6 @@ export default function Landing() {
 				</Link>
 			</div>
 
-			{/* Mobile-specific info */}
-			{isMobile && (
-				<div className="mt-6 text-xs text-gray-500 dark:text-gray-400 text-center max-w-xs">
-					<p>Mobile device detected. If you see a white screen, check the debug panel in the bottom-right corner.</p>
-				</div>
-			)}
 
 			{/* Error overlay for navigation failures */}
 			<ErrorOverlay

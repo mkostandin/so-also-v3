@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import MapboxMap from '@/components/MapboxMap';
-import { useMobileDebug } from '@/hooks/useMobileDebug';
 import { useFilterContext } from './MapIndex';
 import { isRecoverableError, getErrorMessage } from '@/lib/mapbox';
 
 // Network-aware timeout calculation with browser compatibility
-const getTimeoutDuration = (isMobile: boolean) => {
-	// Base timeouts: mobile 60s, desktop 25s
-	const baseTimeout = isMobile ? 60000 : 25000;
+const getTimeoutDuration = () => {
+	// Base timeout: 30s (reasonable for most connections)
+	const baseTimeout = 30000;
 
 	// Check for Network Information API support
 	const hasNetworkInfo = 'connection' in navigator ||
@@ -45,12 +44,12 @@ const getTimeoutDuration = (isMobile: boolean) => {
 	// Adjust timeout based on connection speed
 	switch (connection.effectiveType) {
 		case '4g':
-			return isMobile ? 45000 : 20000; // Faster on 4G
+			return 25000; // Faster on 4G
 		case '3g':
-			return isMobile ? 60000 : 25000; // Standard timeouts
+			return 35000; // Standard timeout
 		case '2g':
 		case 'slow-2g':
-			return 90000; // Much longer for slow connections
+			return 60000; // Much longer for slow connections
 		default:
 			return baseTimeout;
 	}
@@ -64,26 +63,19 @@ export default function MapView() {
 	const [retryCount, setRetryCount] = useState(0);
 	const [isRetrying, setIsRetrying] = useState(false);
 	const maxRetries = 2;
-	const { logAction, setLoading, setError, isMobile } = useMobileDebug();
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const lastProgressRef = useRef<number>(Date.now());
 
 	// Handle retry logic
 	const handleRetry = useCallback(() => {
 		if (retryCount < maxRetries) {
-			logAction(`Attempting retry ${retryCount + 1}/${maxRetries}`);
 			setRetryCount(prev => prev + 1);
 			setIsRetrying(true);
 			setMapLoadTimeout(false);
-			setError('');
-			setLoading(true, `Retrying map load... (${retryCount + 1}/${maxRetries})`);
 		} else {
-			logAction('Max retries reached - showing fallback');
 			setMapLoadTimeout(true);
-			setLoading(false);
-			setError(`Map failed to load after ${maxRetries + 1} attempts. Please try again.`);
 		}
-	}, [retryCount, maxRetries, logAction, setLoading, setError]);
+	}, [retryCount, maxRetries]);
 
 	// Reset timeout on progress
 	const resetTimeout = useCallback(() => {
@@ -92,71 +84,45 @@ export default function MapView() {
 			timeoutRef.current = null;
 		}
 		lastProgressRef.current = Date.now();
-		logAction('Timeout reset due to map progress');
-	}, [logAction]);
+	}, []);
 
 	// Memoized callback functions to prevent infinite re-renders
 	const handleMapReady = useCallback(() => {
 		// Cancel timeout, clear loading state
 		setMapLoadTimeout(false);
 		setIsRetrying(false);
-		setLoading(false, 'Map loaded successfully');
-		logAction('Map ready - canceling timeout and clearing loading state');
-	}, [setMapLoadTimeout, setIsRetrying, setLoading, logAction]);
+	}, [setMapLoadTimeout, setIsRetrying]);
 
 	const handleMapError = useCallback((error: Error) => {
 		// Classify error and decide whether to retry
-		logAction(`Map error received: ${error.message}`);
 		if (isRecoverableError(error)) {
 			handleRetry();
 		} else {
 			setMapLoadTimeout(true);
-			setError(getErrorMessage(error));
 		}
-	}, [handleRetry, setMapLoadTimeout, setError, logAction]);
+	}, [handleRetry, setMapLoadTimeout]);
 
 	const handleMapProgress = useCallback(() => {
 		// Reset timeout on progress
-		logAction('Map progress detected - resetting timeout');
 		resetTimeout();
-	}, [logAction, resetTimeout]);
+	}, [resetTimeout]);
 
 	useEffect(() => {
-		logAction(`MapView component mounted (retry: ${retryCount}/${maxRetries})`);
-
-		// Update loading message based on retry status
-		const loadingMessage = isRetrying
-			? `Retrying map load... (${retryCount}/${maxRetries})`
-			: retryCount > 0
-			? `Loading map... (attempt ${retryCount + 1})`
-			: 'Loading map...';
-
-		setLoading(true, loadingMessage);
-
 		// Clear any existing timeout
 		if (timeoutRef.current) {
 			clearTimeout(timeoutRef.current);
 		}
 
 		// Get network-aware timeout duration
-		const timeout = getTimeoutDuration(isMobile);
+		const timeout = getTimeoutDuration();
 		const timeoutSeconds = Math.round(timeout / 1000);
-
-		logAction(`Setting map timeout: ${timeoutSeconds}s (mobile: ${isMobile})`);
 
 		// Set new timeout that can be reset by progress events
 		timeoutRef.current = setTimeout(() => {
-			logAction(`Map load timeout after ${timeoutSeconds}s - showing fallback`);
-
 			// Clear loading state and show fallback
-			setLoading(false);
 			setMapLoadTimeout(true);
 
-			const errorMessage = isMobile
-				? `Map failed to load after ${maxRetries + 1} attempts. This is common on mobile devices with slow connections.`
-				: `Map failed to load after ${maxRetries + 1} attempts. Please check your connection and try again.`;
-
-			setError(errorMessage);
+			const errorMessage = `Map failed to load after ${maxRetries + 1} attempts. Please check your connection and try again.`;
 		}, timeout);
 
 		return () => {
@@ -164,9 +130,8 @@ export default function MapView() {
 				clearTimeout(timeoutRef.current);
 				timeoutRef.current = null;
 			}
-			setLoading(false, 'MapView unmounted');
 		};
-	}, [isMobile, logAction, setLoading, setError, retryCount, maxRetries, isRetrying]);
+	}, [retryCount, maxRetries, isRetrying]);
 
 	// Simple fallback UI for when map fails to load
 	if (mapLoadTimeout) {
@@ -182,16 +147,14 @@ export default function MapView() {
 						Map Loading Issue
 					</h2>
 					<p className="text-gray-600 dark:text-gray-400 mb-4">
-						The interactive map couldn't load. This can happen due to slow connections, network issues, or browser limitations. {isMobile ? 'This is common on mobile devices.' : 'Please try again or check your connection.'}
+						The interactive map couldn't load. This can happen due to slow connections, network issues, or browser limitations. Please try again or check your connection.
 					</p>
 					<div className="space-y-2">
 						<button
 							onClick={() => {
 								setMapLoadTimeout(false);
-								setError('');
 								setRetryCount(0);
 								setIsRetrying(false);
-								logAction('Manual retry initiated');
 								// Reset progress timestamp for new attempt
 								lastProgressRef.current = Date.now();
 							}}
@@ -202,8 +165,6 @@ export default function MapView() {
 						<button
 							onClick={() => {
 								setMapLoadTimeout(false);
-								setError('');
-								logAction('Switching to list view');
 								window.location.href = '/app/map/list';
 							}}
 							className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors"
