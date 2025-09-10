@@ -173,7 +173,13 @@ const { selectedEventTypes } = useFilterContext();
 ## 🎨 User Experience Enhancements
 
 ### Loading States
-- **Skeleton Loading**: Professional loading indicators
+- **Skeleton Loading**: Professional loading indicators with precise positioning
+- **Optimized Spacing**: Skeleton container uses `pt-10` (vs main content `pt-2`) to create visual breathing room below global filters positioned at `top-[72px]`
+- **Consistent Alignment**: All skeleton elements shifted 8px to the right with responsive margins for proper alignment across breakpoints
+- **Responsive Positioning**: Consistent 8px right shift maintained across mobile, tablet, and desktop viewports:
+  - **Mobile (base)**: 12px left margin, 4px right margin
+  - **Small screens (sm)**: 20px left margin, 12px right margin
+  - **Medium screens (md)**: 32px left margin, 24px right margin
 - **Progressive Enhancement**: Content appears as it loads
 - **Error Handling**: Clear error messages with recovery options
 - **Performance Feedback**: Loading progress indication
