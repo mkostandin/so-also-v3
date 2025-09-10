@@ -81,15 +81,15 @@ export default function CalendarView() {
 
 	if (showSkeleton) {
 		return (
-			<div className="mx-auto w-full max-w-none px-1 sm:px-3 md:px-6 lg:px-8 xl:max-w-5xl pt-16 space-y-6">
-				{/* Distance Filter Skeleton - responsive width and margins */}
-				<Skeleton className="h-12 w-4/5 sm:w-2/3 rounded-lg mx-1 sm:mx-3 md:mx-6" />
+			<div className="mx-auto w-full max-w-none px-1 sm:px-3 md:px-6 lg:px-8 xl:max-w-5xl pt-10 space-y-6">
+				{/* Distance Filter Skeleton - positioned 8px below filters and shifted right 8px */}
+				<Skeleton className="h-12 w-4/5 sm:w-2/3 rounded-lg ml-3 mr-1 sm:ml-5 sm:mr-3 md:ml-8 md:mr-6" />
 
-				{/* Month Navigation Skeleton - responsive width and margins */}
-				<Skeleton className="h-12 w-11/12 sm:w-10/12 rounded-lg mx-1 sm:mx-3 md:mx-6" />
+				{/* Month Navigation Skeleton - positioned 8px below filters and shifted right 8px */}
+				<Skeleton className="h-12 w-11/12 sm:w-10/12 rounded-lg ml-3 mr-1 sm:ml-5 sm:mr-3 md:ml-8 md:mr-6" />
 
-				{/* Calendar Grid Skeleton - responsive width and margins */}
-				<Skeleton className="h-64 w-11/12 sm:w-10/12 rounded-lg mx-1 sm:mx-3 md:mx-6" />
+				{/* Calendar Grid Skeleton - positioned 8px below filters and shifted right 8px */}
+				<Skeleton className="h-64 w-11/12 sm:w-10/12 rounded-lg ml-3 mr-1 sm:ml-5 sm:mr-3 md:ml-8 md:mr-6" />
 			</div>
 		);
 	}
